@@ -53,6 +53,13 @@ This primary Codex task implements the approved Parking Anything v0.4 specificat
 - Followed current Next.js guidance for generated types: `next-env.d.ts` remains present locally and included by `tsconfig.json`, but `.gitignore` now excludes it and Git no longer tracks it.
 - Verified that the running Next development server responds `200` and that `next dev`/`next build` generation adds no working-tree changes beyond this corrective commit.
 
+### 2026-07-20 — Phase 6: SSRF-safe bounded page fetching
+
+- Used RED-GREEN TDD for URL safety and page fetching; both suites first failed because their modules did not exist.
+- Implemented normalized HTTP(S)-only URLs, embedded-credential rejection, all-answer DNS validation, literal IPv4/IPv6 checks, IPv4-mapped IPv6 normalization, and rejection of every non-`unicast` address range.
+- Implemented manual redirect handling with target revalidation and a three-redirect limit, one five-second abort controller, declared and streamed 1 MB bounds, a strict readable-content allowlist, and a 12,000-character extracted-text ceiling.
+- Kept URL-safety rejection separate from typed page-fetch failures so invalid/private targets cannot enter URL-only model fallback. All tests use injected DNS/fetch implementations and make no live request.
+
 ## Codex Contributions
 
 - Kept the approved spec and plan as the implementation sources of truth.
@@ -62,6 +69,7 @@ This primary Codex task implements the approved Parking Anything v0.4 specificat
 - Generated and integrated the custom car assets and implemented the accessible municipal-parking visual shell.
 - Connected the pure domain/storage primitives to a tested local state controller and complete evidence-backed lifecycle inspector.
 - Corrected the server/client persistence boundary with a hydration-safe external-store snapshot and a full reload regression.
+- Built the SSRF-safe, redirect-aware, byte-bounded public-page ingestion boundary.
 
 ## GPT-5.6 Runtime Use
 
@@ -75,6 +83,7 @@ No product runtime request has been made. GPT-5.6 will be called only from serve
 - Task 4 shell gate: the parking-lot component suite exited 0 with 3 tests passing, `npm run lint` exited 0, and the full `npm test` gate exited 0 with 5 files and 43 tests passing.
 - Task 5 focused gate: hook/inspector suites exited 0 with 2 files and 15 tests passing; ESLint exited 0; the full unit gate exited 0 with 7 files and 58 tests passing; `npm run build` exited 0 after the ESM/root configuration correction.
 - Corrective hydration gate: hydration/store suites exited 0 with 2 files and 11 tests passing; `npm test` exited 0 with 8 files and 59 tests passing; `npm run lint` exited 0; `npm run build` compiled and statically generated `/`; Next dev/build introduced no additional tracked changes.
+- Task 6 gate: URL-safety/page-fetch suites exited 0 with 2 files and 33 tests passing; `npm run lint` exited 0.
 
 ## Known Tradeoffs
 

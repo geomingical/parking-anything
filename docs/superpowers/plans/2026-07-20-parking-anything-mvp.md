@@ -671,7 +671,7 @@ Expected: hook/component tests and lint PASS.
 - Test: `src/lib/server/url-safety.test.ts`
 - Test: `src/lib/server/page-fetch.test.ts`
 
-- [ ] **Step 1: Write failing URL-safety tests**
+- [x] **Step 1: Write failing URL-safety tests**
 
 Inject DNS resolution. Cover malformed URLs, non-HTTP protocols, credentials in URLs, localhost, IPv4/IPv6 loopback, RFC1918, link-local, IPv6 unique-local, IPv4-mapped IPv6, public addresses, and redirect targets.
 
@@ -682,15 +682,15 @@ await expect(validatePublicUrl("https://example.com", resolveTo("93.184.216.34")
   .resolves.toBe("https://example.com/");
 ```
 
-- [ ] **Step 2: Implement public-address validation**
+- [x] **Step 2: Implement public-address validation**
 
 Use `new URL`, reject username/password and protocols other than HTTP(S), resolve all A/AAAA records, parse each with `ipaddr.js`, normalize IPv4-mapped IPv6, and allow only `unicast` range. Export `validatePublicUrl(input, resolver = dns.lookup)` and call it again for every redirect target.
 
-- [ ] **Step 3: Write failing bounded-fetch tests**
+- [x] **Step 3: Write failing bounded-fetch tests**
 
 Inject `fetch`. Test manual redirect following, relative `Location`, more than three redirects, redirect to private IP, 1 MB content-length/body limit, non-HTML response, 5-second abort, HTML-to-text extraction, and 12,000-character truncation.
 
-- [ ] **Step 4: Implement bounded manual fetching**
+- [x] **Step 4: Implement bounded manual fetching**
 
 `fetchPublicPage(url, dependencies)` must:
 
@@ -704,7 +704,7 @@ Inject `fetch`. Test manual redirect following, relative `Location`, more than t
 
 Return `{ normalizedUrl, text }`; throw a typed `PublicFetchError` so analyze can intentionally switch to URL-only mode without hiding schema/model failures.
 
-- [ ] **Step 5: Run server safety tests and commit**
+- [x] **Step 5: Run server safety tests and commit**
 
 Run:
 
