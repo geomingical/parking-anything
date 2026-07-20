@@ -665,13 +665,13 @@ git commit -m "feat: complete unified parking workspace"
 - Add: new v0.5 PNG files under `docs/qa-screenshots/`
 - Modify: `docs/build-log.md`
 
-- [ ] **Step 1: Add exact browser migration fixtures**
+- [x] **Step 1: Add exact browser migration fixtures**
 
 Before page load, seed one strict v1 envelope containing `repoUrl`, `focused_session`, and mixed statuses. Assert one v2 envelope is produced, values are preserved, v1 bytes are unchanged, and reload reads v2.
 
 Add a separate test with malformed v2 plus valid v1; assert reset UI appears and neither key changes.
 
-- [ ] **Step 2: Add complete v0.5 journeys**
+- [x] **Step 2: Add complete v0.5 journeys**
 
 Desktop and mobile must cover:
 
@@ -683,7 +683,7 @@ Desktop and mobile must cover:
 
 Continue failing on unexpected console errors, page errors, horizontal overflow, inaccessible focus, or text clipping.
 
-- [ ] **Step 3: Run E2E RED/GREEN loops**
+- [x] **Step 3: Run E2E RED/GREEN loops**
 
 ```bash
 npx playwright test e2e/demo-flow.spec.ts --project=chromium
@@ -692,17 +692,17 @@ npx playwright test e2e/demo-flow.spec.ts --project=mobile-safari
 
 Expected: all applicable tests pass; only an explicitly documented duplicate screenshot capture may be skipped.
 
-- [ ] **Step 4: Capture and inspect the v0.5 matrix**
+- [x] **Step 4: Capture and inspect the v0.5 matrix**
 
 At 1440x900, 1024x768, and 390x844, capture Park idea, mixed lot, unplanned inspector, planned inspector, mixed Patrol, Garage, Scrapyard, Needs review, and Future controls. Preserve existing v0.4 PNGs.
 
 Inspect every image for overlap, clipping, blank assets, unstable dimensions, horizontal scrolling, visible focus artifacts, and meaningful first viewport.
 
-- [ ] **Step 5: Update QA and build evidence**
+- [x] **Step 5: Update QA and build evidence**
 
 Append dated v0.5 phase entries with actual commands and results. Do not rewrite historical v0.4 evidence or claim Preview/production work early.
 
-- [ ] **Step 6: Run the complete local release gate and commit**
+- [x] **Step 6: Run the complete local release gate and commit**
 
 ```bash
 npm run lint

@@ -33,3 +33,36 @@ Inspect initial lot, inspector open, patrol results, Garage filter, and Scrapyar
 - Every screenshot state now has an automated `scrollWidth <= clientWidth` assertion. The Next.js development indicator is disabled so it does not contaminate the visual evidence.
 - Screenshot capture waits for every image to decode and disables finite animations. Two consecutive final captures produced byte-identical SHA-256 results for all 15 PNGs.
 - Observed defects fixed during QA: newly analyzed items no longer interrupt the lot by auto-opening; Start Test Drive keeps the inspector open for evidence entry; reset returns to Parking Lot; the header is a real banner sibling of `main`; closing the dialog restores opener focus; `127.0.0.1` is accepted as the local development origin.
+
+## v0.5 unified Parkable verification — 2026-07-20
+
+### Browser coverage
+
+- [x] Strict v1 browser data migrates to v2 once while v1 bytes remain unchanged.
+- [x] A present malformed v2 remains authoritative and never falls back to valid v1.
+- [x] Idea capture -> planning -> Test Drive -> Garage preserves one record and ID.
+- [x] An unplanned Idea can move directly to the shared Scrapyard.
+- [x] Mixed Patrol opens and focuses planning without mutation, then starts Test Drive after valid planning.
+- [x] The complete v0.4 Tool analysis, evidence, Garage, Tow Away, reset, reload, quota, provenance, and accessibility paths still pass.
+- [x] Desktop Chromium and Mobile Safari report no unexpected console or page errors.
+- [x] Every tested state asserts no horizontal page overflow.
+
+### v0.5 visual matrix
+
+Inspected nine states at 1440x900, 1024x768, and 390x844 under the `v0.5-*` filenames. The 15 original v0.4 PNGs remain byte-preserved and are not recaptured by the v0.5 suite.
+
+- [x] Park idea and both Future controls are visible, distinct, and unclipped.
+- [x] Mixed Tool/Idea vehicles retain stable slots and text kind/status labels.
+- [x] Unplanned and planned inspector states are legible; mobile actions remain reachable by internal scrolling.
+- [x] Mixed Patrol keeps Observed Fact separate from GPT-5.6 Recommendation or deterministic fallback.
+- [x] Garage and Scrapyard show both kinds without changing their shared semantics.
+- [x] `Needs review · N days` is text-visible on stale active Parkables.
+- [x] No overlap, blank assets, horizontal scrolling, or unintended focus artifacts were observed.
+- [x] The first viewport preserves product identity, capture choice, and a meaningful route into the parking workspace.
+
+### Evidence notes
+
+- Playwright is pinned to an isolated v0.5 worktree server on `127.0.0.1:3107` with server reuse disabled, preventing an older port-3000 process from contaminating evidence.
+- The initial desktop run correctly exposed one stale keyboard-order assertion after the new capture tabs entered the tab sequence; the corrected order verifies Settings -> active capture tab -> active form input -> submit.
+- Contact sheets were generated outside the repository solely for inspection; release commits contain only the 27 source PNGs.
+- The final combined E2E gate passed 25 tests across desktop Chromium and Mobile Safari with three documented screenshot-only skips: the immutable v0.4 duplicate in both projects and the desktop-owned v0.5 matrix in mobile.
