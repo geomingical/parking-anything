@@ -1203,7 +1203,7 @@ git status --short
 
 Expected: all four verification commands exit 0; only intentional documentation changes remain.
 
-- [ ] **Step 4: Human configures production secrets**
+- [x] **Step 4: Human configures production secrets**
 
 The user creates an Upstash Redis database and enters these values directly in Vercel, never chat or tracked files:
 
@@ -1217,7 +1217,7 @@ DEMO_API_ENABLED=true
 
 Also set model/quota variables from `.env.example`. Confirm `RATE_LIMIT_HASH_SECRET` is a new random value unrelated to the OpenAI key.
 
-- [ ] **Step 5: Deploy through the `vercel-deploy` skill and smoke test**
+- [x] **Step 5: Deploy through the `vercel-deploy` skill and smoke test**
 
 Deploy only after the user authorizes the external action. Test in a fresh browser profile:
 

@@ -95,6 +95,11 @@ async function captureStableScreenshot(page: Page, path: string) {
       (image) => image.complete && image.naturalWidth > 0,
     ),
   );
+  await page.evaluate(() => {
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+  });
   await page.screenshot({
     path,
     fullPage: true,
