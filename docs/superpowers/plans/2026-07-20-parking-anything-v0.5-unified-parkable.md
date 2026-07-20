@@ -111,7 +111,7 @@ git commit -m "chore: ignore local brainstorming output"
 - Modify: `src/lib/parking/schemas.test.ts`
 - Modify: `src/lib/parking/schemas.ts`
 
-- [ ] **Step 1: Write failing schema tests**
+- [x] **Step 1: Write failing schema tests**
 
 Add table-driven tests covering:
 
@@ -137,7 +137,7 @@ it("requires evidence for Garage and a reason for Scrapyard", () => {
 
 Also test exact effort values, field limits, blank optional normalization, strict unknown-field rejection, `kind` discrimination, and Patrol DTO privacy.
 
-- [ ] **Step 2: Run the tests and verify RED**
+- [x] **Step 2: Run the tests and verify RED**
 
 ```bash
 npx vitest run src/lib/parking/schemas.test.ts
@@ -145,7 +145,7 @@ npx vitest run src/lib/parking/schemas.test.ts
 
 Expected: failures because v2 variants and invariants do not exist.
 
-- [ ] **Step 3: Implement the v2 schemas**
+- [x] **Step 3: Implement the v2 schemas**
 
 Keep `AnalyzeUrlResultSchema` unchanged. Define the persisted domain around this shape:
 
@@ -206,7 +206,7 @@ export type ParkingStoreV2 = z.infer<typeof ParkingStoreV2Schema>;
 
 Update `PatrolCandidateSchema` so `kind` is mandatory and `effortTier` is optional. Do not add any URL or free-form content.
 
-- [ ] **Step 4: Run the focused and full schema gates**
+- [x] **Step 4: Run the focused and full schema gates**
 
 ```bash
 npx vitest run src/lib/parking/schemas.test.ts
@@ -215,7 +215,7 @@ npm test
 
 Expected: focused tests pass; existing tests may now fail only where they still construct v1-shaped records. Record those expected migration-driven failures before Task 2.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/parking/schemas.ts src/lib/parking/schemas.test.ts

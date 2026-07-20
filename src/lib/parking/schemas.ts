@@ -13,6 +13,19 @@ const httpUrl = z
     }
   }, "Only HTTP(S) URLs are supported");
 
+const optionalTrimmedText = (max: number) =>
+  z.preprocess(
+    (value) =>
+      typeof value === "string" && value.trim() === "" ? undefined : value,
+    z.string().trim().max(max).optional(),
+  );
+
+const optionalHttpUrl = z.preprocess(
+  (value) =>
+    typeof value === "string" && value.trim() === "" ? undefined : value,
+  httpUrl.optional(),
+);
+
 export const EffortTierSchema = z.enum([
   "quick_spin",
   "focused_session",
@@ -44,26 +57,109 @@ export const AnalyzeUrlResponseSchema = z
   })
   .strict();
 
-export const ParkingItemSchema = AnalyzeUrlResultSchema.extend({
+const ParkingItemBaseShape = {
   id: z.string().min(1).max(100),
-  url: httpUrl,
-  category: z.literal("ai_tool"),
   status: ParkingItemStatusSchema,
+  title: z.string().trim().min(1).max(120),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
   lastActivityAt: z.string().datetime(),
   testStartedAt: z.string().datetime().optional(),
-  notes: z.string().max(2000).optional(),
-  repoUrl: httpUrl.optional(),
-  finalDecisionReason: z.string().trim().min(1).max(280).optional(),
-}).strict();
+  notes: optionalTrimmedText(2000),
+  resultUrl: optionalHttpUrl,
+  finalDecisionReason: optionalTrimmedText(280),
+};
 
-export const PatrolCandidateSchema = ParkingItemSchema.pick({
-  id: true,
-  title: true,
-  effortTier: true,
-})
-  .extend({
+export const AiToolParkingItemSchema = z
+  .object({
+    ...ParkingItemBaseShape,
+    kind: z.literal("ai_tool"),
+    url: httpUrl,
+    summary: z.string().trim().min(1).max(400),
+    effortTier: EffortTierSchema,
+    suggestedTestTask: z.string().trim().min(1).max(500),
+    usefulnessHypothesis: z.string().trim().min(1).max(400),
+  })
+  .strict();
+
+export const IdeaParkingItemSchema = z
+  .object({
+    ...ParkingItemBaseShape,
+    kind: z.literal("idea"),
+    ideaText: z.string().trim().min(1).max(2000),
+    effortTier: EffortTierSchema.optional(),
+    suggestedTestTask: optionalTrimmedText(500),
+  })
+  .strict();
+
+export const ParkingItemSchema = z
+  .discriminatedUnion("kind", [
+    AiToolParkingItemSchema,
+    IdeaParkingItemSchema,
+  ])
+  .superRefine((item, context) => {
+    if (
+      item.kind === "idea" &&
+      (item.status === "test_driving" || item.status === "garaged")
+    ) {
+      if (!item.effortTier) {
+        context.addIssue({
+          code: "custom",
+          path: ["effortTier"],
+          message: "An active Idea requires an effort tier.",
+        });
+      }
+
+      if (!item.suggestedTestTask) {
+        context.addIssue({
+          code: "custom",
+          path: ["suggestedTestTask"],
+          message: "An active Idea requires a first test task.",
+        });
+      }
+    }
+
+    if (
+      (item.status === "test_driving" || item.status === "garaged") &&
+      !item.testStartedAt
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["testStartedAt"],
+        message: "Test-driving and garaged items require a Test Drive timestamp.",
+      });
+    }
+
+    if (item.status === "garaged" && !item.notes && !item.resultUrl) {
+      context.addIssue({
+        code: "custom",
+        path: ["notes"],
+        message: "Garage requires notes or a result URL.",
+      });
+    }
+
+    if (item.status === "scrapped" && !item.finalDecisionReason) {
+      context.addIssue({
+        code: "custom",
+        path: ["finalDecisionReason"],
+        message: "Scrapyard requires a final decision reason.",
+      });
+    }
+  });
+
+export const ParkingStoreV2Schema = z
+  .object({
+    version: z.literal(2),
+    parkingItems: z.array(ParkingItemSchema),
+  })
+  .strict();
+
+export const PatrolCandidateSchema = z
+  .object({
+    id: z.string().min(1).max(100),
+    kind: z.enum(["ai_tool", "idea"]),
+    title: z.string().trim().min(1).max(120),
+    effortTier: EffortTierSchema.optional(),
     status: z.enum(["parked", "test_driving"]),
     daysSinceActivity: z.number().finite().int().nonnegative(),
   })
@@ -101,6 +197,9 @@ export const ManagerPatrolResponseSchema = z
 
 export type EffortTier = z.infer<typeof EffortTierSchema>;
 export type ParkingItem = z.infer<typeof ParkingItemSchema>;
+export type AiToolParkingItem = z.infer<typeof AiToolParkingItemSchema>;
+export type IdeaParkingItem = z.infer<typeof IdeaParkingItemSchema>;
+export type ParkingStoreV2 = z.infer<typeof ParkingStoreV2Schema>;
 export type ParkingItemStatus = z.infer<typeof ParkingItemStatusSchema>;
 export type AnalyzeUrlResult = z.infer<typeof AnalyzeUrlResultSchema>;
 export type AnalyzeUrlResponse = z.infer<typeof AnalyzeUrlResponseSchema>;

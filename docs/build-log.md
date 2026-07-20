@@ -196,3 +196,9 @@ The dedicated event key was entered locally by the user and remained server-only
 - Created the local-only annotated tag `v0.4-production` at the verified v0.4 source. Per the implementation authorization boundary, the tag was not pushed and no GitHub or Vercel operation was performed.
 - Isolated implementation on branch `feat/v0.5-unified-parkable` under the repository-local ignored worktree directory. Added tracked ignore rules for both `.worktrees/` and generated `.superpowers/` content without deleting the brainstorming output.
 - Installed the locked dependency tree and ran the untouched baseline: `npm test` passed 20 files and 159 tests. Production remained unchanged.
+
+### 2026-07-20 — v0.5 Phase 1: strict unified Parkable schema
+
+- Used RED-GREEN TDD for the strict `ai_tool | idea` discriminated union, exact existing effort tiers, field bounds, HTTP(S)-only result evidence, blank optional normalization, standing lifecycle invariants, strict v2 envelope, and bounded mixed Patrol candidate.
+- The focused RED run executed 34 tests with 10 expected failures against the v1-only schema. After implementation, `npx vitest run src/lib/parking/schemas.test.ts` passed all 34 tests and `npm run lint` exited 0.
+- The full unit run intentionally exposed only migration-driven v1 fixture, candidate, storage, and UI factory failures. Those failures are the planned input to v0.5 Phase 2 rather than unrelated regressions; the previously passing schema-independent suites remained green.
