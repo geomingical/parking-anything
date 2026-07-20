@@ -1,0 +1,16 @@
+# Dependencies and framework output
+node_modules/
+.next/
+coverage/
+*.tsbuildinfo
+
+# Local secrets (keep the documented template)
+.env*
+!.env.example
+
+# Test and browser artifacts
+playwright-report/
+test-results/
+
+# Operating-system files
+.DS_Store
