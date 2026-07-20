@@ -235,3 +235,10 @@ The dedicated event key was entered locally by the user and remained server-only
 - An incomplete Idea Test Drive request now leaves status unchanged, shows the deterministic planning message, and focuses the first missing planning field. Valid planning is persisted through the complete-envelope controller and updates the vehicle and inspector immediately in the current session.
 - Renamed Garage evidence presentation to `Result URL` throughout the inspector and preserved direct Tow Away for unplanned Ideas. Tool-only source, summary, and hypothesis content is never rendered for Idea records.
 - The focused rendering/inspector gate passed 2 files and 12 tests; the full `npm test` gate passed 23 files and 204 tests; `npm run lint` exited 0; `npm run build` compiled successfully with `/`, `/api/analyze-url`, and `/api/manager-patrol` present.
+
+### 2026-07-20 — v0.5 Phase 7: mixed, private, readiness-aware Manager Patrol
+
+- Used RED-GREEN TDD for global mixed-kind selection, exact days-descending/ID-ascending order, kind-aware deterministic observations, strict route input, bounded model serialization, prompt constraints, per-entry provenance, and readiness-aware commands.
+- Captured the model request with marker strings attached to every prohibited field and verified none crossed the boundary. The serialized candidate allowlist contains only `id`, `kind`, bounded `title`, optional `effortTier`, `status`, and `daysSinceActivity`; Idea text, summaries, notes, hypotheses, Tool/result URLs, decision reasons, and storage data remain local.
+- An unplanned Idea recommendation is displayed as `Plan Test Drive`; its command selects the existing record and focuses its first missing planning field without a transition. Planned Ideas and Tools display `Start Test Drive`, which uses the shared deterministic transition. Observed Fact and GPT-5.6 Recommendation/fallback provenance remain visibly separate.
+- The focused Patrol gate passed 4 files and 33 tests; the full `npm test` gate passed 23 files and 210 tests; `npm run lint` exited 0; `npm run build` compiled successfully with both model routes present.

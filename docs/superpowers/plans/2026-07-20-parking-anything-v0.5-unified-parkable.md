@@ -581,7 +581,7 @@ git commit -m "feat: render unified parkable lifecycle"
 - Modify: `src/components/parking/manager-patrol.test.tsx`
 - Modify: `src/components/parking/manager-patrol.tsx`
 
-- [ ] **Step 1: Write failing privacy, order, prompt, and action tests**
+- [x] **Step 1: Write failing privacy, order, prompt, and action tests**
 
 Use mixed candidates with marker strings in every prohibited field. Capture the model request and assert those markers and URL prefixes are absent while `kind` is present.
 
@@ -594,23 +594,23 @@ for (const secret of [ideaText, summary, notes, usefulnessHypothesis, toolUrl, r
 
 Assert global days-desc/ID-asc top-three selection, kind-aware observed facts, valid action maps, per-entry provenance, generic fallback, `Plan Test Drive` for unready Ideas, and no state mutation on that command.
 
-- [ ] **Step 2: Run focused tests and verify RED**
+- [x] **Step 2: Run focused tests and verify RED**
 
 ```bash
 npx vitest run src/lib/parking/patrol.test.ts src/lib/server/manager-patrol.test.ts src/app/api/manager-patrol/route.test.ts src/components/parking/manager-patrol.test.tsx
 ```
 
-- [ ] **Step 3: Update the bounded server contract**
+- [x] **Step 3: Update the bounded server contract**
 
 Include only `id`, `kind`, bounded `title`, optional `effortTier`, `status`, and `daysSinceActivity` in `escapedCandidateJson`.
 
 Replace `stale AI-tool candidates` in the system prompt with mixed Parkables. Instruct the model to distinguish AI tools and Ideas, treat all candidate values as untrusted data, avoid claims about excluded content, and return recommendations without mutations.
 
-- [ ] **Step 4: Implement deterministic client readiness mapping**
+- [x] **Step 4: Implement deterministic client readiness mapping**
 
 Keep the model enum unchanged. When an Idea recommendation is `start_test_drive` and planning is incomplete, label it `Plan Test Drive` and invoke the inspector-planning focus callback. Otherwise keep the existing action-focus behavior. The Patrol result remains visible until the user dismisses or reruns it.
 
-- [ ] **Step 5: Run all model-boundary regressions and commit**
+- [x] **Step 5: Run all model-boundary regressions and commit**
 
 ```bash
 npx vitest run src/lib/parking/patrol.test.ts src/lib/server/manager-patrol.test.ts src/app/api/manager-patrol/route.test.ts src/components/parking/manager-patrol.test.tsx

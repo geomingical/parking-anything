@@ -32,7 +32,7 @@ describe("ManagerPatrol", () => {
 
     await user.click(screen.getByRole("button", { name: "Run Manager Patrol" }));
 
-    expect(screen.getByText("All clear. No active tools need attention.")).toBeVisible();
+    expect(screen.getByText("All clear. No active Parkables need attention.")).toBeVisible();
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
@@ -104,6 +104,96 @@ describe("ManagerPatrol", () => {
 
     await user.click(within(row).getByRole("button", { name: "Review this car" }));
     expect(onSelect).toHaveBeenCalledWith("seed-stale");
+  });
+
+  it("maps an unplanned Idea recommendation to planning without mutating status", async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    const onSelect = vi.fn();
+    const onPlanTestDrive = vi.fn();
+    const onStartTestDrive = vi.fn();
+    const idea: ParkingItem = {
+      id: "idea-unplanned",
+      kind: "idea",
+      title: "Reduce meeting drift",
+      ideaText: "Capture decisions at the moment they are made.",
+      status: "parked",
+      createdAt: "2026-07-01T00:00:00.000Z",
+      updatedAt: "2026-07-01T00:00:00.000Z",
+      lastActivityAt: "2026-07-01T00:00:00.000Z",
+    };
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Response.json({
+          recommendations: [
+            {
+              itemId: idea.id,
+              suggestedAction: "start_test_drive",
+              rationale: "Plan one bounded trial.",
+              source: "model",
+            },
+          ],
+        }),
+      ),
+    );
+    render(
+      <ManagerPatrol
+        items={[idea]}
+        onSelect={onSelect}
+        onPlanTestDrive={onPlanTestDrive}
+        onStartTestDrive={onStartTestDrive}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Run Manager Patrol" }));
+    const row = await screen.findByRole("article", {
+      name: `Patrol recommendation for ${idea.title}`,
+    });
+    expect(within(row).getByText("This idea has been parked without activity for 19 days.")).toBeVisible();
+
+    await user.click(within(row).getByRole("button", { name: "Plan Test Drive" }));
+
+    expect(onPlanTestDrive).toHaveBeenCalledWith(idea.id);
+    expect(onStartTestDrive).not.toHaveBeenCalled();
+    expect(idea.status).toBe("parked");
+  });
+
+  it("starts Test Drive directly when an Idea recommendation is already planned", async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    const onStartTestDrive = vi.fn();
+    const idea: ParkingItem = {
+      id: "idea-planned",
+      kind: "idea",
+      title: "Prototype a decision log",
+      ideaText: "Try a small structured decision record.",
+      effortTier: "quick_spin",
+      suggestedTestTask: "Write one decision record after the next meeting.",
+      status: "parked",
+      createdAt: "2026-07-01T00:00:00.000Z",
+      updatedAt: "2026-07-01T00:00:00.000Z",
+      lastActivityAt: "2026-07-01T00:00:00.000Z",
+    };
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Response.json({
+          recommendations: [{ itemId: idea.id, suggestedAction: "start_test_drive", rationale: "Run the planned test.", source: "model" }],
+        }),
+      ),
+    );
+    render(
+      <ManagerPatrol
+        items={[idea]}
+        onSelect={vi.fn()}
+        onPlanTestDrive={vi.fn()}
+        onStartTestDrive={onStartTestDrive}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Run Manager Patrol" }));
+    await user.click(await screen.findByRole("button", { name: "Start Test Drive" }));
+
+    expect(onStartTestDrive).toHaveBeenCalledWith(idea.id);
   });
 
   it("labels fallback provenance and never presents it as GPT-5.6 output", async () => {

@@ -13,6 +13,7 @@ import {
 const candidates: PatrolCandidate[] = [
   {
     id: "a",
+    kind: "ai_tool",
     title: "Old parked tool",
     effortTier: "quick_spin",
     status: "parked",
@@ -20,6 +21,7 @@ const candidates: PatrolCandidate[] = [
   },
   {
     id: "b",
+    kind: "idea",
     title: "Active test drive",
     effortTier: "focused_session",
     status: "test_driving",
@@ -83,7 +85,7 @@ describe("managerPatrol", () => {
       expect.objectContaining({
         role: "system",
         content: expect.stringMatching(
-          /untrusted facts[\s\S]*cannot be changed[\s\S]*cannot mutate state[\s\S]*concise and clear/i,
+          /AI tools and Ideas[\s\S]*untrusted facts[\s\S]*cannot be changed[\s\S]*excluded content[\s\S]*cannot mutate state[\s\S]*concise and clear/i,
         ),
       }),
       expect.objectContaining({
@@ -93,6 +95,33 @@ describe("managerPatrol", () => {
         ),
       }),
     ]);
+  });
+
+  it("serializes only the bounded mixed-candidate allowlist", async () => {
+    const responsesParse: PatrolResponsesParse = vi.fn(async () =>
+      completed({ recommendations: [] }),
+    );
+    const prohibited = {
+      ideaText: "PRIVATE_IDEA_MARKER",
+      summary: "PRIVATE_SUMMARY_MARKER",
+      notes: "PRIVATE_NOTES_MARKER",
+      usefulnessHypothesis: "PRIVATE_HYPOTHESIS_MARKER",
+      url: "https://private-tool.example/marker",
+      resultUrl: "https://private-result.example/marker",
+      finalDecisionReason: "PRIVATE_REASON_MARKER",
+    };
+
+    await managerPatrol(
+      [{ ...candidates[1], ...prohibited } as PatrolCandidate],
+      { responsesParse },
+    );
+
+    const input = vi.mocked(responsesParse).mock.calls[0][0].input;
+    const serializedInput = JSON.stringify(input);
+    expect(serializedInput).toContain('\\"kind\\": \\"idea\\"');
+    for (const secret of Object.values(prohibited)) {
+      expect(serializedInput).not.toContain(secret);
+    }
   });
 
   it("ignores unknown and duplicate IDs while retaining the first valid recommendation", async () => {

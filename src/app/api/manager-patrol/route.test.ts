@@ -91,6 +91,7 @@ describe("createManagerPatrolRoute", () => {
   });
 
   it.each([
+    { candidates: [{ ...candidate, kind: undefined }] },
     { candidates: [{ ...candidate, daysSinceActivity: -1 }] },
     { candidates: [candidate, { ...candidate, id: "b" }, { ...candidate, id: "c" }, { ...candidate, id: "d" }] },
     { candidates: [{ ...candidate, notes: "must not cross the boundary" }] },

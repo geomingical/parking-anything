@@ -18,6 +18,7 @@ export function ParkingApp() {
   const store = useParkingStore();
   const [activeStatus, setActiveStatus] = useState<ParkingItemStatus>("parked");
   const [captureMode, setCaptureMode] = useState<CaptureMode>("tool");
+  const [planningFocusId, setPlanningFocusId] = useState<string | null>(null);
   const itemTrigger = useRef<HTMLButtonElement | null>(null);
 
   const counts = useMemo(
@@ -116,6 +117,16 @@ export function ParkingApp() {
             if (item) setActiveStatus(item.status);
             store.selectItem(id);
           }}
+          onPlanTestDrive={(id) => {
+            const item = store.items.find((candidate) => candidate.id === id);
+            if (item) setActiveStatus(item.status);
+            setPlanningFocusId(id);
+            store.selectItem(id);
+          }}
+          onStartTestDrive={(id) => {
+            const result = store.applyAction(id, { type: "start_test_drive" });
+            if (result.ok) setActiveStatus("test_driving");
+          }}
         />
 
         <section className="overflow-hidden border-2 border-[var(--ink)] bg-white">
@@ -138,8 +149,10 @@ export function ParkingApp() {
       </main>
 
       <ItemInspector
+        key={`${selectedItem?.id ?? "none"}:${planningFocusId ?? "review"}`}
         item={selectedItem}
         open={selectedItem !== null}
+        autoFocusPlanning={selectedItem?.id === planningFocusId}
         onOpenChange={(open) => {
           if (!open) {
             store.selectItem(null);

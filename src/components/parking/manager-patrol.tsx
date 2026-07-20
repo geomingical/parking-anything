@@ -15,6 +15,8 @@ import {
 type ManagerPatrolProps = {
   items: ParkingItem[];
   onSelect(id: string): void;
+  onPlanTestDrive?(id: string): void;
+  onStartTestDrive?(id: string): void;
 };
 
 const ACTION_LABELS: Record<SuggestedAction, string> = {
@@ -36,7 +38,12 @@ function responseErrorMessage(response: Response, serverError: string): string {
   return serverError;
 }
 
-export function ManagerPatrol({ items, onSelect }: ManagerPatrolProps) {
+export function ManagerPatrol({
+  items,
+  onSelect,
+  onPlanTestDrive = onSelect,
+  onStartTestDrive = onSelect,
+}: ManagerPatrolProps) {
   const [loading, setLoading] = useState(false);
   const [allClear, setAllClear] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -122,7 +129,7 @@ export function ManagerPatrol({ items, onSelect }: ManagerPatrolProps) {
             Manager Patrol
           </h2>
           <p className="mt-1 text-sm text-[var(--muted-ink)]">
-            Review the stalest active tools without changing their status.
+            Review the stalest active tools and ideas without automatic changes.
           </p>
         </div>
         <button
@@ -138,7 +145,7 @@ export function ManagerPatrol({ items, onSelect }: ManagerPatrolProps) {
 
       {allClear ? (
         <p role="status" className="px-4 py-4 text-sm font-bold">
-          All clear. No active tools need attention.
+          All clear. No active Parkables need attention.
         </p>
       ) : null}
 
@@ -153,6 +160,18 @@ export function ManagerPatrol({ items, onSelect }: ManagerPatrolProps) {
           {recommendations.map((recommendation) => {
             const candidate = candidatesById.get(recommendation.itemId);
             if (!candidate) return null;
+            const currentItem = items.find(({ id }) => id === candidate.id);
+            const needsPlanning =
+              recommendation.suggestedAction === "start_test_drive" &&
+              currentItem?.kind === "idea" &&
+              (!currentItem.effortTier || !currentItem.suggestedTestTask?.trim());
+            const canStart =
+              recommendation.suggestedAction === "start_test_drive" &&
+              currentItem?.status === "parked" &&
+              !needsPlanning;
+            const commandLabel = needsPlanning
+              ? "Plan Test Drive"
+              : ACTION_LABELS[recommendation.suggestedAction];
 
             return (
               <article
@@ -175,12 +194,23 @@ export function ManagerPatrol({ items, onSelect }: ManagerPatrolProps) {
                       ? "GPT-5.6 Recommendation"
                       : "Deterministic fallback"}
                   </p>
-                  <p className="mt-1 font-black">
-                    {ACTION_LABELS[recommendation.suggestedAction]}
-                  </p>
+                  <p className="mt-1 font-black">{commandLabel}</p>
                   <p className="mt-2 text-sm leading-6 text-[var(--muted-ink)]">
                     {recommendation.rationale}
                   </p>
+                  {needsPlanning || canStart ? (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        needsPlanning
+                          ? onPlanTestDrive(candidate.id)
+                          : onStartTestDrive(candidate.id)
+                      }
+                      className="mt-3 h-10 bg-[var(--garage)] px-3 text-sm font-black text-white"
+                    >
+                      {commandLabel}
+                    </button>
+                  ) : null}
                 </div>
                 <button
                   type="button"

@@ -33,6 +33,44 @@ describe("selectPatrolCandidates", () => {
     ]);
   });
 
+  it("orders Tool and Idea candidates together by days descending then ID ascending", () => {
+    const tool = makeSeedItems()[0];
+    const mixed: ParkingItem[] = [
+      { ...tool, id: "z-tool", lastActivityAt: "2026-07-10T00:00:00.000Z" },
+      {
+        id: "b-idea",
+        kind: "idea",
+        title: "Later tie",
+        ideaText: "A private idea body.",
+        status: "parked",
+        createdAt: "2026-07-01T00:00:00.000Z",
+        updatedAt: "2026-07-01T00:00:00.000Z",
+        lastActivityAt: "2026-07-01T00:00:00.000Z",
+      },
+      {
+        id: "a-idea",
+        kind: "idea",
+        title: "Earlier tie",
+        ideaText: "Another private idea body.",
+        status: "parked",
+        createdAt: "2026-07-01T00:00:00.000Z",
+        updatedAt: "2026-07-01T00:00:00.000Z",
+        lastActivityAt: "2026-07-01T00:00:00.000Z",
+      },
+      { ...tool, id: "oldest-tool", lastActivityAt: "2026-06-30T00:00:00.000Z" },
+    ];
+
+    expect(
+      selectPatrolCandidates(mixed, new Date("2026-07-20T00:00:00.000Z")).map(
+        ({ id, kind }) => ({ id, kind }),
+      ),
+    ).toEqual([
+      { id: "oldest-tool", kind: "ai_tool" },
+      { id: "a-idea", kind: "idea" },
+      { id: "b-idea", kind: "idea" },
+    ]);
+  });
+
   it("returns at most three candidates without private evidence fields", () => {
     const base = makeSeedItems()[0];
     const items: ParkingItem[] = [
@@ -109,5 +147,15 @@ describe("observedFact", () => {
         daysSinceActivity: 1,
       } as PatrolCandidate),
     ).toBe("This tool has been test driving without activity for 1 day.");
+  });
+
+  it("names Ideas deterministically without claiming access to their body", () => {
+    expect(
+      observedFact({
+        kind: "idea",
+        status: "parked",
+        daysSinceActivity: 7,
+      } as PatrolCandidate),
+    ).toBe("This idea has been parked without activity for 7 days.");
   });
 });

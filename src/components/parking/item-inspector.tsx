@@ -35,6 +35,7 @@ type ItemInspectorProps = {
   onApplyAction(action: ParkingAction): ActionResult;
   onUpdateEvidence(notes: string, resultUrl: string): ActionResult;
   onUpdateIdea(input: IdeaUpdate): ActionResult;
+  autoFocusPlanning?: boolean;
 };
 
 function validOptionalHttpUrl(value: string): boolean {
@@ -54,7 +55,7 @@ export function ItemInspector({ item, ...props }: ItemInspectorProps) {
 
 type ContentProps = Omit<ItemInspectorProps, "item"> & { item: ParkingItem };
 
-function ItemInspectorContent({ item, open, onOpenChange, onApplyAction, onUpdateEvidence, onUpdateIdea }: ContentProps) {
+function ItemInspectorContent({ item, open, onOpenChange, onApplyAction, onUpdateEvidence, onUpdateIdea, autoFocusPlanning = false }: ContentProps) {
   const [title, setTitle] = useState(item.title);
   const [ideaText, setIdeaText] = useState(item.kind === "idea" ? item.ideaText : "");
   const [effortTier, setEffortTier] = useState<EffortTier | "">(item.effortTier ?? "");
@@ -160,8 +161,8 @@ function ItemInspectorContent({ item, open, onOpenChange, onApplyAction, onUpdat
               <div><label htmlFor="idea-inspector-title" className="text-sm font-black">Idea title</label><input id="idea-inspector-title" value={title} maxLength={120} onChange={(event) => setTitle(event.target.value)} className="mt-1 h-11 w-full border-2 border-[var(--ink)] bg-white px-3" /></div>
               <div><label htmlFor="idea-inspector-text" className="text-sm font-black">Idea</label><textarea id="idea-inspector-text" value={ideaText} maxLength={2000} rows={4} onChange={(event) => setIdeaText(event.target.value)} className="mt-1 w-full border-2 border-[var(--ink)] bg-white p-3" /></div>
               {!item.effortTier || !item.suggestedTestTask ? <p className="font-bold text-[var(--garage)]">Planning needed</p> : null}
-              <div><label htmlFor="idea-effort" className="text-sm font-black">Effort tier</label><select ref={effortRef} id="idea-effort" value={effortTier} onChange={(event) => setEffortTier(event.target.value as EffortTier | "")} className="mt-1 h-11 w-full border-2 border-[var(--ink)] bg-white px-3"><option value="">Select effort</option>{Object.entries(EFFORT_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></div>
-              <div><label htmlFor="idea-test-task" className="text-sm font-black">First test task</label><textarea ref={taskRef} id="idea-test-task" value={suggestedTestTask} maxLength={500} rows={3} onChange={(event) => setSuggestedTestTask(event.target.value)} className="mt-1 w-full border-2 border-[var(--ink)] bg-white p-3" /></div>
+              <div><label htmlFor="idea-effort" className="text-sm font-black">Effort tier</label><select ref={effortRef} autoFocus={autoFocusPlanning && !effortTier} id="idea-effort" value={effortTier} onChange={(event) => setEffortTier(event.target.value as EffortTier | "")} className="mt-1 h-11 w-full border-2 border-[var(--ink)] bg-white px-3"><option value="">Select effort</option>{Object.entries(EFFORT_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></div>
+              <div><label htmlFor="idea-test-task" className="text-sm font-black">First test task</label><textarea ref={taskRef} autoFocus={autoFocusPlanning && Boolean(effortTier) && !suggestedTestTask.trim()} id="idea-test-task" value={suggestedTestTask} maxLength={500} rows={3} onChange={(event) => setSuggestedTestTask(event.target.value)} className="mt-1 w-full border-2 border-[var(--ink)] bg-white p-3" /></div>
               <button type="button" onClick={saveIdea} className="h-11 bg-[var(--safety)] px-4 font-black">Save planning</button>
             </section>
           )}

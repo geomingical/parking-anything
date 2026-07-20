@@ -30,10 +30,11 @@ export function selectPatrolCandidates(
 }
 
 export function observedFact(
-  candidate: Pick<PatrolCandidate, "status" | "daysSinceActivity">,
+  candidate: Pick<PatrolCandidate, "kind" | "status" | "daysSinceActivity">,
 ): string {
   const unit = candidate.daysSinceActivity === 1 ? "day" : "days";
   const location =
     candidate.status === "parked" ? "parked" : "test driving";
-  return `This tool has been ${location} without activity for ${candidate.daysSinceActivity} ${unit}.`;
+  const kind = candidate.kind === "idea" ? "idea" : "tool";
+  return `This ${kind} has been ${location} without activity for ${candidate.daysSinceActivity} ${unit}.`;
 }
