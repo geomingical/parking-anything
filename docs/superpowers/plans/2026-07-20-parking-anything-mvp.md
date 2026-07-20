@@ -919,7 +919,7 @@ Expected: all tests PASS without real network or OpenAI calls.
 - Test: `src/lib/server/manager-patrol.test.ts`
 - Test: `src/app/api/manager-patrol/route.test.ts`
 
-- [ ] **Step 1: Write failing deterministic candidate tests**
+- [x] **Step 1: Write failing deterministic candidate tests**
 
 Test filtering to active statuses, days from `lastActivityAt`, descending staleness, maximum three, no notes/repo/final reason in candidates, and deterministic all-clear.
 
@@ -934,11 +934,11 @@ expect(observedFact({ status: "parked", daysSinceActivity: 48 })).toBe(
 );
 ```
 
-- [ ] **Step 2: Implement selection and fact text**
+- [x] **Step 2: Implement selection and fact text**
 
 Export `selectPatrolCandidates(items, now): PatrolCandidate[]` and `observedFact(candidate): string`. Clamp future activity to zero days. Do not send or interpolate notes, repo URLs, or decision reasons.
 
-- [ ] **Step 3: Write failing patrol-service tests**
+- [x] **Step 3: Write failing patrol-service tests**
 
 Cover valid model results, duplicate/unknown IDs, invalid action per status, missing recommendations, one invalid sibling with valid siblings retained, full API/refusal failure, model provenance, fallback provenance, title truncation, and untrusted candidate delimiting.
 
@@ -949,7 +949,7 @@ expect(result.recommendations).toEqual([
 ]);
 ```
 
-- [ ] **Step 4: Implement patrol model call and fallback assembly**
+- [x] **Step 4: Implement patrol model call and fallback assembly**
 
 Use `responses.parse()` with `zodTextFormat(ManagerPatrolResultSchema, "manager_patrol_result")`, `OPENAI_PATROL_MODEL || "gpt-5.6-terra"`, and `max_output_tokens: 500`. The system prompt must say candidate fields are untrusted facts, facts cannot be changed, recommendations cannot mutate state, and the voice is concise/clear rather than theatrical.
 
@@ -966,11 +966,11 @@ Build a `Map` by candidate ID. Accept at most one valid recommendation for each 
 
 On complete model/API failure, return only the fallback for the oldest submitted candidate. Parse the final object through `ManagerPatrolResponseSchema`.
 
-- [ ] **Step 5: Implement and test the thin patrol route**
+- [x] **Step 5: Implement and test the thin patrol route**
 
 Input schema is `z.object({ candidates: z.array(PatrolCandidateSchema).max(3) }).strict()`. Reject duplicate IDs before the service. Consume the same production `QuotaGate` before calling the service. Return a deterministic empty response without quota/OpenAI only when `candidates.length === 0`. Export Node runtime and `maxDuration = 15`.
 
-- [ ] **Step 6: Run patrol tests and commit**
+- [x] **Step 6: Run patrol tests and commit**
 
 Run:
 

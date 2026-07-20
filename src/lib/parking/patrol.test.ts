@@ -1,0 +1,111 @@
+import { describe, expect, it } from "vitest";
+
+import { makeSeedItems } from "./fixtures";
+import {
+  observedFact,
+  selectPatrolCandidates,
+} from "./patrol";
+import type { ParkingItem, PatrolCandidate } from "./schemas";
+
+describe("selectPatrolCandidates", () => {
+  it("selects only active items in descending staleness order", () => {
+    const items = makeSeedItems();
+
+    expect(
+      selectPatrolCandidates(items, new Date("2026-07-20T00:00:00.000Z")),
+    ).toEqual([
+      {
+        id: "seed-stale",
+        title: "OpenAI Platform Docs",
+        effortTier: "focused_session",
+        status: "parked",
+        daysSinceActivity: 48,
+      },
+      {
+        id: "seed-driving",
+        title: "OpenAI Node SDK",
+        effortTier: "focused_session",
+        status: "test_driving",
+        daysSinceActivity: 1,
+      },
+    ]);
+  });
+
+  it("returns at most three candidates without private evidence fields", () => {
+    const base = makeSeedItems()[0];
+    const items: ParkingItem[] = [
+      ...makeSeedItems(),
+      ...[2, 3, 4].map((day) => ({
+        ...base,
+        id: `active-${day}`,
+        title: `Active ${day}`,
+        lastActivityAt: `2026-07-0${day}T00:00:00.000Z`,
+        notes: "private notes",
+        repoUrl: "https://github.com/example/private",
+        finalDecisionReason: "private decision",
+      })),
+    ];
+
+    const candidates = selectPatrolCandidates(
+      items,
+      new Date("2026-07-20T00:00:00.000Z"),
+    );
+
+    expect(candidates).toHaveLength(3);
+    expect(candidates.map(({ id }) => id)).toEqual([
+      "seed-stale",
+      "active-2",
+      "active-3",
+    ]);
+    expect(JSON.stringify(candidates)).not.toContain("private");
+    expect(candidates[0]).not.toHaveProperty("notes");
+    expect(candidates[0]).not.toHaveProperty("repoUrl");
+    expect(candidates[0]).not.toHaveProperty("finalDecisionReason");
+  });
+
+  it("clamps activity in the future to zero days", () => {
+    const future = {
+      ...makeSeedItems()[0],
+      id: "future",
+      lastActivityAt: "2026-07-21T00:00:00.000Z",
+    };
+
+    expect(
+      selectPatrolCandidates(
+        [future],
+        new Date("2026-07-20T00:00:00.000Z"),
+      )[0].daysSinceActivity,
+    ).toBe(0);
+  });
+
+  it("returns an empty deterministic candidate list when all items are terminal", () => {
+    const terminal = makeSeedItems().map((item, index) => ({
+      ...item,
+      status: index % 2 === 0 ? "garaged" : "scrapped",
+      ...(index % 2 === 0
+        ? {}
+        : { finalDecisionReason: "Not worth another test." }),
+    })) as ParkingItem[];
+
+    expect(
+      selectPatrolCandidates(terminal, new Date("2026-07-20T00:00:00.000Z")),
+    ).toEqual([]);
+  });
+});
+
+describe("observedFact", () => {
+  it("renders parked facts deterministically", () => {
+    expect(
+      observedFact({ status: "parked", daysSinceActivity: 48 } as PatrolCandidate),
+    ).toBe("This tool has been parked without activity for 48 days.");
+  });
+
+  it("renders test-drive facts deterministically with singular grammar", () => {
+    expect(
+      observedFact({
+        status: "test_driving",
+        daysSinceActivity: 1,
+      } as PatrolCandidate),
+    ).toBe("This tool has been test driving without activity for 1 day.");
+  });
+});

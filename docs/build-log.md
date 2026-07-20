@@ -76,6 +76,14 @@ This primary Codex task implements the approved Parking Anything v0.4 specificat
 - Production type-checking exposed that `ipaddr.js`'s `kind()` method does not narrow its TypeScript union; the already-tested IPv4-mapped IPv6 guard now uses the library's explicit `IPv6` class check with unchanged runtime behavior.
 - Human key checkpoint completed without exposing the credential: authenticated model metadata returned `200` for `gpt-5.6-luna`. The first live `/api/analyze-url` inference returned `200` in 4,986 ms for `https://openai.com/`, used the designed `url_only` fallback, identified the title as `OpenAI`, selected `quick_spin`, and populated every required structured field. No key or fetched page content was recorded.
 
+### 2026-07-20 — Phase 9: Grounded Manager Patrol
+
+- Used RED-GREEN TDD for deterministic candidate selection/fact text, per-candidate model validation, provenance, failure fallbacks, prompt boundaries, and the quota-aware route adapter.
+- Candidate selection sends only bounded ID/title/effort/status/staleness facts, excludes local notes/repository/decision evidence, clamps future activity to zero, sorts by idle days, and limits the request to three active items.
+- Added the `gpt-5.6-terra` Structured Outputs call with a 500-token cap. Candidate JSON is delimited, title-bounded, and escapes delimiter-like markup; model recommendations are accepted only for submitted IDs and status-valid actions.
+- Valid siblings retain `source: "model"`; each missing or invalid sibling receives an explicit `source: "fallback"`. Complete model/API failure returns only the oldest candidate's deterministic fallback, while an empty candidate list returns all-clear without quota or model use.
+- The live `/api/manager-patrol` check returned `200` in 3,637 ms: the stale parked seed received a model-backed `start_test_drive` suggestion, while the test-driving sibling received a clearly labeled deterministic `scrap` fallback. No rationale or local evidence was recorded in the verification output.
+
 ## Codex Contributions
 
 - Kept the approved spec and plan as the implementation sources of truth.
@@ -88,6 +96,7 @@ This primary Codex task implements the approved Parking Anything v0.4 specificat
 - Built the SSRF-safe, redirect-aware, byte-bounded public-page ingestion boundary.
 - Protected both planned model routes behind reusable bounded-request and shared-quota primitives.
 - Implemented the first real product AI boundary with the official Responses API Structured Outputs interface while preserving client ownership of deterministic parking facts.
+- Implemented grounded Manager Patrol assembly that keeps deterministic observations separate from model judgment and preserves provenance through partial failure.
 
 ## GPT-5.6 Runtime Use
 
@@ -105,6 +114,8 @@ No product runtime request has been made. GPT-5.6 will be called only from serve
 - Task 7 gate: bounded-request/quota suites exited 0 with 2 files and 16 tests passing; `npm run lint` exited 0.
 - Task 8 gate: OpenAI parser/analysis/route suites exited 0 with 3 files and 19 tests passing; the related URL-safety regression suite passed; `npm run lint` and `npm run build` exited 0; the full unit gate passed 15 files and 127 tests.
 - Task 8 live gate: server-only authentication reached `gpt-5.6-luna`; the route returned a schema-complete URL-only analysis with HTTP `200` in 4,986 ms.
+- Task 9 gate: candidate/service/route suites exited 0 with 3 files and 21 tests passing; `npm run lint` and `npm run build` exited 0; the build manifest contains both `/api/analyze-url` and `/api/manager-patrol`.
+- Task 9 live gate: `gpt-5.6-terra` patrol returned HTTP `200` in 3,637 ms with one validated model recommendation and one independently assembled fallback.
 
 ## Known Tradeoffs
 
