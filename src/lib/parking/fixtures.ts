@@ -9,7 +9,7 @@ export function makeSeedItems(): ParkingItem[] {
     {
       id: "seed-stale",
       url: "https://platform.openai.com/docs",
-      category: "ai_tool",
+      kind: "ai_tool",
       status: "parked",
       title: "OpenAI Platform Docs",
       summary: "API documentation saved for a future prototype.",
@@ -24,7 +24,7 @@ export function makeSeedItems(): ParkingItem[] {
     {
       id: "seed-driving",
       url: "https://github.com/openai/openai-node",
-      category: "ai_tool",
+      kind: "ai_tool",
       status: "test_driving",
       title: "OpenAI Node SDK",
       summary: "The official JavaScript and TypeScript client for the OpenAI API.",
@@ -42,7 +42,7 @@ export function makeSeedItems(): ParkingItem[] {
     {
       id: "seed-garaged",
       url: "https://developers.openai.com/api/docs/guides/structured-outputs",
-      category: "ai_tool",
+      kind: "ai_tool",
       status: "garaged",
       title: "Structured Outputs Guide",
       summary: "A guide for enforcing typed model responses with JSON Schema or Zod.",
@@ -56,7 +56,7 @@ export function makeSeedItems(): ParkingItem[] {
       lastActivityAt: "2026-07-19T08:00:00.000Z",
       testStartedAt: "2026-07-19T07:00:00.000Z",
       notes: "Validated a Zod-backed response and kept the schema as the source of truth.",
-      repoUrl: "https://github.com/openai/openai-node",
+      resultUrl: "https://github.com/openai/openai-node",
     },
   ] satisfies ParkingItem[]);
 

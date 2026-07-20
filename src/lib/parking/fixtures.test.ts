@@ -15,12 +15,14 @@ describe("makeSeedItems", () => {
   it("contains one stale parked, one evidenced test drive, and one evidenced Garage item", () => {
     const [stale, driving, garaged] = makeSeedItems();
 
-    expect(stale).toMatchObject({ status: "parked" });
+    expect(stale).toMatchObject({ kind: "ai_tool", status: "parked" });
     expect(stale.lastActivityAt < "2026-07-01T00:00:00.000Z").toBe(true);
     expect(driving).toMatchObject({ status: "test_driving" });
     expect(driving.notes).toBeTruthy();
     expect(garaged).toMatchObject({ status: "garaged" });
-    expect(Boolean(garaged.notes || garaged.repoUrl)).toBe(true);
+    expect(Boolean(garaged.notes || garaged.resultUrl)).toBe(true);
+    expect(garaged).not.toHaveProperty("category");
+    expect(garaged).not.toHaveProperty("repoUrl");
   });
 
   it("returns schema-valid cloned objects on every call", () => {

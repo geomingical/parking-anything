@@ -234,7 +234,7 @@ git commit -m "feat: define unified parkable schema"
 - Modify: `src/lib/parking/storage.ts`
 - Modify: `src/lib/parking/storage.test.ts`
 
-- [ ] **Step 1: Write failing migration and authority tests**
+- [x] **Step 1: Write failing migration and authority tests**
 
 Cover this matrix explicitly:
 
@@ -263,7 +263,7 @@ it("converts strict v1 items exactly once when v2 is absent", () => {
 
 Also assert no v2 write on invalid v1 or invalid converted v2, exactly one write on migration, v2 precedence, fresh initialization, exact reset, and whitespace normalization.
 
-- [ ] **Step 2: Run storage tests and verify RED**
+- [x] **Step 2: Run storage tests and verify RED**
 
 ```bash
 npx vitest run src/lib/parking/storage-v1.test.ts src/lib/parking/storage.test.ts src/lib/parking/fixtures.test.ts
@@ -271,7 +271,7 @@ npx vitest run src/lib/parking/storage-v1.test.ts src/lib/parking/storage.test.t
 
 Expected: missing module, key, migration, and v2 fixture failures.
 
-- [ ] **Step 3: Freeze the strict v1 reader and pure converter**
+- [x] **Step 3: Freeze the strict v1 reader and pure converter**
 
 In `storage-v1.ts`, copy the v0.4 persisted contract rather than importing the v2 schema:
 
@@ -298,7 +298,7 @@ export function convertV1Envelope(input: unknown): ParkingStoreV2 {
 
 The v1 item schema must preserve the old required analysis fields, old effort enum, strict `category`, timestamps, evidence, status, and limits exactly.
 
-- [ ] **Step 4: Implement v2 storage authority**
+- [x] **Step 4: Implement v2 storage authority**
 
 Use these public constants and result states:
 
@@ -314,11 +314,11 @@ export type LoadParkingStoreResult =
 
 Load order must be: read v2; if present parse only v2; otherwise read and migrate v1; otherwise initialize v2 seeds. `saveParkingStore` validates one complete envelope and performs one `setItem`.
 
-- [ ] **Step 5: Convert fixtures without changing their meaning**
+- [x] **Step 5: Convert fixtures without changing their meaning**
 
 For each existing fixture, replace `category` with `kind`, replace `repoUrl` with `resultUrl`, and preserve IDs, statuses, timestamps, copy, effort values, and test evidence exactly.
 
-- [ ] **Step 6: Run focused and full tests**
+- [x] **Step 6: Run focused and full tests**
 
 ```bash
 npx vitest run src/lib/parking/storage-v1.test.ts src/lib/parking/storage.test.ts src/lib/parking/fixtures.test.ts
@@ -327,7 +327,7 @@ npm test
 
 Expected: storage and fixture suites pass. Remaining failures should identify v1-shaped UI/test factories for later tasks, not storage ambiguity.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/lib/parking/storage-v1.ts src/lib/parking/storage-v1.test.ts src/lib/parking/storage.ts src/lib/parking/storage.test.ts src/lib/parking/fixtures.ts src/lib/parking/fixtures.test.ts

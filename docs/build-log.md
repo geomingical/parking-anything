@@ -202,3 +202,9 @@ The dedicated event key was entered locally by the user and remained server-only
 - Used RED-GREEN TDD for the strict `ai_tool | idea` discriminated union, exact existing effort tiers, field bounds, HTTP(S)-only result evidence, blank optional normalization, standing lifecycle invariants, strict v2 envelope, and bounded mixed Patrol candidate.
 - The focused RED run executed 34 tests with 10 expected failures against the v1-only schema. After implementation, `npx vitest run src/lib/parking/schemas.test.ts` passed all 34 tests and `npm run lint` exited 0.
 - The full unit run intentionally exposed only migration-driven v1 fixture, candidate, storage, and UI factory failures. Those failures are the planned input to v0.5 Phase 2 rather than unrelated regressions; the previously passing schema-independent suites remained green.
+
+### 2026-07-20 — v0.5 Phase 2: exact v1-to-v2 migration and storage authority
+
+- Used RED-GREEN TDD for the frozen strict v1 reader, pure conversion, malformed-present-v2 precedence, exact `items` to `parkingItems` mapping, `category` removal, `kind: "ai_tool"` addition, `repoUrl` to `resultUrl` mapping, complete-v2 validation, and single-write persistence.
+- Confirmed migration leaves the v1 bytes untouched, retains existing effort tiers and fixture meaning, performs no v2 write for invalid v1 or invalid converted v2 data, and never falls back to v1 when any v2 key is present.
+- The focused storage gate passed 3 files and 18 tests; `npm run lint` exited 0 without warnings. The full unit run advanced to 173 passing tests with 11 expected failures confined to later-plan v1 UI/test factories, old envelope assertions, and Patrol candidates that do not yet include `kind`.
