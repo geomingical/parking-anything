@@ -1159,7 +1159,7 @@ Expected: lint, unit/component tests, and both E2E projects PASS.
 - Modify: `docs/build-log.md`
 - Modify: `.env.example`
 
-- [ ] **Step 1: Write the judge-facing README with exact sections**
+- [x] **Step 1: Write the judge-facing README with exact sections**
 
 Use this order:
 
@@ -1179,7 +1179,7 @@ Use this order:
 
 Do not describe Redis as a monitoring dashboard or claim guarantees beyond the implemented controls.
 
-- [ ] **Step 2: Complete the build log from actual evidence**
+- [x] **Step 2: Complete the build log from actual evidence**
 
 For every phase, record date/time, concrete files, important Codex decision, command result, and tradeoff. Clearly separate:
 
@@ -1189,7 +1189,7 @@ For every phase, record date/time, concrete files, important Codex decision, com
 
 Never invent duration, test counts, API usage, or deployment results. Copy exact verified summaries from command output.
 
-- [ ] **Step 3: Run the full local release gate**
+- [x] **Step 3: Run the full local release gate**
 
 Run:
 

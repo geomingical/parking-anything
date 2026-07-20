@@ -4,6 +4,25 @@
 
 This primary Codex task implements the approved Parking Anything v0.4 specification for OpenAI Build Week. The judge-first boundary is one AI Tools parking zone, one local user, localStorage persistence, URL analysis, evidence-backed lifecycle decisions, and grounded Manager Patrol recommendations. No roadmap UI or out-of-scope account, cloud-persistence, social, achievement, or extra-zone features were added during bootstrap.
 
+## Phase Evidence Index
+
+Times below are Asia/Taipei commit timestamps from Git. File lists identify the concrete center of each phase; detailed decisions and tradeoffs remain in the phase notes below.
+
+| Phase | Commit time (Asia/Taipei) | Concrete files | Codex decision | Verified command result | Tradeoff |
+| --- | --- | --- | --- | --- | --- |
+| 1 · Bootstrap | 2026-07-20 10:50:56 | `package.json`, `.gitignore`, `.env.example`, test/build configs | Establish secret-safe Next.js and test boundaries before product code. | Initial Vitest command exited 0 with no tests, as expected. | Omitted nonexistent redundant `@types/ipaddr.js`. |
+| 2 · Domain | 2026-07-20 10:55:45 | `schemas.ts`, `transitions.ts`, paired tests | Keep model DTO ownership separate from lifecycle facts and evidence. | 30 focused tests passed. | Only the five approved transitions exist. |
+| 3 · Persistence | 2026-07-20 10:58:56 | `fixtures.ts`, `storage.ts`, paired tests | Use an exact versioned local seed envelope for a repeatable demo. | 40 total tests passed. | Local-only; no account or sync. |
+| 4 · Visual shell | 2026-07-20 11:10:12 | parking components, `globals.css`, `public/cars/` | Use semantic tabs, text labels, and stable municipal-parking geometry. | 43 total tests and lint passed. | One AI Tools zone; no roadmap UI. |
+| 5 · Lifecycle UI | 2026-07-20 11:20:29 | `use-parking-store.ts`, `item-inspector.tsx`, tests | Require evidence for Garage and a reason for Tow Away. | 58 total tests, lint, and production build passed. | Browser-local state remains authoritative. |
+| Review correction | 2026-07-20 12:16:30 | hydration test, store hook, `.gitignore` | Share a stable server/hydration snapshot before reading browser storage. | 59 tests, lint, build, and clean generated-type check passed. | A short loading shell is rendered before hydration. |
+| 6 · URL fetching | 2026-07-20 12:21:14 | `url-safety.ts`, `page-fetch.ts`, tests | Reject unsafe destinations before any model fallback; revalidate redirects. | 33 focused tests and lint passed. | Some legitimate but ambiguous hosts are intentionally rejected. |
+| 7 · Quotas | 2026-07-20 12:25:41 | `request.ts`, `rate-limit.ts`, tests | Bound JSON and share one fail-closed production quota gate across routes. | 16 focused tests and lint passed. | Local/test may use process memory; production requires Upstash. |
+| 8 · URL analysis | 2026-07-20 12:30:52 | analysis service, OpenAI client, `/api/analyze-url`, tests | Use Responses API Structured Outputs while keeping identity/state client-owned. | 127 total tests, lint, and build passed; live route later returned 200. | Readable fetch failure becomes visible URL-only mode. |
+| 9 · Patrol | 2026-07-20 12:44:44 | patrol service, `/api/manager-patrol`, tests | Send at most three bounded candidates and validate each recommendation independently. | 21 focused tests, lint, build, and live route passed. | Invalid/missing siblings receive explicit deterministic fallbacks. |
+| 10 · Live UI | 2026-07-20 12:50:06 | `parking-app.tsx`, `manager-patrol.tsx`, tests | Keep deterministic facts visibly separate and require human lifecycle actions. | 159 total tests, lint, and build passed. | Patrol advises but never mutates status. |
+| 11 · E2E/visual QA | 2026-07-20 13:06:34 | `e2e/demo-flow.spec.ts`, QA checklist/screenshots, focused UI fixes | Treat desktop/mobile flow, accessibility, console, and screenshot evidence as one release gate. | Lint passed; 159 tests passed; 15 applicable Playwright checks passed. | Mobile Safari skips only the duplicate desktop-owned screenshot capture. |
+
 ## Phase Log
 
 ### 2026-07-20 — Phase 1: Repository bootstrap
@@ -99,6 +118,14 @@ This primary Codex task implements the approved Parking Anything v0.4 specificat
 - Captured and visually inspected all 15 required full-page baselines at 1440x900, 1024x768, and 390x844 for the initial lot, inspector, patrol results, Garage, and Scrapyard. The final matrix has no overlaps, clipped vehicles, unreachable controls, or horizontal overflow; status text and provenance remain visible independently of color.
 - Added landmark, label, desktop Tab order, Escape, and focus-restoration checks. Expected browser failed-resource messages are narrowly allowed only in the two deliberately mocked non-2xx tests; every unexpected console error and every page error still fails the suite.
 - The final gate exposed Vitest's default `*.spec.ts` discovery importing the new Playwright file. Vitest now explicitly excludes `e2e/**`, preserving one runner per suite instead of hiding the failure in scripts.
+- A later release-gate rerun showed four PNG baselines changing because screenshots immediately followed image remounts. Capture now waits for every image to decode and disables finite animations; two consecutive captures produced byte-identical SHA-256 results for all 15 PNGs.
+
+### 2026-07-20 — Phase 12 local release preparation
+
+- Added the judge-facing `README.md` in the authoritative 13-section order and documented all 10 `.env.example` variables without values. The README distinguishes Codex's implementation work, GPT-5.6 Luna/Terra runtime roles, and deterministic ownership of facts and state.
+- Added the dated Phase Evidence Index from actual Git commit timestamps and preserved security, QA, and known-tradeoff evidence without inventing deployment results or API usage.
+- Final local release gate from the screenshot-stabilized tree: `npm run lint` exited 0; `npm test` passed 20 files and 159 tests; `npm run test:e2e` passed 15 applicable checks with one intentional duplicate screenshot skip; `npm run build` compiled, type-checked, generated five static pages, and listed both dynamic API routes.
+- External deployment and publication remain intentionally unclaimed and unexecuted pending the explicit GitHub/Vercel authorization checkpoint and direct user entry of production secrets.
 
 ## Codex Contributions
 
