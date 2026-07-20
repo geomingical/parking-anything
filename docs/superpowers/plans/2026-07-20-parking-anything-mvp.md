@@ -184,7 +184,7 @@ Expected: Vitest exits 0 with no tests yet, then Git creates the first primary-b
 - Test: `src/lib/parking/schemas.test.ts`
 - Test: `src/lib/parking/transitions.test.ts`
 
-- [ ] **Step 1: Write failing schema tests**
+- [x] **Step 1: Write failing schema tests**
 
 Test that `ParkingItemSchema` accepts every valid status, rejects overlong fields, requires valid HTTP(S) URLs, and that `ManagerPatrolResponseSchema` accepts only `source: "model" | "fallback"`.
 
@@ -209,7 +209,7 @@ it("preserves recommendation provenance", () => {
 });
 ```
 
-- [ ] **Step 2: Run the tests and confirm the missing-module failure**
+- [x] **Step 2: Run the tests and confirm the missing-module failure**
 
 Run:
 
@@ -219,7 +219,7 @@ npx vitest run src/lib/parking/schemas.test.ts
 
 Expected: FAIL because `schemas.ts` does not exist.
 
-- [ ] **Step 3: Implement the complete Zod schema boundary**
+- [x] **Step 3: Implement the complete Zod schema boundary**
 
 Create schemas matching v0.4 exactly. Export inferred types rather than duplicating interfaces.
 
@@ -302,7 +302,7 @@ export type PatrolRecommendation = z.infer<typeof PatrolRecommendationSchema>;
 export type ManagerPatrolResponse = z.infer<typeof ManagerPatrolResponseSchema>;
 ```
 
-- [ ] **Step 4: Write failing lifecycle tests**
+- [x] **Step 4: Write failing lifecycle tests**
 
 Cover all five allowed transitions, both evidence guards, terminal-state rejection, and timestamp updates. Inject `now` so assertions are deterministic.
 
@@ -324,11 +324,11 @@ expect(transitionItem(parkedItem, {
 });
 ```
 
-- [ ] **Step 5: Implement the pure transition function**
+- [x] **Step 5: Implement the pure transition function**
 
 Create a discriminated `ParkingAction` union and `transitionItem(item, action, nowIso)`. Return a new item, never mutate input. Throw only the exact user-facing validation messages asserted by tests. Clear no historical evidence during valid transitions; set `testStartedAt` only on `start_test_drive`.
 
-- [ ] **Step 6: Run domain tests and commit**
+- [x] **Step 6: Run domain tests and commit**
 
 Run:
 

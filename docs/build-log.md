@@ -14,10 +14,19 @@ This primary Codex task implements the approved Parking Anything v0.4 specificat
 - Corrected one stale plan dependency: npm returned `404` for `@types/ipaddr.js`; the installed `ipaddr.js@2.4.0` package already ships `lib/ipaddr.js.d.ts`, so only the nonexistent redundant package was omitted.
 - Established secret-safe ignore rules and an environment-variable template before the first commit. The pre-existing local `.env` file was neither read nor staged.
 
+### 2026-07-20 — Phase 2: Domain contracts and lifecycle
+
+- Added strict Zod schemas for the persisted parking item and the dedicated URL-analysis and Manager Patrol DTOs; model response ownership remains separate from IDs, timestamps, status, and user evidence.
+- Used RED-GREEN TDD for both modules: tests first failed because `schemas.ts` and `transitions.ts` did not exist, then passed after the minimum implementations were added.
+- The schema suite caught a Zod v4 edge case where a protocol refinement could throw after `.url()` had already rejected malformed input. The refinement now returns a normal validation failure instead.
+- Implemented the five allowed lifecycle transitions, evidence requirements, terminal-state rejection, immutable updates, and deterministic injected timestamps.
+- Switched Vitest alias resolution to Vite's installed native `resolve.tsconfigPaths` support after Vite 8 emitted a deprecation advisory for the planned plugin path; behavior is unchanged and test output is clean.
+
 ## Codex Contributions
 
 - Kept the approved spec and plan as the implementation sources of truth.
 - Established the repository, configuration, automated-test runners, evidence log, and secret-handling boundary in the primary implementation task.
+- Defined and tested the domain ownership boundary and lifecycle state machine from the approved specification.
 
 ## GPT-5.6 Runtime Use
 
@@ -26,6 +35,7 @@ No product runtime request has been made. GPT-5.6 will be called only from serve
 ## Verification
 
 - Task 1 scaffold: `npm test` exited 0 with Vitest 4.1.10 and no test files, as expected before domain implementation.
+- Task 2 domain gate: `npx vitest run src/lib/parking/schemas.test.ts src/lib/parking/transitions.test.ts` exited 0 with 2 files and 30 tests passing.
 
 ## Known Tradeoffs
 
