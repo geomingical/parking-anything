@@ -60,6 +60,13 @@ This primary Codex task implements the approved Parking Anything v0.4 specificat
 - Implemented manual redirect handling with target revalidation and a three-redirect limit, one five-second abort controller, declared and streamed 1 MB bounds, a strict readable-content allowlist, and a 12,000-character extracted-text ceiling.
 - Kept URL-safety rejection separate from typed page-fetch failures so invalid/private targets cannot enter URL-only model fallback. All tests use injected DNS/fetch implementations and make no live request.
 
+### 2026-07-20 — Phase 7: Bounded requests and shared quota gate
+
+- Used RED-GREEN TDD for the 8 KB JSON boundary and shared quota gate; both suites first failed because their server modules did not exist.
+- Added declared-length and actual UTF-8 byte limits, fixed malformed/oversize responses, safe unknown-error serialization, and bounded `Retry-After` output without reflecting request or internal error content.
+- Added one HMAC-based caller identity boundary, per-IP-before-global quota ordering, a disabled-demo kill switch, shared route-independent Redis prefixes, and production construction that fails closed when Upstash or hashing configuration is absent.
+- Configured Upstash with no fail-open timeout. Backend exceptions or timeout results become a fixed `503`; raw IP addresses and secrets are never passed to Redis keys or logs. Local/test use a process-local limiter only when production guarantees are not required.
+
 ## Codex Contributions
 
 - Kept the approved spec and plan as the implementation sources of truth.
@@ -70,6 +77,7 @@ This primary Codex task implements the approved Parking Anything v0.4 specificat
 - Connected the pure domain/storage primitives to a tested local state controller and complete evidence-backed lifecycle inspector.
 - Corrected the server/client persistence boundary with a hydration-safe external-store snapshot and a full reload regression.
 - Built the SSRF-safe, redirect-aware, byte-bounded public-page ingestion boundary.
+- Protected both planned model routes behind reusable bounded-request and shared-quota primitives.
 
 ## GPT-5.6 Runtime Use
 
@@ -84,6 +92,7 @@ No product runtime request has been made. GPT-5.6 will be called only from serve
 - Task 5 focused gate: hook/inspector suites exited 0 with 2 files and 15 tests passing; ESLint exited 0; the full unit gate exited 0 with 7 files and 58 tests passing; `npm run build` exited 0 after the ESM/root configuration correction.
 - Corrective hydration gate: hydration/store suites exited 0 with 2 files and 11 tests passing; `npm test` exited 0 with 8 files and 59 tests passing; `npm run lint` exited 0; `npm run build` compiled and statically generated `/`; Next dev/build introduced no additional tracked changes.
 - Task 6 gate: URL-safety/page-fetch suites exited 0 with 2 files and 33 tests passing; `npm run lint` exited 0.
+- Task 7 gate: bounded-request/quota suites exited 0 with 2 files and 16 tests passing; `npm run lint` exited 0.
 
 ## Known Tradeoffs
 

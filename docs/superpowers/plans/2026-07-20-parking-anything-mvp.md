@@ -726,11 +726,11 @@ Expected: all safety/fetch tests PASS without making live network requests.
 - Test: `src/lib/server/request.test.ts`
 - Test: `src/lib/server/rate-limit.test.ts`
 
-- [ ] **Step 1: Write failing bounded-request tests**
+- [x] **Step 1: Write failing bounded-request tests**
 
 Test valid JSON below 8 KB, content-length over 8 KB, actual UTF-8 body over 8 KB when the header is absent/incorrect, and malformed JSON. The parser must return typed errors with status `413` or `400` and must never echo request content.
 
-- [ ] **Step 2: Implement bounded JSON parsing and JSON errors**
+- [x] **Step 2: Implement bounded JSON parsing and JSON errors**
 
 ```ts
 export class HttpError extends Error {
@@ -759,7 +759,7 @@ export function errorResponse(error: unknown): Response {
 }
 ```
 
-- [ ] **Step 3: Write failing quota-gate tests**
+- [x] **Step 3: Write failing quota-gate tests**
 
 Inject fake per-IP/global limiters and test: disabled kill switch, missing production env, stable HMAC hash with no raw IP, per-IP rejection `429`, global rejection `503`, `Retry-After`, no global consume after IP rejection, and one shared prefix used by both route names.
 
@@ -770,7 +770,7 @@ expect(globalLimiter.limit).not.toHaveBeenCalled();
 expect(redisKeys.join(" ")).not.toContain("203.0.113.4");
 ```
 
-- [ ] **Step 4: Implement `QuotaGate` and Upstash construction**
+- [x] **Step 4: Implement `QuotaGate` and Upstash construction**
 
 ```ts
 export interface QuotaGate {
@@ -788,7 +788,7 @@ Use `createHmac("sha256", RATE_LIMIT_HASH_SECRET)` for the identifier. Build `Ra
 
 `createProductionQuotaGate()` must throw a 503 `HttpError` if `NODE_ENV === "production"` and any required Redis/hash configuration is absent. Export a dependency-injected constructor for tests; do not instantiate Redis at module import time.
 
-- [ ] **Step 5: Run request/quota tests and commit**
+- [x] **Step 5: Run request/quota tests and commit**
 
 Run:
 
