@@ -2,9 +2,10 @@
 
 import * as Dialog from "@radix-ui/react-dialog";
 import { ExternalLink, X } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
-import type { ParkingItem } from "@/lib/parking/schemas";
+import type { ActionResult } from "@/hooks/use-parking-store";
+import type { EffortTier, ParkingItem } from "@/lib/parking/schemas";
 import type { ParkingAction } from "@/lib/parking/transitions";
 
 const STATUS_LABELS: Record<ParkingItem["status"], string> = {
@@ -14,20 +15,26 @@ const STATUS_LABELS: Record<ParkingItem["status"], string> = {
   scrapped: "Scrapped",
 };
 
-const EFFORT_LABELS: Record<ParkingItem["effortTier"], string> = {
+const EFFORT_LABELS: Record<EffortTier, string> = {
   quick_spin: "Quick spin",
   focused_session: "Focused session",
   weekend_project: "Weekend project",
 };
 
-type ActionResult = { ok: true } | { ok: false; message: string };
+type IdeaUpdate = {
+  title: string;
+  ideaText: string;
+  effortTier?: EffortTier;
+  suggestedTestTask?: string;
+};
 
 type ItemInspectorProps = {
   item: ParkingItem | null;
   open: boolean;
   onOpenChange(open: boolean): void;
   onApplyAction(action: ParkingAction): ActionResult;
-  onUpdateEvidence(notes: string, repoUrl: string): void;
+  onUpdateEvidence(notes: string, resultUrl: string): ActionResult;
+  onUpdateIdea(input: IdeaUpdate): ActionResult;
 };
 
 function validOptionalHttpUrl(value: string): boolean {
@@ -40,71 +47,82 @@ function validOptionalHttpUrl(value: string): boolean {
   }
 }
 
-export function ItemInspector({
-  item,
-  ...props
-}: ItemInspectorProps) {
+export function ItemInspector({ item, ...props }: ItemInspectorProps) {
   if (!item) return null;
-
-  return (
-    <ItemInspectorContent
-      key={`${item.id}:${item.status}`}
-      {...props}
-      item={item}
-    />
-  );
+  return <ItemInspectorContent key={`${item.id}:${item.status}`} {...props} item={item} />;
 }
 
-type ItemInspectorContentProps = Omit<ItemInspectorProps, "item"> & {
-  item: ParkingItem;
-};
+type ContentProps = Omit<ItemInspectorProps, "item"> & { item: ParkingItem };
 
-function ItemInspectorContent({
-  item,
-  open,
-  onOpenChange,
-  onApplyAction,
-  onUpdateEvidence,
-}: ItemInspectorContentProps) {
+function ItemInspectorContent({ item, open, onOpenChange, onApplyAction, onUpdateEvidence, onUpdateIdea }: ContentProps) {
+  const [title, setTitle] = useState(item.title);
+  const [ideaText, setIdeaText] = useState(item.kind === "idea" ? item.ideaText : "");
+  const [effortTier, setEffortTier] = useState<EffortTier | "">(item.effortTier ?? "");
+  const [suggestedTestTask, setSuggestedTestTask] = useState(item.suggestedTestTask ?? "");
   const [notes, setNotes] = useState(item.notes ?? "");
-  const [repoUrl, setRepoUrl] = useState(item.repoUrl ?? "");
+  const [resultUrl, setResultUrl] = useState(item.resultUrl ?? "");
   const [decisionReason, setDecisionReason] = useState("");
   const [showTowConfirmation, setShowTowConfirmation] = useState(false);
   const [validationMessage, setValidationMessage] = useState<string | null>(null);
+  const effortRef = useRef<HTMLSelectElement>(null);
+  const taskRef = useRef<HTMLTextAreaElement>(null);
+
+  const terminal = item.status === "garaged" || item.status === "scrapped";
+  const ideaReady = item.kind !== "idea" || Boolean(item.effortTier && item.suggestedTestTask?.trim());
+
+  function focusMissingPlanning() {
+    setValidationMessage("Add an effort tier and first test task before starting a Test Drive.");
+    if (!effortTier) effortRef.current?.focus();
+    else taskRef.current?.focus();
+  }
 
   function runAction(action: ParkingAction) {
     setValidationMessage(null);
+    if (action.type === "start_test_drive" && !ideaReady) {
+      focusMissingPlanning();
+      return;
+    }
     const result = onApplyAction(action);
     if (!result.ok) {
       setValidationMessage(result.message);
       return;
     }
-    if (action.type !== "start_test_drive") {
-      onOpenChange(false);
-    }
+    if (action.type !== "start_test_drive") onOpenChange(false);
   }
 
   function persistEvidenceIfChanged() {
-    if (!item || item.status !== "test_driving") return;
+    if (item.status !== "test_driving") return;
     const nextNotes = notes.trim();
-    const nextRepoUrl = repoUrl.trim();
-    if (!validOptionalHttpUrl(nextRepoUrl)) {
+    const nextResultUrl = resultUrl.trim();
+    if (!validOptionalHttpUrl(nextResultUrl)) {
       setValidationMessage("Enter a valid HTTP(S) result URL.");
       return;
     }
-    if (nextNotes !== (item.notes ?? "") || nextRepoUrl !== (item.repoUrl ?? "")) {
-      onUpdateEvidence(nextNotes, nextRepoUrl);
+    if (nextNotes !== (item.notes ?? "") || nextResultUrl !== (item.resultUrl ?? "")) {
+      const result = onUpdateEvidence(nextNotes, nextResultUrl);
+      if (!result.ok) setValidationMessage(result.message);
     }
   }
 
   function parkInGarage() {
     const nextNotes = notes.trim();
-    const nextRepoUrl = repoUrl.trim();
-    if (!validOptionalHttpUrl(nextRepoUrl)) {
+    const nextResultUrl = resultUrl.trim();
+    if (!validOptionalHttpUrl(nextResultUrl)) {
       setValidationMessage("Enter a valid HTTP(S) result URL.");
       return;
     }
-    runAction({ type: "park_in_garage", notes: nextNotes, repoUrl: nextRepoUrl });
+    runAction({ type: "park_in_garage", notes: nextNotes, resultUrl: nextResultUrl });
+  }
+
+  function saveIdea() {
+    if (item.kind !== "idea") return;
+    const result = onUpdateIdea({
+      title,
+      ideaText,
+      effortTier: effortTier || undefined,
+      suggestedTestTask: suggestedTestTask.trim() || undefined,
+    });
+    setValidationMessage(result.ok ? null : result.message);
   }
 
   return (
@@ -115,218 +133,57 @@ function ItemInspectorContent({
           <div className="flex items-start justify-between gap-4 border-b-2 border-[var(--ink)] pb-5">
             <div className="min-w-0">
               <p className="text-xs font-black uppercase tracking-[0.16em] text-[var(--garage)]">
-                Parking ticket · {STATUS_LABELS[item.status]}
+                {item.kind === "ai_tool" ? "Tool" : "Idea"} ticket · {STATUS_LABELS[item.status]}
               </p>
-              <Dialog.Title className="mt-2 text-2xl font-black tracking-[-0.03em]">
-                {item.title}
-              </Dialog.Title>
+              <Dialog.Title className="mt-2 text-2xl font-black tracking-[-0.03em]">{item.title}</Dialog.Title>
               <Dialog.Description className="mt-2 text-sm leading-6 text-[var(--muted-ink)]">
-                Review the generated test ticket, record evidence, and make the next deliberate
-                decision.
+                Review the test ticket, record evidence, and make the next deliberate decision.
               </Dialog.Description>
             </div>
-            <Dialog.Close asChild>
-              <button
-                type="button"
-                title="Close inspector"
-                aria-label="Close inspector"
-                className="inline-flex size-10 shrink-0 items-center justify-center border border-black/20 bg-white hover:bg-black hover:text-white"
-              >
-                <X aria-hidden="true" size={18} />
-              </button>
-            </Dialog.Close>
+            <Dialog.Close asChild><button type="button" title="Close inspector" aria-label="Close inspector" className="inline-flex size-10 shrink-0 items-center justify-center border border-black/20 bg-white hover:bg-black hover:text-white"><X aria-hidden="true" size={18} /></button></Dialog.Close>
           </div>
 
-          <dl className="divide-y divide-black/15 border-b border-black/15">
-            <div className="grid gap-1 py-4 sm:grid-cols-[9rem_1fr] sm:gap-4">
-              <dt className="text-xs font-black uppercase tracking-[0.12em] text-[var(--muted-ink)]">
-                Source
-              </dt>
-              <dd className="min-w-0">
-                <a
-                  href={item.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex max-w-full items-center gap-2 font-bold underline decoration-2 underline-offset-4"
-                >
-                  <span className="truncate">Open original tool</span>
-                  <ExternalLink aria-hidden="true" className="shrink-0" size={16} />
-                </a>
-              </dd>
-            </div>
-            <div className="grid gap-1 py-4 sm:grid-cols-[9rem_1fr] sm:gap-4">
-              <dt className="text-xs font-black uppercase tracking-[0.12em] text-[var(--muted-ink)]">
-                Trial effort
-              </dt>
-              <dd className="font-bold">{EFFORT_LABELS[item.effortTier]}</dd>
-            </div>
-          </dl>
-
-          <section className="py-5">
-            <h2 className="text-xs font-black uppercase tracking-[0.14em] text-[var(--muted-ink)]">
-              What it appears to do
-            </h2>
-            <p className="mt-2 leading-7">{item.summary}</p>
-          </section>
-
-          <section className="border-t border-black/15 py-5">
-            <h2 className="text-xs font-black uppercase tracking-[0.14em] text-[var(--muted-ink)]">
-              Usefulness hypothesis
-            </h2>
-            <p className="mt-2 leading-7">{item.usefulnessHypothesis}</p>
-          </section>
-
-          <section className="border-y-2 border-[var(--ink)] bg-[var(--safety)] px-4 py-5">
-            <h2 className="text-xs font-black uppercase tracking-[0.14em]">First test task</h2>
-            <p className="mt-2 text-lg font-bold leading-7">{item.suggestedTestTask}</p>
-          </section>
+          {item.kind === "ai_tool" ? (
+            <>
+              <dl className="divide-y divide-black/15 border-b border-black/15">
+                <div className="grid gap-1 py-4 sm:grid-cols-[9rem_1fr] sm:gap-4"><dt className="text-xs font-black uppercase text-[var(--muted-ink)]">Source</dt><dd className="min-w-0"><a href={item.url} target="_blank" rel="noreferrer" className="inline-flex max-w-full items-center gap-2 font-bold underline"><span className="truncate">Open original tool</span><ExternalLink aria-hidden="true" size={16} /></a></dd></div>
+                <div className="grid gap-1 py-4 sm:grid-cols-[9rem_1fr] sm:gap-4"><dt className="text-xs font-black uppercase text-[var(--muted-ink)]">Trial effort</dt><dd className="font-bold">{EFFORT_LABELS[item.effortTier]}</dd></div>
+              </dl>
+              <section className="py-5"><h2 className="text-xs font-black uppercase text-[var(--muted-ink)]">What it appears to do</h2><p className="mt-2 leading-7">{item.summary}</p></section>
+              <section className="border-t border-black/15 py-5"><h2 className="text-xs font-black uppercase text-[var(--muted-ink)]">Usefulness hypothesis</h2><p className="mt-2 leading-7">{item.usefulnessHypothesis}</p></section>
+              <section className="border-y-2 border-[var(--ink)] bg-[var(--safety)] px-4 py-5"><h2 className="text-xs font-black uppercase">First test task</h2><p className="mt-2 text-lg font-bold leading-7">{item.suggestedTestTask}</p></section>
+            </>
+          ) : terminal ? (
+            <section className="space-y-4 py-5"><div><h2 className="text-xs font-black uppercase text-[var(--muted-ink)]">Idea</h2><p className="mt-2 whitespace-pre-wrap leading-7">{item.ideaText}</p></div>{item.effortTier && item.suggestedTestTask ? <div><p className="font-bold">{EFFORT_LABELS[item.effortTier]}</p><p className="mt-1">{item.suggestedTestTask}</p></div> : <p className="font-bold">Planning needed</p>}</section>
+          ) : (
+            <section className="space-y-4 py-5" aria-label="Idea planning">
+              <div><label htmlFor="idea-inspector-title" className="text-sm font-black">Idea title</label><input id="idea-inspector-title" value={title} maxLength={120} onChange={(event) => setTitle(event.target.value)} className="mt-1 h-11 w-full border-2 border-[var(--ink)] bg-white px-3" /></div>
+              <div><label htmlFor="idea-inspector-text" className="text-sm font-black">Idea</label><textarea id="idea-inspector-text" value={ideaText} maxLength={2000} rows={4} onChange={(event) => setIdeaText(event.target.value)} className="mt-1 w-full border-2 border-[var(--ink)] bg-white p-3" /></div>
+              {!item.effortTier || !item.suggestedTestTask ? <p className="font-bold text-[var(--garage)]">Planning needed</p> : null}
+              <div><label htmlFor="idea-effort" className="text-sm font-black">Effort tier</label><select ref={effortRef} id="idea-effort" value={effortTier} onChange={(event) => setEffortTier(event.target.value as EffortTier | "")} className="mt-1 h-11 w-full border-2 border-[var(--ink)] bg-white px-3"><option value="">Select effort</option>{Object.entries(EFFORT_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></div>
+              <div><label htmlFor="idea-test-task" className="text-sm font-black">First test task</label><textarea ref={taskRef} id="idea-test-task" value={suggestedTestTask} maxLength={500} rows={3} onChange={(event) => setSuggestedTestTask(event.target.value)} className="mt-1 w-full border-2 border-[var(--ink)] bg-white p-3" /></div>
+              <button type="button" onClick={saveIdea} className="h-11 bg-[var(--safety)] px-4 font-black">Save planning</button>
+            </section>
+          )}
 
           {item.status === "test_driving" ? (
             <section className="space-y-4 py-5">
-              <div>
-                <label htmlFor="test-notes" className="text-sm font-black">
-                  Test notes
-                </label>
-                <textarea
-                  id="test-notes"
-                  value={notes}
-                  maxLength={2000}
-                  rows={5}
-                  onChange={(event) => setNotes(event.target.value)}
-                  onBlur={persistEvidenceIfChanged}
-                  className="mt-2 w-full resize-y border-2 border-[var(--ink)] bg-white p-3 leading-6"
-                  placeholder="What did you try? What happened?"
-                />
-              </div>
-              <div>
-                <label htmlFor="result-url" className="text-sm font-black">
-                  Result or repository URL
-                </label>
-                <input
-                  id="result-url"
-                  type="url"
-                  value={repoUrl}
-                  maxLength={2048}
-                  onChange={(event) => setRepoUrl(event.target.value)}
-                  onBlur={persistEvidenceIfChanged}
-                  className="mt-2 h-11 w-full border-2 border-[var(--ink)] bg-white px-3"
-                  placeholder="https://github.com/you/result"
-                />
-              </div>
+              <div><label htmlFor="test-notes" className="text-sm font-black">Test notes</label><textarea id="test-notes" value={notes} maxLength={2000} rows={5} onChange={(event) => setNotes(event.target.value)} onBlur={persistEvidenceIfChanged} className="mt-2 w-full resize-y border-2 border-[var(--ink)] bg-white p-3" /></div>
+              <div><label htmlFor="result-url" className="text-sm font-black">Result URL</label><input id="result-url" type="url" value={resultUrl} maxLength={2048} onChange={(event) => setResultUrl(event.target.value)} onBlur={persistEvidenceIfChanged} className="mt-2 h-11 w-full border-2 border-[var(--ink)] bg-white px-3" /></div>
             </section>
-          ) : item.notes || item.repoUrl ? (
-            <section className="space-y-3 border-b border-black/15 py-5">
-              <h2 className="text-xs font-black uppercase tracking-[0.14em] text-[var(--muted-ink)]">
-                Recorded evidence
-              </h2>
-              {item.notes ? <p className="whitespace-pre-wrap leading-7">{item.notes}</p> : null}
-              {item.repoUrl ? (
-                <a
-                  href={item.repoUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-2 font-bold underline decoration-2 underline-offset-4"
-                >
-                  Open result <ExternalLink aria-hidden="true" size={16} />
-                </a>
-              ) : null}
-            </section>
+          ) : item.notes || item.resultUrl ? (
+            <section className="space-y-3 border-b border-black/15 py-5"><h2 className="text-xs font-black uppercase text-[var(--muted-ink)]">Recorded evidence</h2>{item.notes ? <p className="whitespace-pre-wrap leading-7">{item.notes}</p> : null}{item.resultUrl ? <a href={item.resultUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 font-bold underline">Open result <ExternalLink aria-hidden="true" size={16} /></a> : null}</section>
           ) : null}
 
-          {item.finalDecisionReason ? (
-            <section className="border-b border-black/15 py-5">
-              <h2 className="text-xs font-black uppercase tracking-[0.14em] text-[var(--scrap)]">
-                Final decision reason
-              </h2>
-              <p className="mt-2 leading-7">{item.finalDecisionReason}</p>
-            </section>
-          ) : null}
-
-          {validationMessage ? (
-            <p role="alert" className="mt-5 border-l-4 border-[var(--scrap)] bg-red-50 px-4 py-3 text-sm font-bold">
-              {validationMessage}
-            </p>
-          ) : null}
+          {item.finalDecisionReason ? <section className="border-b border-black/15 py-5"><h2 className="text-xs font-black uppercase text-[var(--scrap)]">Final decision reason</h2><p className="mt-2 leading-7">{item.finalDecisionReason}</p></section> : null}
+          {validationMessage ? <p role="alert" className="mt-5 border-l-4 border-[var(--scrap)] bg-red-50 px-4 py-3 text-sm font-bold">{validationMessage}</p> : null}
 
           {showTowConfirmation ? (
-            <section className="mt-5 border-t-4 border-[var(--scrap)] pt-5">
-              <label htmlFor="decision-reason" className="text-sm font-black">
-                Decision reason
-              </label>
-              <textarea
-                id="decision-reason"
-                value={decisionReason}
-                maxLength={280}
-                rows={3}
-                onChange={(event) => setDecisionReason(event.target.value)}
-                className="mt-2 w-full resize-y border-2 border-[var(--ink)] bg-white p-3 leading-6"
-                placeholder="Why does this tool no longer deserve a parking slot?"
-              />
-              <div className="mt-3 flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowTowConfirmation(false);
-                    setValidationMessage(null);
-                  }}
-                  className="h-11 border-2 border-[var(--ink)] bg-white px-4 font-bold hover:bg-black hover:text-white"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    runAction({
-                      type: "tow_away",
-                      finalDecisionReason: decisionReason,
-                    })
-                  }
-                  className="h-11 bg-[var(--scrap)] px-4 font-black text-white hover:bg-black"
-                >
-                  Confirm Tow Away
-                </button>
-              </div>
-            </section>
-          ) : null}
-
-          {!showTowConfirmation && (item.status === "parked" || item.status === "test_driving") ? (
+            <section className="mt-5 border-t-4 border-[var(--scrap)] pt-5"><label htmlFor="decision-reason" className="text-sm font-black">Decision reason</label><textarea id="decision-reason" value={decisionReason} maxLength={280} rows={3} onChange={(event) => setDecisionReason(event.target.value)} className="mt-2 w-full border-2 border-[var(--ink)] bg-white p-3" placeholder={`Why does this ${item.kind === "idea" ? "idea" : "tool"} no longer deserve a parking slot?`} /><div className="mt-3 flex gap-2"><button type="button" onClick={() => { setShowTowConfirmation(false); setValidationMessage(null); }} className="h-11 border-2 border-[var(--ink)] bg-white px-4 font-bold">Cancel</button><button type="button" onClick={() => runAction({ type: "tow_away", finalDecisionReason: decisionReason })} className="h-11 bg-[var(--scrap)] px-4 font-black text-white">Confirm Tow Away</button></div></section>
+          ) : !terminal ? (
             <div className="mt-6 flex flex-wrap gap-2 border-t-2 border-[var(--ink)] pt-5">
-              {item.status === "parked" ? (
-                <button
-                  type="button"
-                  onClick={() => runAction({ type: "start_test_drive" })}
-                  className="h-11 bg-[var(--garage)] px-4 font-black text-white hover:bg-black"
-                >
-                  Start Test Drive
-                </button>
-              ) : (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => runAction({ type: "return_to_lot" })}
-                    className="h-11 border-2 border-[var(--ink)] bg-white px-4 font-bold hover:bg-black hover:text-white"
-                  >
-                    Return to Parking Lot
-                  </button>
-                  <button
-                    type="button"
-                    onClick={parkInGarage}
-                    className="h-11 bg-[var(--garage)] px-4 font-black text-white hover:bg-black"
-                  >
-                    Park in Garage
-                  </button>
-                </>
-              )}
-              <button
-                type="button"
-                onClick={() => {
-                  setShowTowConfirmation(true);
-                  setValidationMessage(null);
-                }}
-                className="h-11 bg-[var(--scrap)] px-4 font-black text-white hover:bg-black"
-              >
-                Tow Away
-              </button>
+              {item.status === "parked" ? <button type="button" onClick={() => runAction({ type: "start_test_drive" })} className="h-11 bg-[var(--garage)] px-4 font-black text-white">Start Test Drive</button> : <><button type="button" onClick={() => runAction({ type: "return_to_lot" })} className="h-11 border-2 border-[var(--ink)] bg-white px-4 font-bold">Return to Parking Lot</button><button type="button" onClick={parkInGarage} className="h-11 bg-[var(--garage)] px-4 font-black text-white">Park in Garage</button></>}
+              <button type="button" onClick={() => { setShowTowConfirmation(true); setValidationMessage(null); }} className="h-11 bg-[var(--scrap)] px-4 font-black text-white">Tow Away</button>
             </div>
           ) : null}
         </Dialog.Content>

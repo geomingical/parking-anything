@@ -533,17 +533,17 @@ git commit -m "feat: add first-class idea capture"
 - Modify: `src/components/parking/item-inspector.tsx`
 - Modify: `src/app/globals.css`
 
-- [ ] **Step 1: Write failing mixed-rendering and inspector tests**
+- [x] **Step 1: Write failing mixed-rendering and inspector tests**
 
 Cover Tool and Idea content separation, neutral unplanned vehicle treatment, text kind/status labels, seven-day Needs review threshold, Idea edit permissions, immediate planning update, first-missing-field focus, shared evidence actions, and read-only terminal records.
 
-- [ ] **Step 2: Run tests and verify RED**
+- [x] **Step 2: Run tests and verify RED**
 
 ```bash
 npx vitest run src/components/parking/parking-lot.test.tsx src/components/parking/item-inspector.test.tsx
 ```
 
-- [ ] **Step 3: Make vehicle rendering variant-aware**
+- [x] **Step 3: Make vehicle rendering variant-aware**
 
 - Reuse existing car images for planned items.
 - Use a stable neutral treatment with text `Planning needed` for unplanned Ideas.
@@ -551,13 +551,13 @@ npx vitest run src/components/parking/parking-lot.test.tsx src/components/parkin
 - Render `Tool` or `Idea` text so kind is not color-dependent.
 - Render `Needs review · N days` only for stale active items.
 
-- [ ] **Step 4: Split inspector content by discriminator**
+- [x] **Step 4: Split inspector content by discriminator**
 
 Keep shared title, status, evidence, and lifecycle sections. Tool content renders source, summary, hypothesis, effort, and test task. Idea content renders idea text and an editable planning section for active statuses.
 
 When a requested Test Drive lacks planning, set a deterministic message, expand planning, focus `effortTier` first or `suggestedTestTask` when effort is present, and do not call `onApplyAction`.
 
-- [ ] **Step 5: Run tests, build, and commit**
+- [x] **Step 5: Run tests, build, and commit**
 
 ```bash
 npx vitest run src/components/parking/parking-lot.test.tsx src/components/parking/item-inspector.test.tsx

@@ -149,9 +149,15 @@ export function ParkingApp() {
         onApplyAction={applySelectedAction}
         onUpdateEvidence={(notes, resultUrl) => {
           if (store.selectedId) {
-            store.updateEvidence(store.selectedId, notes, resultUrl);
+            return store.updateEvidence(store.selectedId, notes, resultUrl);
           }
+          return { ok: false, message: "This parking item could not be found." };
         }}
+        onUpdateIdea={(input) =>
+          store.selectedId
+            ? store.updateIdea(store.selectedId, input)
+            : { ok: false, message: "This parking item could not be found." }
+        }
       />
     </div>
   );

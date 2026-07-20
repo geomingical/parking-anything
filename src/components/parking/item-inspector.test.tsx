@@ -24,7 +24,8 @@ function renderInspector(
         open
         onOpenChange={vi.fn()}
         onApplyAction={onApplyAction}
-        onUpdateEvidence={vi.fn()}
+        onUpdateEvidence={vi.fn().mockReturnValue({ ok: true })}
+        onUpdateIdea={vi.fn().mockReturnValue({ ok: true })}
       />,
     ),
   };
@@ -45,7 +46,7 @@ describe("ItemInspector", () => {
       screen.getByText("Add a note or result link before parking in the Garage."),
     ).toBeVisible();
     expect(screen.getByLabelText("Test notes")).toHaveValue("");
-    expect(screen.getByLabelText("Result or repository URL")).toHaveValue("");
+    expect(screen.getByLabelText("Result URL")).toHaveValue("");
   });
 
   it("requires a decision reason in the Tow Away confirmation", async () => {
@@ -75,7 +76,77 @@ describe("ItemInspector", () => {
     expect(onApplyAction).toHaveBeenCalledWith({
       type: "park_in_garage",
       notes: "Completed the first test.",
-      repoUrl: "",
+      resultUrl: "",
+    });
+  });
+
+  it("renders Idea content without Tool-only analysis fields", () => {
+    const idea: ParkingItem = {
+      id: "idea-1",
+      kind: "idea",
+      status: "parked",
+      title: "Compare onboarding flows",
+      ideaText: "Prototype both flows with five users.",
+      createdAt: "2026-07-20T00:00:00.000Z",
+      updatedAt: "2026-07-20T00:00:00.000Z",
+      lastActivityAt: "2026-07-20T00:00:00.000Z",
+    };
+
+    renderInspector(idea);
+
+    expect(screen.getByDisplayValue(idea.ideaText)).toBeVisible();
+    expect(screen.getByText("Planning needed")).toBeVisible();
+    expect(screen.queryByText("What it appears to do")).not.toBeInTheDocument();
+    expect(screen.queryByText("Usefulness hypothesis")).not.toBeInTheDocument();
+  });
+
+  it("focuses the first missing planning field without starting Test Drive", async () => {
+    const user = userEvent.setup();
+    const idea: ParkingItem = {
+      id: "idea-1",
+      kind: "idea",
+      status: "parked",
+      title: "Compare onboarding flows",
+      ideaText: "Prototype both flows.",
+      createdAt: "2026-07-20T00:00:00.000Z",
+      updatedAt: "2026-07-20T00:00:00.000Z",
+      lastActivityAt: "2026-07-20T00:00:00.000Z",
+    };
+    const { onApplyAction } = renderInspector(idea);
+
+    await user.click(screen.getByRole("button", { name: "Start Test Drive" }));
+
+    expect(screen.getByLabelText("Effort tier")).toHaveFocus();
+    expect(screen.getByText("Add an effort tier and first test task before starting a Test Drive.")).toBeVisible();
+    expect(onApplyAction).not.toHaveBeenCalled();
+  });
+
+  it("submits valid Idea planning through the shared editor", async () => {
+    const user = userEvent.setup();
+    const idea: ParkingItem = {
+      id: "idea-1",
+      kind: "idea",
+      status: "parked",
+      title: "Compare onboarding flows",
+      ideaText: "Prototype both flows.",
+      createdAt: "2026-07-20T00:00:00.000Z",
+      updatedAt: "2026-07-20T00:00:00.000Z",
+      lastActivityAt: "2026-07-20T00:00:00.000Z",
+    };
+    const onUpdateIdea = vi.fn().mockReturnValue({ ok: true });
+    render(
+      <ItemInspector item={idea} open onOpenChange={vi.fn()} onApplyAction={vi.fn()} onUpdateEvidence={vi.fn()} onUpdateIdea={onUpdateIdea} />,
+    );
+
+    await user.selectOptions(screen.getByLabelText("Effort tier"), "focused_session");
+    await user.type(screen.getByLabelText("First test task"), "Interview five users.");
+    await user.click(screen.getByRole("button", { name: "Save planning" }));
+
+    expect(onUpdateIdea).toHaveBeenCalledWith({
+      title: idea.title,
+      ideaText: idea.ideaText,
+      effortTier: "focused_session",
+      suggestedTestTask: "Interview five users.",
     });
   });
 

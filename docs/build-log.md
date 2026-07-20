@@ -228,3 +228,10 @@ The dedicated event key was entered locally by the user and remained server-only
 - Extracted the verified v0.4 URL workflow into `ToolCaptureForm` without changing its real API request, duplicate guard, URL-only warning, retry behavior, structured-response validation, or client-owned item assembly.
 - `MissionHeader` now owns only product identity and reset. Manual Idea capture uses the shared strict schema, one client ID and timestamp, and immediately enters the same Parking Lot with no AI dependency.
 - The focused capture gate passed 2 files and 9 tests; the full `npm test` gate passed 23 files and 200 tests; `npm run lint` exited 0 without warnings.
+
+### 2026-07-20 — v0.5 Phase 6: unified vehicles and variant-aware inspector
+
+- Used RED-GREEN TDD for mixed Tool/Idea kind labels, a stable neutral unplanned-Idea vehicle, the shared seven-day `Needs review` indicator, discriminator-specific inspector content, active Idea editing, read-only terminal records, and shared evidence/lifecycle actions.
+- An incomplete Idea Test Drive request now leaves status unchanged, shows the deterministic planning message, and focuses the first missing planning field. Valid planning is persisted through the complete-envelope controller and updates the vehicle and inspector immediately in the current session.
+- Renamed Garage evidence presentation to `Result URL` throughout the inspector and preserved direct Tow Away for unplanned Ideas. Tool-only source, summary, and hypothesis content is never rendered for Idea records.
+- The focused rendering/inspector gate passed 2 files and 12 tests; the full `npm test` gate passed 23 files and 204 tests; `npm run lint` exited 0; `npm run build` compiled successfully with `/`, `/api/analyze-url`, and `/api/manager-patrol` present.
