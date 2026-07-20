@@ -350,7 +350,7 @@ Expected: all domain tests PASS.
 - Test: `src/lib/parking/fixtures.test.ts`
 - Test: `src/lib/parking/storage.test.ts`
 
-- [ ] **Step 1: Write failing fixture and storage tests**
+- [x] **Step 1: Write failing fixture and storage tests**
 
 Test exactly three fixtures with IDs `seed-stale`, `seed-driving`, `seed-garaged`; verify one stale parked item, one test-driving item with notes, one garaged item with evidence. Test first-load initialization, reload without duplicate seeds, malformed JSON, wrong version, quota/write failure, and confirmed reset.
 
@@ -366,7 +366,7 @@ it("requires reset for malformed data", () => {
 });
 ```
 
-- [ ] **Step 2: Run tests and verify failure**
+- [x] **Step 2: Run tests and verify failure**
 
 Run:
 
@@ -376,7 +376,7 @@ npx vitest run src/lib/parking/fixtures.test.ts src/lib/parking/storage.test.ts
 
 Expected: FAIL because fixture/storage modules are missing.
 
-- [ ] **Step 3: Implement exact fixtures**
+- [x] **Step 3: Implement exact fixtures**
 
 Use fixed ISO timestamps before the event and complete schema-valid values. Return cloned objects from `makeSeedItems()` so reset never shares mutable references.
 
@@ -440,11 +440,11 @@ export function makeSeedItems(): ParkingItem[] {
 }
 ```
 
-- [ ] **Step 4: Implement the storage result contract**
+- [x] **Step 4: Implement the storage result contract**
 
 Use key `parking-anything:v1` and envelope `{ version: 1, items }`. `loadParkingStore()` returns one of `{ kind: "ok"; items }`, `{ kind: "initialized"; items }`, or `{ kind: "needs_reset"; reason: "malformed" | "wrong_version" }`. `saveParkingStore()` returns `{ ok: true } | { ok: false; error: string }`; it never discards in-memory state. `resetParkingStore()` writes and returns the exact cloned fixtures only after the UI confirmation.
 
-- [ ] **Step 5: Run persistence tests and commit**
+- [x] **Step 5: Run persistence tests and commit**
 
 Run:
 

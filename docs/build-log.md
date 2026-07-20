@@ -22,11 +22,19 @@ This primary Codex task implements the approved Parking Anything v0.4 specificat
 - Implemented the five allowed lifecycle transitions, evidence requirements, terminal-state rejection, immutable updates, and deterministic injected timestamps.
 - Switched Vitest alias resolution to Vite's installed native `resolve.tsconfigPaths` support after Vite 8 emitted a deprecation advisory for the planned plugin path; behavior is unchanged and test output is clean.
 
+### 2026-07-20 — Phase 3: Repeatable demo persistence
+
+- Added the exact three approved deterministic fixtures: one stale parked item, one test-driving item with notes, and one garaged item with evidence.
+- Used RED-GREEN TDD for fixtures and storage; both suites first failed on missing modules, then passed after the minimum implementation.
+- Implemented the versioned `parking-anything:v1` localStorage envelope, one-time seed initialization, non-destructive malformed/wrong-version handling, non-throwing write failures, and exact demo reset.
+- Kept persistence local-only and returned fresh fixture clones so reset cannot share mutable references with prior state.
+
 ## Codex Contributions
 
 - Kept the approved spec and plan as the implementation sources of truth.
 - Established the repository, configuration, automated-test runners, evidence log, and secret-handling boundary in the primary implementation task.
 - Defined and tested the domain ownership boundary and lifecycle state machine from the approved specification.
+- Built deterministic seed and versioned storage primitives for a repeatable judge demo without adding cloud persistence.
 
 ## GPT-5.6 Runtime Use
 
@@ -36,6 +44,7 @@ No product runtime request has been made. GPT-5.6 will be called only from serve
 
 - Task 1 scaffold: `npm test` exited 0 with Vitest 4.1.10 and no test files, as expected before domain implementation.
 - Task 2 domain gate: `npx vitest run src/lib/parking/schemas.test.ts src/lib/parking/transitions.test.ts` exited 0 with 2 files and 30 tests passing.
+- Task 3 focused gate: fixture/storage tests exited 0 with 2 files and 10 tests passing; `npm test` then exited 0 with all 4 files and 40 tests passing.
 
 ## Known Tradeoffs
 
