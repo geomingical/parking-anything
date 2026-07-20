@@ -762,7 +762,7 @@ If the demo script already existed elsewhere, stage that actual path instead of 
 - Modify after verification: `docs/build-log.md`
 - Modify after verification: `docs/qa-checklist.md`
 
-- [ ] **Step 1: Confirm the implementation tree is clean and pushed**
+- [x] **Step 1: Confirm the implementation tree is clean and pushed**
 
 ```bash
 git status --short --branch
@@ -771,7 +771,7 @@ git log --oneline --decorate -12
 
 Expected: no unstaged implementation changes; v0.4 tag still resolves to `1fa4f3d`.
 
-- [ ] **Step 2: Deploy only to a protected Vercel Preview**
+- [x] **Step 2: Deploy only to a protected Vercel Preview**
 
 Do not change production environment variables or retrieve secret values. Verify only required variable names exist for Preview. Record the Preview deployment ID and URL without exposing credentials.
 
@@ -785,11 +785,11 @@ Run the complete smoke checklist in:
 
 Verify real Tool analysis and real mixed Patrol once within the quota budget. Verify Idea flows without network.
 
-- [ ] **Step 4: Rehearse rollback without changing production**
+- [x] **Step 4: Rehearse rollback without changing production**
 
 Confirm the verified v0.4 deployment can be reassigned and that v1 remains untouched after v0.5 migration. Record the exact rollback command or Vercel operation, but do not execute a production alias change.
 
-- [ ] **Step 5: Stop at the human production gate**
+- [x] **Step 5: Stop at the human production gate**
 
 Present the Preview URL, verification summary, screenshot evidence, known limitations, and rollback target. Production promotion requires explicit user approval.
 

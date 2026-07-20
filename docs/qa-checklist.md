@@ -68,3 +68,20 @@ Inspected nine states at 1440x900, 1024x768, and 390x844 under the `v0.5-*` file
 - Contact sheets were generated outside the repository solely for inspection; release commits contain only the 27 source PNGs.
 - The final combined E2E gate passed 25 tests across desktop Chromium and Mobile Safari with three documented screenshot-only skips: the immutable v0.4 duplicate in both projects and the desktop-owned v0.5 matrix in mobile.
 - After independent Claude review identified the parked-Idea evidence visibility gap, the planned/unplanned inspector screenshots were refreshed and re-inspected at desktop and mobile sizes; the added evidence section remains reachable through the existing inspector scroll with no page overflow.
+
+## v0.5 protected Preview verification — 2026-07-20
+
+Preview deployment `dpl_9SZMM62Tg267Nh7oKyt4fApGKqh2` was verified at `https://parking-anything-gs8epyuqv-aim-ing-data.vercel.app` with Vercel Authentication retained. Production remained on the verified v0.4 deployment throughout these checks.
+
+- [x] Required Preview variable names are configured: `OPENAI_API_KEY`, `OPENAI_ANALYZE_MODEL`, `OPENAI_PATROL_MODEL`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `RATE_LIMIT_HASH_SECRET`, `DEMO_API_ENABLED`, `RATE_LIMIT_IP_MAX`, `RATE_LIMIT_IP_WINDOW_SECONDS`, and `RATE_LIMIT_GLOBAL_DAILY_MAX`. Values were not retrieved or printed.
+- [x] An authenticated fresh/reset browser received the exact three seed records, showed no false storage warning, and retained later lifecycle changes after reload.
+- [ ] An exact strict-v1 profile is migrated in the protected Preview and independently compared byte-for-byte.
+- [ ] A malformed-v2 plus valid-v1 profile is exercised in the protected Preview without changing either key.
+- [x] The two storage profiles above pass the committed local Playwright suite. Live protected-Preview injection remains unclaimed because the authenticated browser security boundary rejected scripted storage seeding and explicitly prohibited workaround attempts.
+- [x] Manual Idea capture made no network request and one Idea completed planning -> Test Drive -> evidence -> shared Garage. A separate unplanned Idea moved directly to the shared Scrapyard.
+- [x] One real Tool analysis completed through the Preview route in 6,545 ms and visibly returned the expected URL-only fallback warning with a GPT-generated parked Tool record.
+- [x] One real mixed Manager Patrol completed in 7,252 ms. Tool and Idea Observed Facts remained deterministic and visibly separate from GPT-5.6 Recommendation or deterministic fallback provenance.
+- [x] The unplanned-Idea command displayed `Plan Test Drive`, opened the existing parked record, focused `#idea-effort`, and did not mutate its status.
+- [x] Desktop 1440x900 and mobile 390x844 reported `scrollWidth === clientWidth`; viewport screenshots are stored as `v0.5-preview-*-plan-test-drive.png` and show reachable planning controls without overlap.
+- [x] The live Preview browser console contained zero error entries.
+- [x] Read-only rollback rehearsal confirmed `parking-anything.vercel.app` still aliases ready production deployment `dpl_8R5o3DrmyPiE3vUyQ1ZbZinfFpHa`; no alias, protection, secret, environment, or production deployment change was made.
