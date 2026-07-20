@@ -15,16 +15,18 @@ const evidenceFreeDrive: ParkingItem = {
 function renderInspector(
   item: ParkingItem,
   onApplyAction = vi.fn().mockReturnValue({ ok: true }),
+  onUpdateEvidence = vi.fn().mockReturnValue({ ok: true }),
 ) {
   return {
     onApplyAction,
+    onUpdateEvidence,
     ...render(
       <ItemInspector
         item={item}
         open
         onOpenChange={vi.fn()}
         onApplyAction={onApplyAction}
-        onUpdateEvidence={vi.fn().mockReturnValue({ ok: true })}
+        onUpdateEvidence={onUpdateEvidence}
         onUpdateIdea={vi.fn().mockReturnValue({ ok: true })}
       />,
     ),
@@ -98,6 +100,32 @@ describe("ItemInspector", () => {
     expect(screen.getByText("Planning needed")).toBeVisible();
     expect(screen.queryByText("What it appears to do")).not.toBeInTheDocument();
     expect(screen.queryByText("Usefulness hypothesis")).not.toBeInTheDocument();
+  });
+
+  it("edits evidence for a parked Idea while preserving parked Tool behavior", async () => {
+    const user = userEvent.setup();
+    const idea: ParkingItem = {
+      id: "idea-evidence",
+      kind: "idea",
+      status: "parked",
+      title: "Capture evidence early",
+      ideaText: "Record useful context before a formal test starts.",
+      createdAt: "2026-07-20T00:00:00.000Z",
+      updatedAt: "2026-07-20T00:00:00.000Z",
+      lastActivityAt: "2026-07-20T00:00:00.000Z",
+    };
+    const { onUpdateEvidence, unmount } = renderInspector(idea);
+
+    await user.type(screen.getByLabelText("Test notes"), "Early supporting evidence.");
+    await user.tab();
+
+    expect(onUpdateEvidence).toHaveBeenCalledWith("Early supporting evidence.", "");
+    expect(screen.getByLabelText("Result URL")).toBeVisible();
+
+    unmount();
+    renderInspector(makeSeedItems()[0]);
+    expect(screen.queryByLabelText("Test notes")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Result URL")).not.toBeInTheDocument();
   });
 
   it("focuses the first missing planning field without starting Test Drive", async () => {

@@ -70,6 +70,9 @@ function ItemInspectorContent({ item, open, onOpenChange, onApplyAction, onUpdat
 
   const terminal = item.status === "garaged" || item.status === "scrapped";
   const ideaReady = item.kind !== "idea" || Boolean(item.effortTier && item.suggestedTestTask?.trim());
+  const evidenceEditable =
+    item.status === "test_driving" ||
+    (item.kind === "idea" && item.status === "parked");
 
   function focusMissingPlanning() {
     setValidationMessage("Add an effort tier and first test task before starting a Test Drive.");
@@ -92,7 +95,7 @@ function ItemInspectorContent({ item, open, onOpenChange, onApplyAction, onUpdat
   }
 
   function persistEvidenceIfChanged() {
-    if (item.status !== "test_driving") return;
+    if (!evidenceEditable) return;
     const nextNotes = notes.trim();
     const nextResultUrl = resultUrl.trim();
     if (!validOptionalHttpUrl(nextResultUrl)) {
@@ -167,7 +170,7 @@ function ItemInspectorContent({ item, open, onOpenChange, onApplyAction, onUpdat
             </section>
           )}
 
-          {item.status === "test_driving" ? (
+          {evidenceEditable ? (
             <section className="space-y-4 py-5">
               <div><label htmlFor="test-notes" className="text-sm font-black">Test notes</label><textarea id="test-notes" value={notes} maxLength={2000} rows={5} onChange={(event) => setNotes(event.target.value)} onBlur={persistEvidenceIfChanged} className="mt-2 w-full resize-y border-2 border-[var(--ink)] bg-white p-3" /></div>
               <div><label htmlFor="result-url" className="text-sm font-black">Result URL</label><input id="result-url" type="url" value={resultUrl} maxLength={2048} onChange={(event) => setResultUrl(event.target.value)} onBlur={persistEvidenceIfChanged} className="mt-2 h-11 w-full border-2 border-[var(--ink)] bg-white px-3" /></div>
