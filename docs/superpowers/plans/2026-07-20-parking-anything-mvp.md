@@ -584,7 +584,7 @@ Expected: component test and lint PASS; no roadmap UI exists.
 - Test: `src/hooks/use-parking-store.test.tsx`
 - Test: `src/components/parking/item-inspector.test.tsx`
 
-- [ ] **Step 1: Write failing hook tests**
+- [x] **Step 1: Write failing hook tests**
 
 Test initialization, add item, each lifecycle action, persistence warning without in-memory data loss, reset confirmation result, and malformed-storage reset state.
 
@@ -595,7 +595,7 @@ expect(result.current.items).toContainEqual(newItem);
 expect(JSON.parse(localStorage.getItem(STORAGE_KEY)! ).items).toContainEqual(newItem);
 ```
 
-- [ ] **Step 2: Implement `useParkingStore` around pure modules**
+- [x] **Step 2: Implement `useParkingStore` around pure modules**
 
 Expose:
 
@@ -615,7 +615,7 @@ type ParkingStoreController = {
 
 Load once in a lazy state initializer, save after accepted state changes, and retain the new in-memory state when `saveParkingStore()` fails. Do not write during render.
 
-- [ ] **Step 3: Write failing inspector behavior tests**
+- [x] **Step 3: Write failing inspector behavior tests**
 
 Cover these exact interactions:
 
@@ -630,15 +630,15 @@ expect(screen.getByText("Record why this tool is leaving before towing it away."
 
 Also assert terminal items expose no state-changing buttons.
 
-- [ ] **Step 4: Implement the inspector as an accessible responsive dialog**
+- [x] **Step 4: Implement the inspector as an accessible responsive dialog**
 
 Use Radix Dialog. Desktop content is a right-side inspector; mobile content is a full-height bottom/side sheet. Include title, source link, effort label, summary, usefulness hypothesis, suggested test task, notes, result URL, and only valid actions. Use Lucide icons for close/external-link commands with tooltips. Keep validation text inline and preserve user input after errors.
 
-- [ ] **Step 5: Implement `ParkingApp` orchestration without APIs yet**
+- [x] **Step 5: Implement `ParkingApp` orchestration without APIs yet**
 
 Maintain `activeStatus`, derive filtered items and counts, wire selection, reset confirmation, lifecycle actions, storage warnings, and the inspector. Leave analyze and patrol callbacks as explicit disabled/loading-ready props that Task 9 will replace; do not fake AI output.
 
-- [ ] **Step 6: Run lifecycle tests and commit**
+- [x] **Step 6: Run lifecycle tests and commit**
 
 Run:
 

@@ -37,6 +37,14 @@ This primary Codex task implements the approved Parking Anything v0.4 specificat
 - Implemented the single-page mission header, semantic status tabs, asphalt parking canvas with stable tracks, readable text status labels, accessible car buttons, and only the three purposeful transition animation classes.
 - Kept the shell focused on the approved AI Tools zone with no roadmap labels or fake AI behavior.
 
+### 2026-07-20 — Phase 5: Local lifecycle controller and inspector
+
+- Used RED-GREEN TDD for the local store hook and responsive inspector. Hook tests cover initialization, add/persist, every lifecycle path, validation failure without mutation, evidence timestamps, reset, malformed storage, and non-destructive persistence failure.
+- Implemented semantic status filtering/counts, car selection, the responsive Radix inspector, status-specific actions, inline Garage/Tow validation, evidence drafts, reset confirmation, and persistence/reset guidance.
+- Analyze remains explicitly disabled at this phase; no mocked production AI behavior was added.
+- ESLint rejected synchronous prop-to-state resets inside an inspector effect. The inspector now uses a keyed inner component so drafts initialize on item/status mount without cascading renders.
+- The first production compile exposed `npm init`'s stale CommonJS default and a parent lockfile causing incorrect Turbopack root inference. Setting the package to ESM and `turbopack.root` to this repository fixed the root causes; the next Next.js 16.2.10 build compiled and statically generated `/` successfully.
+
 ## Codex Contributions
 
 - Kept the approved spec and plan as the implementation sources of truth.
@@ -44,6 +52,7 @@ This primary Codex task implements the approved Parking Anything v0.4 specificat
 - Defined and tested the domain ownership boundary and lifecycle state machine from the approved specification.
 - Built deterministic seed and versioned storage primitives for a repeatable judge demo without adding cloud persistence.
 - Generated and integrated the custom car assets and implemented the accessible municipal-parking visual shell.
+- Connected the pure domain/storage primitives to a tested local state controller and complete evidence-backed lifecycle inspector.
 
 ## GPT-5.6 Runtime Use
 
@@ -55,6 +64,7 @@ No product runtime request has been made. GPT-5.6 will be called only from serve
 - Task 2 domain gate: `npx vitest run src/lib/parking/schemas.test.ts src/lib/parking/transitions.test.ts` exited 0 with 2 files and 30 tests passing.
 - Task 3 focused gate: fixture/storage tests exited 0 with 2 files and 10 tests passing; `npm test` then exited 0 with all 4 files and 40 tests passing.
 - Task 4 shell gate: the parking-lot component suite exited 0 with 3 tests passing, `npm run lint` exited 0, and the full `npm test` gate exited 0 with 5 files and 43 tests passing.
+- Task 5 focused gate: hook/inspector suites exited 0 with 2 files and 15 tests passing; ESLint exited 0; the full unit gate exited 0 with 7 files and 58 tests passing; `npm run build` exited 0 after the ESM/root configuration correction.
 
 ## Known Tradeoffs
 

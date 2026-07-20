@@ -1,7 +1,7 @@
 {
-  "name": "parking_anything",
+  "name": "parking-anything",
   "version": "1.0.0",
-  "description": "",
+  "description": "Turn saved AI tools into testable decisions.",
   "main": "index.js",
   "directories": {
     "doc": "docs"
@@ -18,8 +18,8 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
-  "type": "commonjs",
+  "license": "MIT",
+  "type": "module",
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.20",
     "@upstash/ratelimit": "^2.0.8",
