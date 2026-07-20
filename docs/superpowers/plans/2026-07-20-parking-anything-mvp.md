@@ -993,7 +993,7 @@ Expected: candidate, service, and route tests PASS.
 - Test: `src/components/parking/parking-app.test.tsx`
 - Test: `src/components/parking/manager-patrol.test.tsx`
 
-- [ ] **Step 1: Write failing analyze integration tests**
+- [x] **Step 1: Write failing analyze integration tests**
 
 Mock `fetch` and assert loading text includes the URL, duplicate submit is disabled, API error preserves input/retry, URL-only warning is visible, successful analysis creates exactly one client-owned parked item, and IDs/timestamps/status do not come from server fields.
 
@@ -1006,7 +1006,7 @@ expect(savedItems[0]).toMatchObject({ status: "parked", category: "ai_tool" });
 expect(savedItems[0].id).toEqual(expect.any(String));
 ```
 
-- [ ] **Step 2: Implement client-owned item assembly**
+- [x] **Step 2: Implement client-owned item assembly**
 
 Parse JSON through `AnalyzeUrlResponseSchema`. On success, construct:
 
@@ -1026,15 +1026,15 @@ const item: ParkingItem = {
 
 Do not trust extra response fields. Preserve input on any error. Use one `AbortController` per submission and a local `analyzingUrl` guard to prevent duplicates.
 
-- [ ] **Step 3: Write failing patrol provenance tests**
+- [x] **Step 3: Write failing patrol provenance tests**
 
 Assert no active candidates produces all-clear without fetch; active items send at most three selected candidates; `source: "model"` renders headings `Observed Fact` and `GPT-5.6 Recommendation`; `source: "fallback"` renders `Deterministic fallback` and never the GPT heading; 429/503 shows actionable availability text without altering items.
 
-- [ ] **Step 4: Implement `ManagerPatrol` and wire the route**
+- [x] **Step 4: Implement `ManagerPatrol` and wire the route**
 
 Use `selectPatrolCandidates`. The component has one command button with a Lucide ScanSearch icon and fixed loading dimensions. Render each result in an individual recommendation row, not a nested card. Place factual staleness above the separate recommendation region. Recommendations never invoke lifecycle actions automatically; they may focus/select the corresponding car so the user makes the decision in the inspector.
 
-- [ ] **Step 5: Run UI integration tests and commit**
+- [x] **Step 5: Run UI integration tests and commit**
 
 Run:
 

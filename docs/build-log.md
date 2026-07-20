@@ -84,6 +84,13 @@ This primary Codex task implements the approved Parking Anything v0.4 specificat
 - Valid siblings retain `source: "model"`; each missing or invalid sibling receives an explicit `source: "fallback"`. Complete model/API failure returns only the oldest candidate's deterministic fallback, while an empty candidate list returns all-clear without quota or model use.
 - The live `/api/manager-patrol` check returned `200` in 3,637 ms: the stale parked seed received a model-backed `start_test_drive` suggestion, while the test-driving sibling received a clearly labeled deterministic `scrap` fallback. No rationale or local evidence was recorded in the verification output.
 
+### 2026-07-20 — Phase 10: Live AI product integration
+
+- Used RED-GREEN TDD for Analyze & Park loading/duplicate guards, client-owned item assembly, retry behavior, URL-only warnings, strict rejection of server-owned item fields, patrol candidate minimization, provenance rendering, and actionable quota states.
+- Analyze & Park now normalizes the submitted HTTP(S) URL, uses one abort controller per guarded submission, validates the bounded server DTO, and creates exactly one local `parked` item with a client UUID and client timestamps. Errors retain the URL for retry; successful URL-only mode remains visibly labeled.
+- Added the Manager Patrol command with a fixed-size ScanSearch button and flat recommendation rows. Each row displays deterministic `Observed Fact` text separately from either `GPT-5.6 Recommendation` or `Deterministic fallback`; suggestions only focus the relevant car and never mutate lifecycle state.
+- The UI selects at most three deterministic active candidates and never sends notes, repository URLs, decision reasons, or the full local store. Empty patrol is local all-clear; `429`/`503` responses provide actionable retry/availability text without changing items.
+
 ## Codex Contributions
 
 - Kept the approved spec and plan as the implementation sources of truth.
@@ -97,6 +104,7 @@ This primary Codex task implements the approved Parking Anything v0.4 specificat
 - Protected both planned model routes behind reusable bounded-request and shared-quota primitives.
 - Implemented the first real product AI boundary with the official Responses API Structured Outputs interface while preserving client ownership of deterministic parking facts.
 - Implemented grounded Manager Patrol assembly that keeps deterministic observations separate from model judgment and preserves provenance through partial failure.
+- Connected both server AI boundaries to the local-first product without surrendering client ownership of persistence or state transitions.
 
 ## GPT-5.6 Runtime Use
 
@@ -116,6 +124,7 @@ No product runtime request has been made. GPT-5.6 will be called only from serve
 - Task 8 live gate: server-only authentication reached `gpt-5.6-luna`; the route returned a schema-complete URL-only analysis with HTTP `200` in 4,986 ms.
 - Task 9 gate: candidate/service/route suites exited 0 with 3 files and 21 tests passing; `npm run lint` and `npm run build` exited 0; the build manifest contains both `/api/analyze-url` and `/api/manager-patrol`.
 - Task 9 live gate: `gpt-5.6-terra` patrol returned HTTP `200` in 3,637 ms with one validated model recommendation and one independently assembled fallback.
+- Task 10 gate: analyze/patrol UI suites exited 0 with 2 files and 11 tests passing; `npm run lint` exited 0; the full unit gate passed 20 files and 159 tests; `npm run build` exited 0 with both dynamic routes present.
 
 ## Known Tradeoffs
 
