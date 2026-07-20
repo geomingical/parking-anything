@@ -74,6 +74,7 @@ This primary Codex task implements the approved Parking Anything v0.4 specificat
 - Added a lazy server-only OpenAI client and `gpt-5.6-luna` analysis request with a 700-token ceiling. The server returns only `AnalyzeUrlResponse`; item identity, timestamps, category, and persisted lifecycle status remain client-owned.
 - Added `/api/analyze-url` with quota-first ordering, bounded parsing, fixed schema/error responses, Node runtime, and a 20-second route limit. All automated tests use injected model/fetch dependencies and made no real OpenAI request.
 - Production type-checking exposed that `ipaddr.js`'s `kind()` method does not narrow its TypeScript union; the already-tested IPv4-mapped IPv6 guard now uses the library's explicit `IPv6` class check with unchanged runtime behavior.
+- Human key checkpoint completed without exposing the credential: authenticated model metadata returned `200` for `gpt-5.6-luna`. The first live `/api/analyze-url` inference returned `200` in 4,986 ms for `https://openai.com/`, used the designed `url_only` fallback, identified the title as `OpenAI`, selected `quick_spin`, and populated every required structured field. No key or fetched page content was recorded.
 
 ## Codex Contributions
 
@@ -103,6 +104,7 @@ No product runtime request has been made. GPT-5.6 will be called only from serve
 - Task 6 gate: URL-safety/page-fetch suites exited 0 with 2 files and 33 tests passing; `npm run lint` exited 0.
 - Task 7 gate: bounded-request/quota suites exited 0 with 2 files and 16 tests passing; `npm run lint` exited 0.
 - Task 8 gate: OpenAI parser/analysis/route suites exited 0 with 3 files and 19 tests passing; the related URL-safety regression suite passed; `npm run lint` and `npm run build` exited 0; the full unit gate passed 15 files and 127 tests.
+- Task 8 live gate: server-only authentication reached `gpt-5.6-luna`; the route returned a schema-complete URL-only analysis with HTTP `200` in 4,986 ms.
 
 ## Known Tradeoffs
 
