@@ -89,8 +89,102 @@ describe("ParkingApp live analysis", () => {
 
     const future = screen.getByRole("button", { name: "Park whatever · Future" });
     expect(future).toBeDisabled();
+    expect(future).toHaveAccessibleDescription(
+      "Additional parkable object types are planned for a future release.",
+    );
+    const gather = screen.getByRole("button", { name: "Gather · Future" });
+    expect(gather).toBeDisabled();
+    expect(gather).toHaveAccessibleDescription(
+      "Collaboration around parked tools and ideas is planned for a future release.",
+    );
     await user.click(future);
+    await user.click(gather);
     expect(fetch).not.toHaveBeenCalled();
+    expect(storedItems()).toHaveLength(3);
+  });
+
+  it("keeps one Idea record through planning, Test Drive, evidence, and Garage", async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    vi.stubGlobal("fetch", vi.fn());
+    render(<ParkingApp />);
+
+    await user.click(await screen.findByRole("tab", { name: "Park idea" }));
+    await user.type(screen.getByLabelText("Idea title"), "Decision receipt");
+    await user.type(
+      screen.getByLabelText("Idea"),
+      "Record the decision and its owner before a meeting ends.",
+    );
+    await user.click(screen.getByRole("button", { name: "Park Idea" }));
+
+    await user.click(
+      await screen.findByRole("button", { name: "Decision receipt, Parked" }),
+    );
+    await user.selectOptions(screen.getByLabelText("Effort tier"), "quick_spin");
+    await user.type(
+      screen.getByLabelText("First test task"),
+      "Capture one decision in the next meeting.",
+    );
+    await user.click(screen.getByRole("button", { name: "Save planning" }));
+
+    expect(storedItems().filter(({ id }) => id === "client-owned-id")).toEqual([
+      expect.objectContaining({
+        id: "client-owned-id",
+        kind: "idea",
+        status: "parked",
+        effortTier: "quick_spin",
+        suggestedTestTask: "Capture one decision in the next meeting.",
+      }),
+    ]);
+
+    await user.click(screen.getByRole("button", { name: "Start Test Drive" }));
+    expect(await screen.findByText("Test Driving")).toBeVisible();
+    await user.type(screen.getByLabelText("Test notes"), "The owner confirmed the record.");
+    await user.tab();
+    await user.click(screen.getByRole("button", { name: "Park in Garage" }));
+
+    await user.click(screen.getByRole("tab", { name: "Garage 2" }));
+    expect(
+      await screen.findByRole("button", { name: "Decision receipt, Garaged" }),
+    ).toBeVisible();
+    const records = storedItems().filter(({ id }) => id === "client-owned-id");
+    expect(records).toHaveLength(1);
+    expect(records[0]).toMatchObject({
+      kind: "idea",
+      status: "garaged",
+      notes: "The owner confirmed the record.",
+    });
+  });
+
+  it("tows one unplanned Idea directly into the shared Scrapyard", async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    vi.stubGlobal("fetch", vi.fn());
+    render(<ParkingApp />);
+
+    await user.click(await screen.findByRole("tab", { name: "Park idea" }));
+    await user.type(screen.getByLabelText("Idea title"), "Too broad to test");
+    await user.type(screen.getByLabelText("Idea"), "A deliberately unplanned idea.");
+    await user.click(screen.getByRole("button", { name: "Park Idea" }));
+    await user.click(
+      await screen.findByRole("button", { name: "Too broad to test, Parked" }),
+    );
+    await user.click(screen.getByRole("button", { name: "Tow Away" }));
+    await user.type(
+      screen.getByLabelText("Decision reason"),
+      "No bounded experiment can be defined yet.",
+    );
+    await user.click(screen.getByRole("button", { name: "Confirm Tow Away" }));
+
+    await user.click(screen.getByRole("tab", { name: "Scrapyard 1" }));
+    expect(
+      await screen.findByRole("button", { name: "Too broad to test, Scrapped" }),
+    ).toBeVisible();
+    const records = storedItems().filter(({ id }) => id === "client-owned-id");
+    expect(records).toHaveLength(1);
+    expect(records[0]).toMatchObject({
+      kind: "idea",
+      status: "scrapped",
+      finalDecisionReason: "No bounded experiment can be defined yet.",
+    });
   });
 
   it("creates exactly one client-owned parked item from a valid response", async () => {

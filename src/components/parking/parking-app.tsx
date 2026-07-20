@@ -93,6 +93,27 @@ export function ParkingApp() {
           )}
         </div>
       </section>
+      <section
+        aria-label="Future collaboration"
+        className="border-b border-black/10 bg-white px-5 py-3 sm:px-8"
+      >
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
+          <p className="text-sm text-[var(--muted-ink)]">
+            Bring people together around parked tools, ideas, experiments, notes, and decisions.
+          </p>
+          <button
+            type="button"
+            disabled
+            aria-describedby="gather-future-description"
+            className="h-10 shrink-0 cursor-not-allowed border border-black/20 bg-black/5 px-4 text-sm font-bold text-black/45"
+          >
+            Gather · Future
+          </button>
+          <span id="gather-future-description" className="sr-only">
+            Collaboration around parked tools and ideas is planned for a future release.
+          </span>
+        </div>
+      </section>
       <main className="mx-auto max-w-7xl px-5 py-6 sm:px-8 sm:py-8">
         {store.storageWarning ? (
           <p role="status" className="mb-4 border-l-4 border-[var(--safety)] bg-white px-4 py-3 text-sm font-bold">

@@ -631,15 +631,15 @@ git commit -m "feat: patrol mixed parkable candidates"
 - Modify: `src/components/parking/status-tabs.tsx`
 - Modify: `src/app/globals.css`
 
-- [ ] **Step 1: Add a complete component-level user journey**
+- [x] **Step 1: Add a complete component-level user journey**
 
 Test: select Park idea, capture it, open its vehicle, save planning, Start Test Drive, add notes, Garage it, switch to Garage, and verify one record with the same ID. Add a second journey that directly tows an unplanned Idea and finds the same ID in Scrapyard.
 
-- [ ] **Step 2: Add disabled future controls**
+- [x] **Step 2: Add disabled future controls**
 
 Render `Gather · Future` outside the capture switcher. Assert both Future controls have native disabled semantics, explanatory accessible text, and no loading, success, fetch, or store effects.
 
-- [ ] **Step 3: Run component, hydration, and full gates**
+- [x] **Step 3: Run component, hydration, and full gates**
 
 ```bash
 npx vitest run src/components/parking/parking-app.test.tsx src/components/parking/parking-app.hydration.test.tsx
@@ -648,7 +648,7 @@ npm run check
 
 Expected: lint, all unit tests, type checks, and production build pass.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/components/parking/parking-app.tsx src/components/parking/parking-app.test.tsx src/components/parking/status-tabs.tsx src/app/globals.css
