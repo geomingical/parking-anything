@@ -345,7 +345,7 @@ git commit -m "feat: migrate parking storage to v2"
 - Create: `src/lib/parking/activity.ts`
 - Modify: `src/lib/parking/patrol.ts`
 
-- [ ] **Step 1: Write failing transition and activity tests**
+- [x] **Step 1: Write failing transition and activity tests**
 
 Include:
 
@@ -373,17 +373,17 @@ it.each([
 });
 ```
 
-- [ ] **Step 2: Run tests and verify RED**
+- [x] **Step 2: Run tests and verify RED**
 
 ```bash
 npx vitest run src/lib/parking/transitions.test.ts src/lib/parking/activity.test.ts
 ```
 
-- [ ] **Step 3: Implement shared validated transitions**
+- [x] **Step 3: Implement shared validated transitions**
 
 Rename the Garage action payload to `resultUrl`. Before returning any accepted next item, parse it with `ParkingItemSchema`. Check Idea readiness before constructing `test_driving`; continue setting `testStartedAt` automatically. Preserve the v0.4 allowed-action map and terminal behavior.
 
-- [ ] **Step 4: Implement one shared activity helper**
+- [x] **Step 4: Implement one shared activity helper**
 
 ```ts
 const DAY_MILLISECONDS = 86_400_000;
@@ -399,7 +399,7 @@ export function activityAge(lastActivityAt: string, now: Date) {
 
 Refactor `selectPatrolCandidates` to use this helper without changing its sort/tie/slice behavior.
 
-- [ ] **Step 5: Run tests and commit**
+- [x] **Step 5: Run tests and commit**
 
 ```bash
 npx vitest run src/lib/parking/transitions.test.ts src/lib/parking/activity.test.ts src/lib/parking/patrol.test.ts

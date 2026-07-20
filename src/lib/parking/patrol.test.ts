@@ -16,6 +16,7 @@ describe("selectPatrolCandidates", () => {
     ).toEqual([
       {
         id: "seed-stale",
+        kind: "ai_tool",
         title: "OpenAI Platform Docs",
         effortTier: "focused_session",
         status: "parked",
@@ -23,6 +24,7 @@ describe("selectPatrolCandidates", () => {
       },
       {
         id: "seed-driving",
+        kind: "ai_tool",
         title: "OpenAI Node SDK",
         effortTier: "focused_session",
         status: "test_driving",
@@ -41,7 +43,7 @@ describe("selectPatrolCandidates", () => {
         title: `Active ${day}`,
         lastActivityAt: `2026-07-0${day}T00:00:00.000Z`,
         notes: "private notes",
-        repoUrl: "https://github.com/example/private",
+        resultUrl: "https://github.com/example/private",
         finalDecisionReason: "private decision",
       })),
     ];
@@ -59,7 +61,7 @@ describe("selectPatrolCandidates", () => {
     ]);
     expect(JSON.stringify(candidates)).not.toContain("private");
     expect(candidates[0]).not.toHaveProperty("notes");
-    expect(candidates[0]).not.toHaveProperty("repoUrl");
+    expect(candidates[0]).not.toHaveProperty("resultUrl");
     expect(candidates[0]).not.toHaveProperty("finalDecisionReason");
   });
 

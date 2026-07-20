@@ -1,9 +1,9 @@
-import type { ParkingItem } from "./schemas";
+import { ParkingItemSchema, type ParkingItem } from "./schemas";
 
 export type ParkingAction =
   | { type: "start_test_drive" }
   | { type: "return_to_lot" }
-  | { type: "park_in_garage"; notes: string; repoUrl: string }
+  | { type: "park_in_garage"; notes: string; resultUrl: string }
   | { type: "tow_away"; finalDecisionReason: string };
 
 const TERMINAL_MESSAGE = "This item has reached a final decision and cannot be moved.";
@@ -12,6 +12,8 @@ const GARAGE_EVIDENCE_MESSAGE =
   "Add a note or result link before parking in the Garage.";
 const TOW_REASON_MESSAGE =
   "Record why this tool is leaving before towing it away.";
+const IDEA_PLANNING_MESSAGE =
+  "Add an effort tier and first test task before starting a Test Drive.";
 
 function withActivity(
   nowIso: string,
@@ -32,37 +34,44 @@ export function transitionItem(
   }
 
   if (item.status === "parked" && action.type === "start_test_drive") {
-    return {
+    if (
+      item.kind === "idea" &&
+      (!item.effortTier || !item.suggestedTestTask?.trim())
+    ) {
+      throw new Error(IDEA_PLANNING_MESSAGE);
+    }
+
+    return ParkingItemSchema.parse({
       ...item,
       status: "test_driving",
       testStartedAt: nowIso,
       ...withActivity(nowIso),
-    };
+    });
   }
 
   if (item.status === "test_driving" && action.type === "return_to_lot") {
-    return {
+    return ParkingItemSchema.parse({
       ...item,
       status: "parked",
       ...withActivity(nowIso),
-    };
+    });
   }
 
   if (item.status === "test_driving" && action.type === "park_in_garage") {
     const notes = action.notes.trim() || item.notes?.trim();
-    const repoUrl = action.repoUrl.trim() || item.repoUrl?.trim();
+    const resultUrl = action.resultUrl.trim() || item.resultUrl?.trim();
 
-    if (!notes && !repoUrl) {
+    if (!notes && !resultUrl) {
       throw new Error(GARAGE_EVIDENCE_MESSAGE);
     }
 
-    return {
+    return ParkingItemSchema.parse({
       ...item,
       status: "garaged",
       ...(notes ? { notes } : {}),
-      ...(repoUrl ? { repoUrl } : {}),
+      ...(resultUrl ? { resultUrl } : {}),
       ...withActivity(nowIso),
-    };
+    });
   }
 
   if (
@@ -75,12 +84,12 @@ export function transitionItem(
       throw new Error(TOW_REASON_MESSAGE);
     }
 
-    return {
+    return ParkingItemSchema.parse({
       ...item,
       status: "scrapped",
       finalDecisionReason,
       ...withActivity(nowIso),
-    };
+    });
   }
 
   throw new Error(INVALID_ACTION_MESSAGE);

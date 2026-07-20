@@ -8,7 +8,7 @@ const NOW = "2026-07-20T01:00:00.000Z";
 const parkedItem: ParkingItem = {
   id: "item-1",
   url: "https://example.com/tool",
-  category: "ai_tool",
+  kind: "ai_tool",
   status: "parked",
   title: "Example Tool",
   summary: "A concise description of an AI tool.",
@@ -26,6 +26,17 @@ const testDrivingItem: ParkingItem = {
   testStartedAt: "2026-07-19T02:00:00.000Z",
 };
 
+const parkedIdea: ParkingItem = {
+  id: "idea-1",
+  kind: "idea",
+  status: "parked",
+  title: "Compare onboarding flows",
+  ideaText: "Prototype both flows with five users.",
+  createdAt: "2026-07-19T00:00:00.000Z",
+  updatedAt: "2026-07-19T00:00:00.000Z",
+  lastActivityAt: "2026-07-19T00:00:00.000Z",
+};
+
 describe("transitionItem", () => {
   it("starts a test drive and updates activity timestamps", () => {
     expect(transitionItem(parkedItem, { type: "start_test_drive" }, NOW)).toEqual({
@@ -34,6 +45,34 @@ describe("transitionItem", () => {
       testStartedAt: NOW,
       updatedAt: NOW,
       lastActivityAt: NOW,
+    });
+  });
+
+  it("blocks an unplanned Idea from Test Drive without mutation", () => {
+    const original = structuredClone(parkedIdea);
+
+    expect(() =>
+      transitionItem(parkedIdea, { type: "start_test_drive" }, NOW),
+    ).toThrow(
+      "Add an effort tier and first test task before starting a Test Drive.",
+    );
+    expect(parkedIdea).toEqual(original);
+  });
+
+  it("starts a planned Idea Test Drive through the shared transition", () => {
+    const plannedIdea: ParkingItem = {
+      ...parkedIdea,
+      effortTier: "focused_session",
+      suggestedTestTask: "Interview five users.",
+    };
+
+    expect(
+      transitionItem(plannedIdea, { type: "start_test_drive" }, NOW),
+    ).toMatchObject({
+      id: plannedIdea.id,
+      kind: "idea",
+      status: "test_driving",
+      testStartedAt: NOW,
     });
   });
 
@@ -52,7 +91,7 @@ describe("transitionItem", () => {
     expect(
       transitionItem(
         testDrivingItem,
-        { type: "park_in_garage", notes: "Evaluation completed.", repoUrl: "" },
+        { type: "park_in_garage", notes: "Evaluation completed.", resultUrl: "" },
         NOW,
       ),
     ).toMatchObject({
@@ -70,13 +109,13 @@ describe("transitionItem", () => {
         {
           type: "park_in_garage",
           notes: "",
-          repoUrl: "https://github.com/example/result",
+          resultUrl: "https://github.com/example/result",
         },
         NOW,
       ),
     ).toMatchObject({
       status: "garaged",
-      repoUrl: "https://github.com/example/result",
+      resultUrl: "https://github.com/example/result",
     });
   });
 
@@ -84,7 +123,7 @@ describe("transitionItem", () => {
     expect(() =>
       transitionItem(
         testDrivingItem,
-        { type: "park_in_garage", notes: "", repoUrl: "" },
+        { type: "park_in_garage", notes: "", resultUrl: "" },
         NOW,
       ),
     ).toThrow("Add a note or result link before parking in the Garage.");
@@ -110,6 +149,21 @@ describe("transitionItem", () => {
       });
     },
   );
+
+  it("allows direct Tow Away for an unplanned parked Idea", () => {
+    expect(
+      transitionItem(
+        parkedIdea,
+        { type: "tow_away", finalDecisionReason: "Not actionable." },
+        NOW,
+      ),
+    ).toMatchObject({
+      id: parkedIdea.id,
+      kind: "idea",
+      status: "scrapped",
+      finalDecisionReason: "Not actionable.",
+    });
+  });
 
   it.each([parkedItem, testDrivingItem])(
     "blocks Tow Away from $status without a reason",
@@ -145,5 +199,16 @@ describe("transitionItem", () => {
 
     expect(result).not.toBe(parkedItem);
     expect(parkedItem).toEqual(original);
+  });
+
+  it("validates every accepted next item against the persisted schema", () => {
+    const invalidInput = {
+      ...parkedItem,
+      summary: undefined,
+    } as unknown as ParkingItem;
+
+    expect(() =>
+      transitionItem(invalidInput, { type: "start_test_drive" }, NOW),
+    ).toThrow();
   });
 });

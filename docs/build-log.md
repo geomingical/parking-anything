@@ -208,3 +208,9 @@ The dedicated event key was entered locally by the user and remained server-only
 - Used RED-GREEN TDD for the frozen strict v1 reader, pure conversion, malformed-present-v2 precedence, exact `items` to `parkingItems` mapping, `category` removal, `kind: "ai_tool"` addition, `repoUrl` to `resultUrl` mapping, complete-v2 validation, and single-write persistence.
 - Confirmed migration leaves the v1 bytes untouched, retains existing effort tiers and fixture meaning, performs no v2 write for invalid v1 or invalid converted v2 data, and never falls back to v1 when any v2 key is present.
 - The focused storage gate passed 3 files and 18 tests; `npm run lint` exited 0 without warnings. The full unit run advanced to 173 passing tests with 11 expected failures confined to later-plan v1 UI/test factories, old envelope assertions, and Patrol candidates that do not yet include `kind`.
+
+### 2026-07-20 — v0.5 Phase 3: shared lifecycle and deterministic activity age
+
+- Used RED-GREEN TDD for the unplanned-Idea Test Drive gate, planned-Idea shared transition, direct unplanned-Idea Tow Away, `resultUrl` Garage evidence, schema validation of every accepted next state, and exact seven-day complete-day activity boundaries.
+- Added one pure activity helper used by both deterministic `Needs review` state and Patrol selection. Patrol candidates now carry the required `kind` while preserving global staleness ordering, ID tie-breaking, and the three-candidate cap.
+- The focused lifecycle/activity/Patrol gate passed 3 files and 26 tests; `npm run lint` exited 0. The full unit run reached 178 passing tests with 13 expected downstream failures limited to the Task 4 controller/envelope interface, Task 5 Tool assembly, and Task 7 route candidate fixtures.

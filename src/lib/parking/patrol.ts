@@ -1,6 +1,5 @@
 import type { ParkingItem, PatrolCandidate } from "./schemas";
-
-const DAY_MILLISECONDS = 24 * 60 * 60 * 1_000;
+import { activityAge } from "./activity";
 
 export function selectPatrolCandidates(
   items: ParkingItem[],
@@ -11,19 +10,17 @@ export function selectPatrolCandidates(
       (item): item is ParkingItem & { status: "parked" | "test_driving" } =>
         item.status === "parked" || item.status === "test_driving",
     )
-    .map((item) => ({
-      id: item.id,
-      title: item.title,
-      effortTier: item.effortTier,
-      status: item.status,
-      daysSinceActivity: Math.max(
-        0,
-        Math.floor(
-          (now.getTime() - new Date(item.lastActivityAt).getTime()) /
-            DAY_MILLISECONDS,
-        ),
-      ),
-    }))
+    .map((item) => {
+      const { daysSinceActivity } = activityAge(item.lastActivityAt, now);
+      return {
+        id: item.id,
+        kind: item.kind,
+        title: item.title,
+        ...(item.effortTier ? { effortTier: item.effortTier } : {}),
+        status: item.status,
+        daysSinceActivity,
+      };
+    })
     .sort(
       (left, right) =>
         right.daysSinceActivity - left.daysSinceActivity ||
