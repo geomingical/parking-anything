@@ -1064,7 +1064,7 @@ Expected: analyze/patrol integration tests and lint PASS.
 - Modify: `src/components/parking/manager-patrol.tsx`
 - Create: `docs/qa-checklist.md`
 
-- [ ] **Step 1: Write the deterministic end-to-end demo test**
+- [x] **Step 1: Write the deterministic end-to-end demo test**
 
 Mock both API routes with schema-valid responses. Test this exact sequence:
 
@@ -1101,7 +1101,7 @@ test("judge demo resolves curiosity into evidence and a deliberate exit", async 
 
 Add tests for Garage validation, Tow Away validation, reset reproducibility, fallback provenance, and 429/503 messaging.
 
-- [ ] **Step 2: Run Playwright on desktop and mobile**
+- [x] **Step 2: Run Playwright on desktop and mobile**
 
 Run:
 
@@ -1112,7 +1112,7 @@ npm run test:e2e
 
 Expected: all tests PASS in desktop Chromium and Mobile Safari projects.
 
-- [ ] **Step 3: Capture and inspect visual baselines**
+- [x] **Step 3: Capture and inspect visual baselines**
 
 Capture screenshots at 1440x900, 1024x768, and 390x844 for: initial lot, inspector open, patrol results, Garage filter, and Scrapyard filter. Use Playwright `page.screenshot({ fullPage: true })`, then inspect each PNG with `view_image`.
 
@@ -1128,15 +1128,15 @@ Record pass/fail in `docs/qa-checklist.md` for:
 - mobile inspector and confirmation controls remain reachable;
 - no horizontal page scroll.
 
-- [ ] **Step 4: Run automated accessibility and console checks**
+- [x] **Step 4: Run automated accessibility and console checks**
 
 Use Playwright assertions for landmark roles, labels, focus restoration, Escape close, and keyboard tab order. In every E2E test, collect `pageerror` and `console` error events and fail on unexpected entries. Do not add another accessibility dependency during the submission window.
 
-- [ ] **Step 5: Fix only observed QA defects and rerun**
+- [x] **Step 5: Fix only observed QA defects and rerun**
 
 Change the smallest responsible component/CSS rule for each recorded failure. Do not add new features. Rerun the affected Playwright project after each fix, then run the full suite once.
 
-- [ ] **Step 6: Commit verified UX**
+- [x] **Step 6: Commit verified UX**
 
 Run:
 

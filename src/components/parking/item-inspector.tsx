@@ -79,7 +79,9 @@ function ItemInspectorContent({
       setValidationMessage(result.message);
       return;
     }
-    onOpenChange(false);
+    if (action.type !== "start_test_drive") {
+      onOpenChange(false);
+    }
   }
 
   function persistEvidenceIfChanged() {

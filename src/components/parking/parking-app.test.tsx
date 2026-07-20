@@ -68,7 +68,7 @@ describe("ParkingApp live analysis", () => {
       );
     });
     expect(
-      await screen.findByRole("heading", { name: "Example Tool" }),
+      await screen.findByRole("button", { name: "Example Tool, Parked" }),
     ).toBeVisible();
   });
 
@@ -87,7 +87,7 @@ describe("ParkingApp live analysis", () => {
 
     await user.type(await screen.findByLabelText("AI tool URL"), "https://example.com/tool");
     await user.click(screen.getByRole("button", { name: "Analyze & Park" }));
-    await screen.findByRole("heading", { name: "Example Tool" });
+    await screen.findByRole("button", { name: "Example Tool, Parked" });
 
     const created = storedItems().filter(({ id }) => id === "client-owned-id");
     expect(created).toEqual([
@@ -137,7 +137,7 @@ describe("ParkingApp live analysis", () => {
     expect(screen.getByRole("button", { name: "Analyze & Park" })).toBeEnabled();
 
     await user.click(screen.getByRole("button", { name: "Analyze & Park" }));
-    await screen.findByRole("heading", { name: "Example Tool" });
+    await screen.findByRole("button", { name: "Example Tool, Parked" });
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 

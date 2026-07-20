@@ -130,7 +130,6 @@ export function useParkingStore(): ParkingStoreController {
 
   function addItem(item: ParkingItem) {
     commitItems([...buildBrowserSnapshot().items, item]);
-    setSelectedId(item.id);
   }
 
   function applyAction(

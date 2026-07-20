@@ -24,6 +24,7 @@ export function ParkingApp() {
   const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [analysisWarning, setAnalysisWarning] = useState<string | null>(null);
   const analyzeController = useRef<AbortController | null>(null);
+  const itemTrigger = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => () => analyzeController.current?.abort(), []);
 
@@ -133,18 +134,20 @@ export function ParkingApp() {
 
   if (!store.isHydrated) {
     return (
-      <main className="min-h-screen bg-[var(--paper)]">
+      <div className="min-h-screen bg-[var(--paper)]">
         <MissionHeader analyzeDisabled />
-        <div className="mx-auto max-w-7xl px-5 py-6 sm:px-8 sm:py-8">
-          <section
-            aria-busy="true"
-            aria-label="Loading parking data"
-            className="min-h-[24rem] border-2 border-[var(--ink)] bg-[var(--asphalt)] p-6 text-sm font-bold text-white"
-          >
-            Loading parking data…
-          </section>
-        </div>
-      </main>
+        <main>
+          <div className="mx-auto max-w-7xl px-5 py-6 sm:px-8 sm:py-8">
+            <section
+              aria-busy="true"
+              aria-label="Loading parking data"
+              className="min-h-[24rem] border-2 border-[var(--ink)] bg-[var(--asphalt)] p-6 text-sm font-bold text-white"
+            >
+              Loading parking data…
+            </section>
+          </div>
+        </main>
+      </div>
     );
   }
 
@@ -167,19 +170,20 @@ export function ParkingApp() {
   }
 
   return (
-    <main className="min-h-screen bg-[var(--paper)]">
+    <div className="min-h-screen bg-[var(--paper)]">
       <MissionHeader
         url={url}
         onUrlChange={setUrl}
         onAnalyze={analyzeAndPark}
         onReset={() => {
           store.resetDemo();
+          setActiveStatus("parked");
           setAnalysisError(null);
           setAnalysisWarning(null);
         }}
         analyzingUrl={analyzingUrl}
       />
-      <div className="mx-auto max-w-7xl px-5 py-6 sm:px-8 sm:py-8">
+      <main className="mx-auto max-w-7xl px-5 py-6 sm:px-8 sm:py-8">
         {store.storageWarning ? (
           <p role="status" className="mb-4 border-l-4 border-[var(--safety)] bg-white px-4 py-3 text-sm font-bold">
             {store.storageWarning}
@@ -232,15 +236,24 @@ export function ParkingApp() {
               store.selectItem(null);
             }}
           />
-          <ParkingLot items={filteredItems} onSelect={store.selectItem} />
+          <ParkingLot
+            items={filteredItems}
+            onSelect={(id, trigger) => {
+              itemTrigger.current = trigger;
+              store.selectItem(id);
+            }}
+          />
         </section>
-      </div>
+      </main>
 
       <ItemInspector
         item={selectedItem}
         open={selectedItem !== null}
         onOpenChange={(open) => {
-          if (!open) store.selectItem(null);
+          if (!open) {
+            store.selectItem(null);
+            requestAnimationFrame(() => itemTrigger.current?.focus());
+          }
         }}
         onApplyAction={applySelectedAction}
         onUpdateEvidence={(notes, repoUrl) => {
@@ -249,6 +262,6 @@ export function ParkingApp() {
           }
         }}
       />
-    </main>
+    </div>
   );
 }

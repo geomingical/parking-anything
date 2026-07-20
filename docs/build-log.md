@@ -91,6 +91,15 @@ This primary Codex task implements the approved Parking Anything v0.4 specificat
 - Added the Manager Patrol command with a fixed-size ScanSearch button and flat recommendation rows. Each row displays deterministic `Observed Fact` text separately from either `GPT-5.6 Recommendation` or `Deterministic fallback`; suggestions only focus the relevant car and never mutate lifecycle state.
 - The UI selects at most three deterministic active candidates and never sends notes, repository URLs, decision reasons, or the full local store. Empty patrol is local all-clear; `429`/`503` responses provide actionable retry/availability text without changing items.
 
+### 2026-07-20 — Phase 11: End-to-end, accessibility, and visual QA
+
+- Added the deterministic Playwright judge flow and cross-browser coverage for Analyze & Park, evidence-backed Garage/Tow transitions, exact seed reset, grounded patrol provenance, fallback labeling, and actionable `429`/`503` states.
+- Desktop QA exposed five state/interaction defects that focused unit and browser reruns now cover: analyzed items auto-opened unexpectedly, Start Test Drive closed before evidence entry, reset retained the Scrapyard filter, the mission header was nested inside `main`, and controlled-dialog unmounting prevented opener-focus restoration.
+- Traced the initial Playwright hydration stall to the development origin/HMR boundary rather than the localStorage controller. `127.0.0.1` is now an allowed development origin, and a clean browser hydrates the seeded store without console or storage warnings.
+- Captured and visually inspected all 15 required full-page baselines at 1440x900, 1024x768, and 390x844 for the initial lot, inspector, patrol results, Garage, and Scrapyard. The final matrix has no overlaps, clipped vehicles, unreachable controls, or horizontal overflow; status text and provenance remain visible independently of color.
+- Added landmark, label, desktop Tab order, Escape, and focus-restoration checks. Expected browser failed-resource messages are narrowly allowed only in the two deliberately mocked non-2xx tests; every unexpected console error and every page error still fails the suite.
+- The final gate exposed Vitest's default `*.spec.ts` discovery importing the new Playwright file. Vitest now explicitly excludes `e2e/**`, preserving one runner per suite instead of hiding the failure in scripts.
+
 ## Codex Contributions
 
 - Kept the approved spec and plan as the implementation sources of truth.
@@ -105,10 +114,11 @@ This primary Codex task implements the approved Parking Anything v0.4 specificat
 - Implemented the first real product AI boundary with the official Responses API Structured Outputs interface while preserving client ownership of deterministic parking facts.
 - Implemented grounded Manager Patrol assembly that keeps deterministic observations separate from model judgment and preserves provenance through partial failure.
 - Connected both server AI boundaries to the local-first product without surrendering client ownership of persistence or state transitions.
+- Verified the complete judge flow in desktop Chromium and Mobile Safari and preserved the inspected screenshot matrix as build evidence.
 
 ## GPT-5.6 Runtime Use
 
-No product runtime request has been made. GPT-5.6 will be called only from server-side route handlers after the dedicated event key is entered locally at the explicit human checkpoint.
+The dedicated event key was entered locally by the user and remained server-only. Two live product-route requests were completed: URL analysis with `gpt-5.6-luna` and grounded patrol with `gpt-5.6-terra`. Only status, timing, source mode, and schema/provenance outcomes were recorded; the credential and raw response bodies were not printed, logged, or committed.
 
 ## Verification
 
@@ -125,6 +135,7 @@ No product runtime request has been made. GPT-5.6 will be called only from serve
 - Task 9 gate: candidate/service/route suites exited 0 with 3 files and 21 tests passing; `npm run lint` and `npm run build` exited 0; the build manifest contains both `/api/analyze-url` and `/api/manager-patrol`.
 - Task 9 live gate: `gpt-5.6-terra` patrol returned HTTP `200` in 3,637 ms with one validated model recommendation and one independently assembled fallback.
 - Task 10 gate: analyze/patrol UI suites exited 0 with 2 files and 11 tests passing; `npm run lint` exited 0; the full unit gate passed 20 files and 159 tests; `npm run build` exited 0 with both dynamic routes present.
+- Task 11 gate: `npm run lint` exited 0; `npm test` passed 20 files and 159 tests; `npm run test:e2e` passed all 15 applicable checks across desktop Chromium and Mobile Safari with only the intentionally desktop-owned duplicate screenshot test skipped. The final screenshot matrix includes explicit horizontal-overflow assertions.
 
 ## Known Tradeoffs
 

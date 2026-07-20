@@ -17,7 +17,7 @@ const STATUS_LABELS: Record<ParkingItem["status"], string> = {
 
 type CarSpriteProps = {
   item: ParkingItem;
-  onSelect(id: string): void;
+  onSelect(id: string, trigger: HTMLButtonElement): void;
 };
 
 export function CarSprite({ item, onSelect }: CarSpriteProps) {
@@ -27,7 +27,7 @@ export function CarSprite({ item, onSelect }: CarSpriteProps) {
     <button
       type="button"
       aria-label={`${item.title}, ${statusLabel}`}
-      onClick={() => onSelect(item.id)}
+      onClick={(event) => onSelect(item.id, event.currentTarget)}
       className="group flex h-full min-w-0 flex-col items-center justify-between overflow-hidden border border-white/50 bg-[var(--asphalt-deep)]/75 px-3 py-3 text-white transition-colors hover:border-[var(--safety)] hover:bg-[var(--asphalt-deep)]"
     >
       <span className="relative min-h-0 w-full flex-1">

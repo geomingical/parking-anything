@@ -3,7 +3,7 @@ import { CarSprite } from "./car-sprite";
 
 type ParkingLotProps = {
   items: ParkingItem[];
-  onSelect(id: string): void;
+  onSelect(id: string, trigger: HTMLButtonElement): void;
 };
 
 export function ParkingLot({ items, onSelect }: ParkingLotProps) {
