@@ -214,3 +214,10 @@ The dedicated event key was entered locally by the user and remained server-only
 - Used RED-GREEN TDD for the unplanned-Idea Test Drive gate, planned-Idea shared transition, direct unplanned-Idea Tow Away, `resultUrl` Garage evidence, schema validation of every accepted next state, and exact seven-day complete-day activity boundaries.
 - Added one pure activity helper used by both deterministic `Needs review` state and Patrol selection. Patrol candidates now carry the required `kind` while preserving global staleness ordering, ID tie-breaking, and the three-candidate cap.
 - The focused lifecycle/activity/Patrol gate passed 3 files and 26 tests; `npm run lint` exited 0. The full unit run reached 178 passing tests with 13 expected downstream failures limited to the Task 4 controller/envelope interface, Task 5 Tool assembly, and Task 7 route candidate fixtures.
+
+### 2026-07-20 — v0.5 Phase 4: validated mixed-item store controller
+
+- Used RED-GREEN TDD for adding Ideas, complete-envelope validation, active Idea editing, test-driving planning protection, terminal edit rejection, `resultUrl` evidence, exact reset, v1 migration hydration, and session-only publication after a valid write failure.
+- Every controller command now builds and validates one complete v2 proposal before persistence. Validation failure performs no write or publication; storage failure publishes the valid state with the existing warning. Planning and evidence edits refresh both activity timestamps immediately.
+- Root-cause analysis of the first full gate found only stale schema consumers: Tool assembly still emitted `category`, two tests read the old `.items` envelope, and route fixtures omitted `kind`. Their existing failing regressions were corrected without adding Task 5 capture modes or Task 7 mixed-Patrol behavior.
+- Focused controller/hydration tests passed 2 files and 16 tests; compatibility regressions passed 2 files and 13 tests; the final `npm test` gate passed all 22 files and 196 tests; `npm run lint` exited 0 without warnings.

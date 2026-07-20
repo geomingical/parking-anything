@@ -17,7 +17,7 @@ const analysis = {
 };
 
 function storedItems(): ParkingItem[] {
-  return JSON.parse(localStorage.getItem(STORAGE_KEY)!).items;
+  return JSON.parse(localStorage.getItem(STORAGE_KEY)!).parkingItems;
 }
 
 describe("ParkingApp live analysis", () => {
@@ -95,7 +95,7 @@ describe("ParkingApp live analysis", () => {
         ...analysis,
         id: "client-owned-id",
         url: "https://example.com/tool",
-        category: "ai_tool",
+        kind: "ai_tool",
         status: "parked",
         createdAt: expect.any(String),
         updatedAt: expect.any(String),

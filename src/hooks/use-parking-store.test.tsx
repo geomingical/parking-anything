@@ -8,18 +8,34 @@ import { useParkingStore } from "./use-parking-store";
 
 const NOW = new Date("2026-07-20T04:00:00.000Z");
 
-const newItem: ParkingItem = {
+const newTool: ParkingItem = {
   ...makeSeedItems()[0],
-  id: "new-item",
+  id: "new-tool",
   title: "New Tool",
   createdAt: NOW.toISOString(),
   updatedAt: NOW.toISOString(),
   lastActivityAt: NOW.toISOString(),
 };
 
+const newIdea: ParkingItem = {
+  id: "idea-1",
+  kind: "idea",
+  status: "parked",
+  title: "Compare onboarding flows",
+  ideaText: "Prototype both flows with five users.",
+  createdAt: NOW.toISOString(),
+  updatedAt: NOW.toISOString(),
+  lastActivityAt: NOW.toISOString(),
+};
+
+function storedItems(): ParkingItem[] {
+  return JSON.parse(localStorage.getItem(STORAGE_KEY)!).parkingItems;
+}
+
 describe("useParkingStore", () => {
   beforeEach(() => {
     localStorage.clear();
+    vi.restoreAllMocks();
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
   });
@@ -35,22 +51,42 @@ describe("useParkingStore", () => {
     expect(result.current.needsReset).toBe(false);
   });
 
-  it("adds and persists one complete item", () => {
+  it("adds and persists one complete Idea", () => {
     const { result } = renderHook(() => useParkingStore());
+    let outcome;
 
-    act(() => result.current.addItem(newItem));
+    act(() => {
+      outcome = result.current.addItem(newIdea);
+    });
 
-    expect(result.current.items).toContainEqual(newItem);
-    expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!).items).toContainEqual(newItem);
+    expect(outcome).toEqual({ ok: true });
+    expect(result.current.items).toContainEqual(newIdea);
+    expect(storedItems()).toContainEqual(newIdea);
+  });
+
+  it("rejects an invalid added item without mutating or writing", () => {
+    const { result } = renderHook(() => useParkingStore());
+    const before = structuredClone(result.current.items);
+    const setItem = vi.spyOn(Storage.prototype, "setItem");
+    setItem.mockClear();
+    let outcome;
+
+    act(() => {
+      outcome = result.current.addItem({ ...newIdea, title: "" } as ParkingItem);
+    });
+
+    expect(outcome).toMatchObject({ ok: false });
+    expect(result.current.items).toEqual(before);
+    expect(setItem).not.toHaveBeenCalled();
   });
 
   it("applies start and return lifecycle actions", () => {
     const { result } = renderHook(() => useParkingStore());
 
     act(() => {
-      expect(result.current.applyAction("seed-stale", { type: "start_test_drive" })).toEqual({
-        ok: true,
-      });
+      expect(
+        result.current.applyAction("seed-stale", { type: "start_test_drive" }),
+      ).toEqual({ ok: true });
     });
     expect(result.current.items.find(({ id }) => id === "seed-stale")).toMatchObject({
       status: "test_driving",
@@ -58,28 +94,28 @@ describe("useParkingStore", () => {
     });
 
     act(() => {
-      expect(result.current.applyAction("seed-stale", { type: "return_to_lot" })).toEqual({
-        ok: true,
-      });
+      expect(
+        result.current.applyAction("seed-stale", { type: "return_to_lot" }),
+      ).toEqual({ ok: true });
     });
     expect(result.current.items.find(({ id }) => id === "seed-stale")?.status).toBe(
       "parked",
     );
   });
 
-  it("returns validation errors without mutating state", () => {
+  it("returns transition errors without mutating state", () => {
     const { result } = renderHook(() => useParkingStore());
     act(() => {
       result.current.applyAction("seed-stale", { type: "start_test_drive" });
     });
     const before = structuredClone(result.current.items);
+    let outcome;
 
-    let outcome: ReturnType<typeof result.current.applyAction> | undefined;
     act(() => {
       outcome = result.current.applyAction("seed-stale", {
         type: "park_in_garage",
         notes: "",
-        repoUrl: "",
+        resultUrl: "",
       });
     });
 
@@ -90,7 +126,7 @@ describe("useParkingStore", () => {
     expect(result.current.items).toEqual(before);
   });
 
-  it("garages a test drive with evidence", () => {
+  it("garages a test drive with result evidence", () => {
     const { result } = renderHook(() => useParkingStore());
 
     act(() => {
@@ -98,7 +134,7 @@ describe("useParkingStore", () => {
         result.current.applyAction("seed-driving", {
           type: "park_in_garage",
           notes: "Completed one representative evaluation.",
-          repoUrl: "",
+          resultUrl: "https://example.com/result",
         }),
       ).toEqual({ ok: true });
     });
@@ -106,6 +142,7 @@ describe("useParkingStore", () => {
     expect(result.current.items.find(({ id }) => id === "seed-driving")).toMatchObject({
       status: "garaged",
       notes: "Completed one representative evaluation.",
+      resultUrl: "https://example.com/result",
       updatedAt: NOW.toISOString(),
     });
   });
@@ -128,47 +165,144 @@ describe("useParkingStore", () => {
     });
   });
 
-  it("keeps new in-memory state and exposes a persistence warning on write failure", () => {
+  it("keeps a valid new state and exposes a persistence warning on write failure", () => {
     saveParkingStore(makeSeedItems());
     const { result } = renderHook(() => useParkingStore());
     vi.spyOn(Storage.prototype, "setItem").mockImplementationOnce(() => {
       throw new DOMException("Quota exceeded", "QuotaExceededError");
     });
+    let outcome;
 
-    act(() => result.current.addItem(newItem));
+    act(() => {
+      outcome = result.current.addItem(newIdea);
+    });
 
-    expect(result.current.items).toContainEqual(newItem);
+    expect(outcome).toEqual({ ok: true });
+    expect(result.current.items).toContainEqual(newIdea);
     expect(result.current.storageWarning).toBe(
       "Unable to save parking data in this browser.",
     );
   });
 
-  it("updates evidence and activity timestamps", () => {
+  it("updates active evidence through resultUrl and refreshes activity", () => {
     const { result } = renderHook(() => useParkingStore());
+    let outcome;
 
     act(() => {
-      result.current.updateEvidence(
+      outcome = result.current.updateEvidence(
         "seed-driving",
         "New evidence from the test.",
-        "https://github.com/example/result",
+        "https://example.com/result",
       );
     });
 
+    expect(outcome).toEqual({ ok: true });
     expect(result.current.items.find(({ id }) => id === "seed-driving")).toMatchObject({
       notes: "New evidence from the test.",
-      repoUrl: "https://github.com/example/result",
+      resultUrl: "https://example.com/result",
       updatedAt: NOW.toISOString(),
       lastActivityAt: NOW.toISOString(),
     });
   });
 
+  it("updates an active Idea and immediately publishes valid planning", () => {
+    const { result } = renderHook(() => useParkingStore());
+    act(() => {
+      result.current.addItem(newIdea);
+    });
+    let outcome;
+
+    act(() => {
+      outcome = result.current.updateIdea(newIdea.id, {
+        title: "Compare two onboarding flows",
+        ideaText: "Prototype and compare both flows.",
+        effortTier: "focused_session",
+        suggestedTestTask: "Interview five users.",
+      });
+    });
+
+    expect(outcome).toEqual({ ok: true });
+    expect(result.current.items.find(({ id }) => id === newIdea.id)).toMatchObject({
+      title: "Compare two onboarding flows",
+      effortTier: "focused_session",
+      suggestedTestTask: "Interview five users.",
+      updatedAt: NOW.toISOString(),
+      lastActivityAt: NOW.toISOString(),
+    });
+    expect(storedItems().find(({ id }) => id === newIdea.id)).toMatchObject({
+      effortTier: "focused_session",
+      suggestedTestTask: "Interview five users.",
+    });
+  });
+
+  it("rejects clearing planning from a test-driving Idea", () => {
+    saveParkingStore([
+      {
+        ...newIdea,
+        status: "test_driving",
+        effortTier: "quick_spin",
+        suggestedTestTask: "Run one interview.",
+        testStartedAt: NOW.toISOString(),
+      },
+    ]);
+    const { result } = renderHook(() => useParkingStore());
+    const before = structuredClone(result.current.items);
+    let outcome;
+
+    act(() => {
+      outcome = result.current.updateIdea(newIdea.id, {
+        title: newIdea.title,
+        ideaText: newIdea.ideaText,
+        effortTier: undefined,
+        suggestedTestTask: undefined,
+      });
+    });
+
+    expect(outcome).toMatchObject({ ok: false });
+    expect(result.current.items).toEqual(before);
+  });
+
+  it.each(["garaged", "scrapped"] as const)(
+    "rejects edits to terminal %s records",
+    (status) => {
+      const terminal = makeSeedItems().find((item) =>
+        status === "garaged" ? item.status === "garaged" : item.status === "parked",
+      )!;
+      const terminalItem: ParkingItem =
+        status === "garaged"
+          ? terminal
+          : {
+              ...terminal,
+              status: "scrapped",
+              finalDecisionReason: "Not worth continuing.",
+            };
+      saveParkingStore([terminalItem]);
+      const { result } = renderHook(() => useParkingStore());
+      const before = structuredClone(result.current.items);
+      let outcome;
+
+      act(() => {
+        outcome = result.current.updateEvidence(
+          terminalItem.id,
+          "Changed after decision.",
+          "",
+        );
+      });
+
+      expect(outcome).toMatchObject({ ok: false });
+      expect(result.current.items).toEqual(before);
+    },
+  );
+
   it("resets modified data to the exact fixtures", () => {
     const { result } = renderHook(() => useParkingStore());
-    act(() => result.current.addItem(newItem));
-    act(() => result.current.resetDemo());
+    act(() => {
+      result.current.addItem(newTool);
+      result.current.resetDemo();
+    });
 
     expect(result.current.items).toEqual(makeSeedItems());
-    expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!).items).toEqual(makeSeedItems());
+    expect(storedItems()).toEqual(makeSeedItems());
   });
 
   it("surfaces malformed storage until the user resets it", () => {

@@ -417,7 +417,7 @@ git commit -m "feat: unify parkable lifecycle rules"
 - Modify: `src/hooks/use-parking-store.ts`
 - Modify: `src/components/parking/parking-app.hydration.test.tsx`
 
-- [ ] **Step 1: Write failing controller tests**
+- [x] **Step 1: Write failing controller tests**
 
 Test add Idea, update active Idea details, reject terminal edits, block invalid planning clears, rename evidence to `resultUrl`, migration hydration, reset, and write failure.
 
@@ -428,13 +428,13 @@ expect(result.current.items).toContainEqual(expect.objectContaining({ title: "Se
 expect(result.current.storageWarning).toBe("Unable to save parking data in this browser.");
 ```
 
-- [ ] **Step 2: Run focused tests and verify RED**
+- [x] **Step 2: Run focused tests and verify RED**
 
 ```bash
 npx vitest run src/hooks/use-parking-store.test.tsx src/components/parking/parking-app.hydration.test.tsx
 ```
 
-- [ ] **Step 3: Add focused controller commands**
+- [x] **Step 3: Add focused controller commands**
 
 Expose:
 
@@ -453,7 +453,7 @@ resetDemo(): void;
 
 Each command constructs the complete proposed item list, validates it, calls `saveParkingStore`, then publishes the valid state. Validation failures publish nothing. Storage failures publish the valid new state with the session-only warning.
 
-- [ ] **Step 4: Run focused, hydration, and full gates**
+- [x] **Step 4: Run focused, hydration, and full gates**
 
 ```bash
 npx vitest run src/hooks/use-parking-store.test.tsx src/components/parking/parking-app.hydration.test.tsx
@@ -461,7 +461,7 @@ npm test
 npm run lint
 ```
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/hooks/use-parking-store.ts src/hooks/use-parking-store.test.tsx src/components/parking/parking-app.hydration.test.tsx

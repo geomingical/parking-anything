@@ -107,7 +107,7 @@ export function ParkingApp() {
         ...result.data.analysis,
         id: crypto.randomUUID(),
         url: normalizedUrl,
-        category: "ai_tool",
+        kind: "ai_tool",
         status: "parked",
         createdAt: now,
         updatedAt: now,
@@ -256,9 +256,9 @@ export function ParkingApp() {
           }
         }}
         onApplyAction={applySelectedAction}
-        onUpdateEvidence={(notes, repoUrl) => {
+        onUpdateEvidence={(notes, resultUrl) => {
           if (store.selectedId) {
-            store.updateEvidence(store.selectedId, notes, repoUrl);
+            store.updateEvidence(store.selectedId, notes, resultUrl);
           }
         }}
       />

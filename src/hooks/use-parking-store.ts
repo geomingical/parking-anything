@@ -1,9 +1,14 @@
 "use client";
 
 import { useState, useSyncExternalStore } from "react";
+import { ZodError } from "zod";
 
 import { makeSeedItems } from "@/lib/parking/fixtures";
-import type { ParkingItem } from "@/lib/parking/schemas";
+import {
+  ParkingStoreV2Schema,
+  type EffortTier,
+  type ParkingItem,
+} from "@/lib/parking/schemas";
 import {
   STORAGE_KEY,
   loadParkingStore,
@@ -21,14 +26,27 @@ export type ParkingStoreController = {
   needsReset: boolean;
   isHydrated: boolean;
   selectItem(id: string | null): void;
-  addItem(item: ParkingItem): void;
+  addItem(item: ParkingItem): ActionResult;
   applyAction(
     id: string,
     action: ParkingAction,
-  ): { ok: true } | { ok: false; message: string };
-  updateEvidence(id: string, notes: string, repoUrl: string): void;
+  ): ActionResult;
+  updateEvidence(id: string, notes: string, resultUrl: string): ActionResult;
+  updateIdea(
+    id: string,
+    input: {
+      title: string;
+      ideaText: string;
+      effortTier?: EffortTier;
+      suggestedTestTask?: string;
+    },
+  ): ActionResult;
   resetDemo(): void;
 };
+
+export type ActionResult =
+  | { ok: true }
+  | { ok: false; message: string };
 
 type PersistentSnapshot = Pick<
   ParkingStoreController,
@@ -110,14 +128,31 @@ function publishSnapshot(snapshot: PersistentSnapshot) {
   listeners.forEach((listener) => listener());
 }
 
-function commitItems(items: ParkingItem[]) {
-  const saved = saveParkingStore(items);
+function commitItems(items: ParkingItem[]): ActionResult {
+  let validItems: ParkingItem[];
+  try {
+    validItems = ParkingStoreV2Schema.parse({
+      version: 2,
+      parkingItems: items,
+    }).parkingItems;
+  } catch (error) {
+    return {
+      ok: false,
+      message:
+        error instanceof ZodError
+          ? (error.issues[0]?.message ?? "This parking item could not be saved.")
+          : "This parking item could not be saved.",
+    };
+  }
+
+  const saved = saveParkingStore(validItems);
   publishSnapshot({
-    items,
+    items: validItems,
     storageWarning: saved.ok ? null : saved.error,
     needsReset: false,
     isHydrated: true,
   });
+  return { ok: true };
 }
 
 export function useParkingStore(): ParkingStoreController {
@@ -129,13 +164,13 @@ export function useParkingStore(): ParkingStoreController {
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   function addItem(item: ParkingItem) {
-    commitItems([...buildBrowserSnapshot().items, item]);
+    return commitItems([...buildBrowserSnapshot().items, item]);
   }
 
   function applyAction(
     id: string,
     action: ParkingAction,
-  ): { ok: true } | { ok: false; message: string } {
+  ): ActionResult {
     const currentItems = buildBrowserSnapshot().items;
     const index = currentItems.findIndex((item) => item.id === id);
     if (index === -1) {
@@ -150,8 +185,7 @@ export function useParkingStore(): ParkingStoreController {
       );
       const items = [...currentItems];
       items[index] = nextItem;
-      commitItems(items);
-      return { ok: true };
+      return commitItems(items);
     } catch (error) {
       return {
         ok: false,
@@ -160,21 +194,78 @@ export function useParkingStore(): ParkingStoreController {
     }
   }
 
-  function updateEvidence(id: string, notes: string, repoUrl: string) {
+  function updateEvidence(
+    id: string,
+    notes: string,
+    resultUrl: string,
+  ): ActionResult {
     const currentItems = buildBrowserSnapshot().items;
     const index = currentItems.findIndex((item) => item.id === id);
-    if (index === -1) return;
+    if (index === -1) {
+      return { ok: false, message: "This parking item could not be found." };
+    }
+
+    if (
+      currentItems[index].status === "garaged" ||
+      currentItems[index].status === "scrapped"
+    ) {
+      return {
+        ok: false,
+        message: "This item has reached a final decision and cannot be edited.",
+      };
+    }
 
     const now = new Date().toISOString();
     const items = [...currentItems];
     items[index] = {
       ...items[index],
       notes: notes || undefined,
-      repoUrl: repoUrl || undefined,
+      resultUrl: resultUrl || undefined,
       updatedAt: now,
       lastActivityAt: now,
     };
-    commitItems(items);
+    return commitItems(items);
+  }
+
+  function updateIdea(
+    id: string,
+    input: {
+      title: string;
+      ideaText: string;
+      effortTier?: EffortTier;
+      suggestedTestTask?: string;
+    },
+  ): ActionResult {
+    const currentItems = buildBrowserSnapshot().items;
+    const index = currentItems.findIndex((item) => item.id === id);
+    if (index === -1) {
+      return { ok: false, message: "This parking item could not be found." };
+    }
+
+    const item = currentItems[index];
+    if (item.kind !== "idea") {
+      return { ok: false, message: "Only Ideas can use the Idea editor." };
+    }
+
+    if (item.status === "garaged" || item.status === "scrapped") {
+      return {
+        ok: false,
+        message: "This item has reached a final decision and cannot be edited.",
+      };
+    }
+
+    const now = new Date().toISOString();
+    const items = [...currentItems];
+    items[index] = {
+      ...item,
+      title: input.title,
+      ideaText: input.ideaText,
+      effortTier: input.effortTier,
+      suggestedTestTask: input.suggestedTestTask,
+      updatedAt: now,
+      lastActivityAt: now,
+    };
+    return commitItems(items);
   }
 
   function resetDemo() {
@@ -189,6 +280,7 @@ export function useParkingStore(): ParkingStoreController {
     addItem,
     applyAction,
     updateEvidence,
+    updateIdea,
     resetDemo,
   };
 }

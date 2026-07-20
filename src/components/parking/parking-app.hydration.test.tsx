@@ -5,14 +5,14 @@ import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import type { ParkingItem } from "@/lib/parking/schemas";
 import { STORAGE_KEY } from "@/lib/parking/storage";
+import { V1_STORAGE_KEY } from "@/lib/parking/storage-v1";
 import { ParkingApp } from "./parking-app";
 
-const customItem: ParkingItem = {
+const customItem = {
   id: "custom-hydration-item",
   url: "https://example.com/custom-tool",
-  category: "ai_tool",
+  category: "ai_tool" as const,
   status: "parked",
   title: "Hydration Custom Tool",
   summary: "A custom item that must survive server rendering and hydration.",
@@ -24,8 +24,12 @@ const customItem: ParkingItem = {
   lastActivityAt: "2026-07-20T02:00:00.000Z",
 };
 
-function storedItems(): ParkingItem[] {
-  return JSON.parse(window.localStorage.getItem(STORAGE_KEY)!).items;
+const { category: _legacyCategory, ...customItemFields } = customItem;
+void _legacyCategory;
+const migratedCustomItem = { ...customItemFields, kind: "ai_tool" as const };
+
+function storedItems() {
+  return JSON.parse(window.localStorage.getItem(STORAGE_KEY)!).parkingItems;
 }
 
 function serverMarkupWithoutBrowserStorage(storage: Storage): string {
@@ -58,7 +62,8 @@ describe("ParkingApp hydration", () => {
   it("hydrates exact existing browser data, persists the first action, and retains it after reload", async () => {
     const user = userEvent.setup();
     const storage = window.localStorage;
-    storage.setItem(STORAGE_KEY, JSON.stringify({ version: 1, items: [customItem] }));
+    const v1Bytes = JSON.stringify({ version: 1, items: [customItem] });
+    storage.setItem(V1_STORAGE_KEY, v1Bytes);
     const recoverableErrors: unknown[] = [];
     const container = document.createElement("div");
     document.body.append(container);
@@ -74,7 +79,8 @@ describe("ParkingApp hydration", () => {
     expect(
       within(container).queryByText(/Browser storage is unavailable/i),
     ).not.toBeInTheDocument();
-    expect(storedItems()).toEqual([customItem]);
+    expect(storedItems()).toEqual([migratedCustomItem]);
+    expect(storage.getItem(V1_STORAGE_KEY)).toBe(v1Bytes);
 
     await user.click(
       within(container).getByRole("button", {

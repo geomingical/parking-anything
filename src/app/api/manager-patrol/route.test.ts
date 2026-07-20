@@ -10,6 +10,7 @@ import { createManagerPatrolRoute } from "./route";
 
 const candidate: PatrolCandidate = {
   id: "a",
+  kind: "ai_tool",
   title: "Old parked tool",
   effortTier: "quick_spin",
   status: "parked",
