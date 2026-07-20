@@ -89,6 +89,19 @@ async function expectNoHorizontalPageScroll(page: Page) {
   expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth);
 }
 
+async function captureStableScreenshot(page: Page, path: string) {
+  await page.waitForFunction(() =>
+    [...document.images].every(
+      (image) => image.complete && image.naturalWidth > 0,
+    ),
+  );
+  await page.screenshot({
+    path,
+    fullPage: true,
+    animations: "disabled",
+  });
+}
+
 test.beforeEach(async ({ page }) => {
   await mockAnalyze(page);
 });
@@ -272,35 +285,35 @@ test("capture required visual QA states", async ({ page }, testInfo) => {
     await page.getByRole("button", { name: "Reset demo data settings" }).click();
     await page.getByRole("button", { name: "Reset demo data", exact: true }).click();
     await expectNoHorizontalPageScroll(page);
-    await page.screenshot({
-      path: `docs/qa-screenshots/${size}-initial-lot.png`,
-      fullPage: true,
-    });
+    await captureStableScreenshot(
+      page,
+      `docs/qa-screenshots/${size}-initial-lot.png`,
+    );
 
     await page
       .getByRole("button", { name: /OpenAI Platform Docs, Parked/ })
       .click();
     await expectNoHorizontalPageScroll(page);
-    await page.screenshot({
-      path: `docs/qa-screenshots/${size}-inspector-open.png`,
-      fullPage: true,
-    });
+    await captureStableScreenshot(
+      page,
+      `docs/qa-screenshots/${size}-inspector-open.png`,
+    );
     await page.keyboard.press("Escape");
 
     await page.getByRole("button", { name: "Run Manager Patrol" }).click();
     await expect(page.getByText("GPT-5.6 Recommendation")).toBeVisible();
     await expectNoHorizontalPageScroll(page);
-    await page.screenshot({
-      path: `docs/qa-screenshots/${size}-patrol-results.png`,
-      fullPage: true,
-    });
+    await captureStableScreenshot(
+      page,
+      `docs/qa-screenshots/${size}-patrol-results.png`,
+    );
 
     await page.getByRole("tab", { name: /Garage/ }).click();
     await expectNoHorizontalPageScroll(page);
-    await page.screenshot({
-      path: `docs/qa-screenshots/${size}-garage-filter.png`,
-      fullPage: true,
-    });
+    await captureStableScreenshot(
+      page,
+      `docs/qa-screenshots/${size}-garage-filter.png`,
+    );
 
     await page.getByRole("tab", { name: /Parking Lot/ }).click();
     await page
@@ -310,10 +323,10 @@ test("capture required visual QA states", async ({ page }, testInfo) => {
     await page.getByLabel("Decision reason").fill("Visual QA decision reason.");
     await page.getByRole("button", { name: "Confirm Tow Away" }).click();
     await expectNoHorizontalPageScroll(page);
-    await page.screenshot({
-      path: `docs/qa-screenshots/${size}-scrapyard-filter.png`,
-      fullPage: true,
-    });
+    await captureStableScreenshot(
+      page,
+      `docs/qa-screenshots/${size}-scrapyard-filter.png`,
+    );
   }
   assertNoErrors();
 });

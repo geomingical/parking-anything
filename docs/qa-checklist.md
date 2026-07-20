@@ -31,4 +31,5 @@ Inspect initial lot, inspector open, patrol results, Garage filter, and Scrapyar
 - Desktop Chromium passed 8/8 tests. Mobile Safari passed 7/7 applicable tests; the desktop-owned screenshot-matrix test was skipped once by design.
 - The exact judge flow, evidence validation, reset, model/fallback provenance, `429`/`503`, landmarks, desktop Tab order, Escape close, and opener focus restoration all passed.
 - Every screenshot state now has an automated `scrollWidth <= clientWidth` assertion. The Next.js development indicator is disabled so it does not contaminate the visual evidence.
+- Screenshot capture waits for every image to decode and disables finite animations. Two consecutive final captures produced byte-identical SHA-256 results for all 15 PNGs.
 - Observed defects fixed during QA: newly analyzed items no longer interrupt the lot by auto-opening; Start Test Drive keeps the inspector open for evidence entry; reset returns to Parking Lot; the header is a real banner sibling of `main`; closing the dialog restores opener focus; `127.0.0.1` is accepted as the local development origin.
