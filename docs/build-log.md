@@ -29,12 +29,21 @@ This primary Codex task implements the approved Parking Anything v0.4 specificat
 - Implemented the versioned `parking-anything:v1` localStorage envelope, one-time seed initialization, non-destructive malformed/wrong-version handling, non-throwing write failures, and exact demo reset.
 - Kept persistence local-only and returned fresh fixture clones so reset cannot share mutable references with prior state.
 
+### 2026-07-20 — Phase 4: Visual parking workspace
+
+- Used the built-in image generation workflow to create three matching top-down vehicle sources: a white hatchback with a safety-yellow accent, garage-green sedan with a white accent, and muted-red utility van with a white roof.
+- Followed the image skill's chroma-key workflow, removed the flat backgrounds locally, saved transparent PNGs under `public/cars/`, and visually inspected all three final files at original detail for true overhead framing, transparent corners, consistent scale, and unclipped vehicles.
+- Used RED-GREEN TDD for the parking-lot shell. The first run failed on missing components; the next run caught an accessible-name spacing defect (`Parking Lot1`), which was fixed with explicit human-readable tab labels.
+- Implemented the single-page mission header, semantic status tabs, asphalt parking canvas with stable tracks, readable text status labels, accessible car buttons, and only the three purposeful transition animation classes.
+- Kept the shell focused on the approved AI Tools zone with no roadmap labels or fake AI behavior.
+
 ## Codex Contributions
 
 - Kept the approved spec and plan as the implementation sources of truth.
 - Established the repository, configuration, automated-test runners, evidence log, and secret-handling boundary in the primary implementation task.
 - Defined and tested the domain ownership boundary and lifecycle state machine from the approved specification.
 - Built deterministic seed and versioned storage primitives for a repeatable judge demo without adding cloud persistence.
+- Generated and integrated the custom car assets and implemented the accessible municipal-parking visual shell.
 
 ## GPT-5.6 Runtime Use
 
@@ -45,6 +54,7 @@ No product runtime request has been made. GPT-5.6 will be called only from serve
 - Task 1 scaffold: `npm test` exited 0 with Vitest 4.1.10 and no test files, as expected before domain implementation.
 - Task 2 domain gate: `npx vitest run src/lib/parking/schemas.test.ts src/lib/parking/transitions.test.ts` exited 0 with 2 files and 30 tests passing.
 - Task 3 focused gate: fixture/storage tests exited 0 with 2 files and 10 tests passing; `npm test` then exited 0 with all 4 files and 40 tests passing.
+- Task 4 shell gate: the parking-lot component suite exited 0 with 3 tests passing, `npm run lint` exited 0, and the full `npm test` gate exited 0 with 5 files and 43 tests passing.
 
 ## Known Tradeoffs
 

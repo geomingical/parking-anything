@@ -474,7 +474,7 @@ Expected: all fixture and storage tests PASS.
 - Create: `public/cars/weekend-project.png`
 - Test: `src/components/parking/parking-lot.test.tsx`
 
-- [ ] **Step 1: Generate the three coherent car assets**
+- [x] **Step 1: Generate the three coherent car assets**
 
 Use the `imagegen` skill three times with the same camera, lighting, and proportions. Save transparent PNG output to the exact paths above.
 
@@ -492,7 +492,7 @@ Asset-specific changes:
 
 Inspect all three with `view_image`. Regenerate any asset that is not truly top-down, has a nontransparent scene, clips the vehicle, or differs materially in scale.
 
-- [ ] **Step 2: Write a failing parking-lot accessibility test**
+- [x] **Step 2: Write a failing parking-lot accessibility test**
 
 Render three items and assert one accessible button per car, status text independent of color, stable filter count labels, and no roadmap labels.
 
@@ -503,11 +503,11 @@ expect(screen.getByText("Parked")).toBeVisible();
 expect(screen.queryByText(/Meetups|Travel|Ideas/i)).not.toBeInTheDocument();
 ```
 
-- [ ] **Step 3: Create the root layout and static shell**
+- [x] **Step 3: Create the root layout and static shell**
 
 `layout.tsx` sets metadata title `Parking Anything` and description `Turn saved AI tools into testable decisions.` Import `globals.css`. `page.tsx` imports and renders `<ParkingApp />`. For this task, `parking-app.tsx` is a client component that renders `<MissionHeader disabled />` and `<ParkingLot items={makeSeedItems()} onSelect={() => undefined} />`; Task 5 replaces its preview body with the real store controller.
 
-- [ ] **Step 4: Implement stable visual tokens and parking geometry**
+- [x] **Step 4: Implement stable visual tokens and parking geometry**
 
 Use Tailwind utilities for composition and CSS variables for the domain palette. The parking grid must use stable tracks so labels or loading states cannot resize it.
 
@@ -554,11 +554,11 @@ body {
 
 Retain stable tracks, readable contrast, no decorative gradient fields, and no nested cards during later screenshot fixes.
 
-- [ ] **Step 5: Implement shell components**
+- [x] **Step 5: Implement shell components**
 
 `MissionHeader` uses `Parking Anything` as the page H1, the literal tagline `Stop collecting. Start test-driving.`, URL input, `Analyze & Park`, and a Lucide Settings icon button with `title="Reset demo data"`. `StatusTabs` uses tab semantics and counts. `CarSprite` is a button containing the correct PNG, title, and visible status. `ParkingLot` lays out cars directly on the parking surface and shows an unframed empty-filter message.
 
-- [ ] **Step 6: Run component test, lint, and commit**
+- [x] **Step 6: Run component test, lint, and commit**
 
 Run:
 
