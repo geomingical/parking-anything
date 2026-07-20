@@ -31,6 +31,23 @@ export function ParkingApp() {
   const selectedItem =
     store.items.find((item) => item.id === store.selectedId) ?? null;
 
+  if (!store.isHydrated) {
+    return (
+      <main className="min-h-screen bg-[var(--paper)]">
+        <MissionHeader analyzeDisabled />
+        <div className="mx-auto max-w-7xl px-5 py-6 sm:px-8 sm:py-8">
+          <section
+            aria-busy="true"
+            aria-label="Loading parking data"
+            className="min-h-[24rem] border-2 border-[var(--ink)] bg-[var(--asphalt)] p-6 text-sm font-bold text-white"
+          >
+            Loading parking data…
+          </section>
+        </div>
+      </main>
+    );
+  }
+
   function applySelectedAction(action: ParkingAction) {
     if (!store.selectedId) {
       return { ok: false as const, message: "This parking item could not be found." };

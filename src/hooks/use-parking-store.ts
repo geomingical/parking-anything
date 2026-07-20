@@ -1,10 +1,14 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 
 import { makeSeedItems } from "@/lib/parking/fixtures";
 import type { ParkingItem } from "@/lib/parking/schemas";
-import { loadParkingStore, saveParkingStore } from "@/lib/parking/storage";
+import {
+  STORAGE_KEY,
+  loadParkingStore,
+  saveParkingStore,
+} from "@/lib/parking/storage";
 import {
   transitionItem,
   type ParkingAction,
@@ -15,6 +19,7 @@ export type ParkingStoreController = {
   selectedId: string | null;
   storageWarning: string | null;
   needsReset: boolean;
+  isHydrated: boolean;
   selectItem(id: string | null): void;
   addItem(item: ParkingItem): void;
   applyAction(
@@ -25,83 +30,126 @@ export type ParkingStoreController = {
   resetDemo(): void;
 };
 
-type StoreState = Pick<
+type PersistentSnapshot = Pick<
   ParkingStoreController,
-  "items" | "selectedId" | "storageWarning" | "needsReset"
+  "items" | "storageWarning" | "needsReset" | "isHydrated"
 >;
 
-function initialState(): StoreState {
-  try {
-    const loaded = loadParkingStore();
-    if (loaded.kind === "needs_reset") {
-      return {
-        items: [],
-        selectedId: null,
-        storageWarning: null,
-        needsReset: true,
-      };
-    }
+const SERVER_SNAPSHOT: PersistentSnapshot = {
+  items: [],
+  storageWarning: null,
+  needsReset: false,
+  isHydrated: false,
+};
 
-    return {
-      items: loaded.items,
-      selectedId: null,
-      storageWarning: null,
-      needsReset: false,
-    };
+const STORAGE_UNAVAILABLE = Symbol("storage-unavailable");
+const SNAPSHOT_UNREAD = Symbol("snapshot-unread");
+type StorageFingerprint = string | null | typeof STORAGE_UNAVAILABLE;
+
+let cachedFingerprint: StorageFingerprint | typeof SNAPSHOT_UNREAD = SNAPSHOT_UNREAD;
+let cachedSnapshot: PersistentSnapshot | null = null;
+const listeners = new Set<() => void>();
+
+function readStorageFingerprint(): StorageFingerprint {
+  try {
+    return localStorage.getItem(STORAGE_KEY);
   } catch {
-    return {
-      items: makeSeedItems(),
-      selectedId: null,
-      storageWarning: "Browser storage is unavailable; changes will last for this session only.",
-      needsReset: false,
-    };
+    return STORAGE_UNAVAILABLE;
   }
 }
 
-export function useParkingStore(): ParkingStoreController {
-  const [state, setState] = useState<StoreState>(initialState);
-  const stateRef = useRef(state);
-
-  function replaceState(next: StoreState) {
-    stateRef.current = next;
-    setState(next);
+function buildBrowserSnapshot(): PersistentSnapshot {
+  const fingerprint = readStorageFingerprint();
+  if (cachedSnapshot && fingerprint === cachedFingerprint) {
+    return cachedSnapshot;
   }
 
-  function commitItems(items: ParkingItem[], selectedId = stateRef.current.selectedId) {
-    const saved = saveParkingStore(items);
-    replaceState({
-      ...stateRef.current,
-      items,
-      selectedId,
+  if (fingerprint === STORAGE_UNAVAILABLE) {
+    cachedFingerprint = fingerprint;
+    cachedSnapshot = {
+      items: makeSeedItems(),
+      storageWarning:
+        "Browser storage is unavailable; changes will last for this session only.",
       needsReset: false,
-      storageWarning: saved.ok ? null : saved.error,
-    });
+      isHydrated: true,
+    };
+    return cachedSnapshot;
   }
 
-  function selectItem(selectedId: string | null) {
-    replaceState({ ...stateRef.current, selectedId });
-  }
+  const loaded = loadParkingStore();
+  cachedFingerprint = readStorageFingerprint();
+  cachedSnapshot =
+    loaded.kind === "needs_reset"
+      ? {
+          items: [],
+          storageWarning: null,
+          needsReset: true,
+          isHydrated: true,
+        }
+      : {
+          items: loaded.items,
+          storageWarning: null,
+          needsReset: false,
+          isHydrated: true,
+        };
+  return cachedSnapshot;
+}
+
+function getServerSnapshot(): PersistentSnapshot {
+  return SERVER_SNAPSHOT;
+}
+
+function subscribe(listener: () => void): () => void {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+
+function publishSnapshot(snapshot: PersistentSnapshot) {
+  cachedSnapshot = snapshot;
+  cachedFingerprint = readStorageFingerprint();
+  listeners.forEach((listener) => listener());
+}
+
+function commitItems(items: ParkingItem[]) {
+  const saved = saveParkingStore(items);
+  publishSnapshot({
+    items,
+    storageWarning: saved.ok ? null : saved.error,
+    needsReset: false,
+    isHydrated: true,
+  });
+}
+
+export function useParkingStore(): ParkingStoreController {
+  const persistent = useSyncExternalStore(
+    subscribe,
+    buildBrowserSnapshot,
+    getServerSnapshot,
+  );
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   function addItem(item: ParkingItem) {
-    commitItems([...stateRef.current.items, item], item.id);
+    commitItems([...buildBrowserSnapshot().items, item]);
+    setSelectedId(item.id);
   }
 
   function applyAction(
     id: string,
     action: ParkingAction,
   ): { ok: true } | { ok: false; message: string } {
-    const index = stateRef.current.items.findIndex((item) => item.id === id);
+    const currentItems = buildBrowserSnapshot().items;
+    const index = currentItems.findIndex((item) => item.id === id);
     if (index === -1) {
       return { ok: false, message: "This parking item could not be found." };
     }
 
     try {
       const nextItem = transitionItem(
-        stateRef.current.items[index],
+        currentItems[index],
         action,
         new Date().toISOString(),
       );
-      const items = [...stateRef.current.items];
+      const items = [...currentItems];
       items[index] = nextItem;
       commitItems(items);
       return { ok: true };
@@ -114,14 +162,14 @@ export function useParkingStore(): ParkingStoreController {
   }
 
   function updateEvidence(id: string, notes: string, repoUrl: string) {
-    const index = stateRef.current.items.findIndex((item) => item.id === id);
+    const currentItems = buildBrowserSnapshot().items;
+    const index = currentItems.findIndex((item) => item.id === id);
     if (index === -1) return;
 
     const now = new Date().toISOString();
-    const item = stateRef.current.items[index];
-    const items = [...stateRef.current.items];
+    const items = [...currentItems];
     items[index] = {
-      ...item,
+      ...items[index],
       notes: notes || undefined,
       repoUrl: repoUrl || undefined,
       updatedAt: now,
@@ -131,12 +179,14 @@ export function useParkingStore(): ParkingStoreController {
   }
 
   function resetDemo() {
-    commitItems(makeSeedItems(), null);
+    commitItems(makeSeedItems());
+    setSelectedId(null);
   }
 
   return {
-    ...state,
-    selectItem,
+    ...persistent,
+    selectedId,
+    selectItem: setSelectedId,
     addItem,
     applyAction,
     updateEvidence,

@@ -45,6 +45,14 @@ This primary Codex task implements the approved Parking Anything v0.4 specificat
 - ESLint rejected synchronous prop-to-state resets inside an inspector effect. The inspector now uses a keyed inner component so drafts initialize on item/status mount without cascading renders.
 - The first production compile exposed `npm init`'s stale CommonJS default and a parent lockfile causing incorrect Turbopack root inference. Setting the package to ESM and `turbopack.root` to this repository fixed the root causes; the next Next.js 16.2.10 build compiled and statically generated `/` successfully.
 
+### 2026-07-20 — Corrective review gate: hydration-safe persistence
+
+- External review identified that render-time `localStorage` access produced a server storage-warning snapshot, a different client browser-data snapshot, and a React hydration mismatch that could let a later action persist seed state over existing data.
+- Added a server-render/hydration regression that preloads one exact custom item, hydrates the app, verifies no false warning, applies the first lifecycle action, hydrates again as a reload, and confirms no seed ID was introduced. The RED run captured two recoverable hydration mismatch errors.
+- Replaced render-time state initialization with `useSyncExternalStore`: the server and initial hydration share one stable loading snapshot, while the browser snapshot reads or initializes storage only after hydration. Existing data, malformed-data reset state, in-memory write-failure behavior, and fresh seed initialization remain covered.
+- Followed current Next.js guidance for generated types: `next-env.d.ts` remains present locally and included by `tsconfig.json`, but `.gitignore` now excludes it and Git no longer tracks it.
+- Verified that the running Next development server responds `200` and that `next dev`/`next build` generation adds no working-tree changes beyond this corrective commit.
+
 ## Codex Contributions
 
 - Kept the approved spec and plan as the implementation sources of truth.
@@ -53,6 +61,7 @@ This primary Codex task implements the approved Parking Anything v0.4 specificat
 - Built deterministic seed and versioned storage primitives for a repeatable judge demo without adding cloud persistence.
 - Generated and integrated the custom car assets and implemented the accessible municipal-parking visual shell.
 - Connected the pure domain/storage primitives to a tested local state controller and complete evidence-backed lifecycle inspector.
+- Corrected the server/client persistence boundary with a hydration-safe external-store snapshot and a full reload regression.
 
 ## GPT-5.6 Runtime Use
 
@@ -65,6 +74,7 @@ No product runtime request has been made. GPT-5.6 will be called only from serve
 - Task 3 focused gate: fixture/storage tests exited 0 with 2 files and 10 tests passing; `npm test` then exited 0 with all 4 files and 40 tests passing.
 - Task 4 shell gate: the parking-lot component suite exited 0 with 3 tests passing, `npm run lint` exited 0, and the full `npm test` gate exited 0 with 5 files and 43 tests passing.
 - Task 5 focused gate: hook/inspector suites exited 0 with 2 files and 15 tests passing; ESLint exited 0; the full unit gate exited 0 with 7 files and 58 tests passing; `npm run build` exited 0 after the ESM/root configuration correction.
+- Corrective hydration gate: hydration/store suites exited 0 with 2 files and 11 tests passing; `npm test` exited 0 with 8 files and 59 tests passing; `npm run lint` exited 0; `npm run build` compiled and statically generated `/`; Next dev/build introduced no additional tracked changes.
 
 ## Known Tradeoffs
 

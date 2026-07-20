@@ -653,6 +653,14 @@ Expected: hook/component tests and lint PASS.
 
 **Human checkpoint:** Start `npm run dev`, show the complete seeded lifecycle locally, and ask the user to approve the core UX before optional visual polish. Continue server work while waiting only if no UX redesign is requested.
 
+### Corrective Review Gate after Task 5
+
+- [x] Add a server-render/hydration regression proving exact existing localStorage data survives hydration, the first lifecycle action, and reload.
+- [x] Replace render-time localStorage initialization with a hydration-safe external-store snapshot and remove the false storage-unavailable warning.
+- [x] Confirm fresh storage still receives the exact three seed fixtures and malformed storage still requires confirmed reset.
+- [x] Ignore generated `next-env.d.ts`, remove it from Git tracking without deleting the local file, and retain it in `tsconfig.json` includes.
+- [x] Verify focused tests, full tests, lint, build, and unchanged Git dirtiness after Next dev/build generation.
+
 ---
 
 ### Task 6: Implement SSRF-Safe URL Normalization and Bounded Fetching
