@@ -812,7 +812,7 @@ Expected: all request/quota tests PASS.
 - Test: `src/lib/server/analyze-url.test.ts`
 - Test: `src/app/api/analyze-url/route.test.ts`
 
-- [ ] **Step 1: Write failing parsed-output tests**
+- [x] **Step 1: Write failing parsed-output tests**
 
 Create SDK-shaped fixtures and assert extraction of one parsed content item, rejection of a refusal, rejection of missing parsed output, and rejection of incomplete/error response status.
 
@@ -828,11 +828,11 @@ expect(() => extractParsedOutput({
 })).toThrow("The model declined this analysis.");
 ```
 
-- [ ] **Step 2: Implement the lazy OpenAI client and parser**
+- [x] **Step 2: Implement the lazy OpenAI client and parser**
 
 Import `OpenAI` only in the server module. `getOpenAIClient()` validates `OPENAI_API_KEY` when called and returns a singleton. `extractParsedOutput<T>()` iterates response message content following the official Structured Outputs example, handles `refusal`, and returns the first non-null `parsed`; otherwise throw `ModelOutputError`.
 
-- [ ] **Step 3: Write failing analysis-service tests**
+- [x] **Step 3: Write failing analysis-service tests**
 
 Inject `fetchPublicPage` and `responses.parse`. Assert:
 
@@ -843,7 +843,7 @@ Inject `fetchPublicPage` and `responses.parse`. Assert:
 - request uses configured model, 700 max output tokens, and `zodTextFormat(AnalyzeUrlResultSchema, "analyze_url_result")`;
 - untrusted page text is delimited and instructed not to override system instructions.
 
-- [ ] **Step 4: Implement `analyzeUrl` with the Responses API**
+- [x] **Step 4: Implement `analyzeUrl` with the Responses API**
 
 ```ts
 import { zodTextFormat } from "openai/helpers/zod";
@@ -866,11 +866,11 @@ const response = await client.responses.parse({
 
 Validate the extracted value again with `AnalyzeUrlResultSchema.parse()` at the service boundary. Return only `AnalyzeUrlResponse`; never create IDs, timestamps, or persisted status on the server.
 
-- [ ] **Step 5: Write failing route tests**
+- [x] **Step 5: Write failing route tests**
 
 Inject route dependencies through an exported `createAnalyzeRoute({ quotaGate, analyze })`. Assert quota consumption happens before OpenAI analysis, schema errors return `400`, quota errors preserve `429/503`, valid output returns `200`, and no partial item fields appear.
 
-- [ ] **Step 6: Implement the thin route adapter**
+- [x] **Step 6: Implement the thin route adapter**
 
 ```ts
 const InputSchema = z.object({ url: z.string().max(2048) }).strict();
@@ -893,7 +893,7 @@ export function createAnalyzeRoute(deps: AnalyzeRouteDeps) {
 
 Export `POST` using lazily constructed production dependencies. Set `export const runtime = "nodejs"` and `export const maxDuration = 20`.
 
-- [ ] **Step 7: Run analyze tests and commit**
+- [x] **Step 7: Run analyze tests and commit**
 
 Run:
 

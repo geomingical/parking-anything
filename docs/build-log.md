@@ -67,6 +67,14 @@ This primary Codex task implements the approved Parking Anything v0.4 specificat
 - Added one HMAC-based caller identity boundary, per-IP-before-global quota ordering, a disabled-demo kill switch, shared route-independent Redis prefixes, and production construction that fails closed when Upstash or hashing configuration is absent.
 - Configured Upstash with no fail-open timeout. Backend exceptions or timeout results become a fixed `503`; raw IP addresses and secrets are never passed to Redis keys or logs. Local/test use a process-local limiter only when production guarantees are not required.
 
+### 2026-07-20 — Phase 8: GPT-5.6 URL analysis API
+
+- Verified the current official OpenAI Structured Outputs pattern before implementation: the JavaScript SDK uses `responses.parse()` with `text.format: zodTextFormat(...)`, and parsed message content/refusals are handled explicitly.
+- Used RED-GREEN TDD for SDK-shaped parsed-output handling, fetched versus URL-only analysis, URL rejection before model use, prompt-injection boundaries, service-boundary schema validation, and the thin route contract.
+- Added a lazy server-only OpenAI client and `gpt-5.6-luna` analysis request with a 700-token ceiling. The server returns only `AnalyzeUrlResponse`; item identity, timestamps, category, and persisted lifecycle status remain client-owned.
+- Added `/api/analyze-url` with quota-first ordering, bounded parsing, fixed schema/error responses, Node runtime, and a 20-second route limit. All automated tests use injected model/fetch dependencies and made no real OpenAI request.
+- Production type-checking exposed that `ipaddr.js`'s `kind()` method does not narrow its TypeScript union; the already-tested IPv4-mapped IPv6 guard now uses the library's explicit `IPv6` class check with unchanged runtime behavior.
+
 ## Codex Contributions
 
 - Kept the approved spec and plan as the implementation sources of truth.
@@ -78,6 +86,7 @@ This primary Codex task implements the approved Parking Anything v0.4 specificat
 - Corrected the server/client persistence boundary with a hydration-safe external-store snapshot and a full reload regression.
 - Built the SSRF-safe, redirect-aware, byte-bounded public-page ingestion boundary.
 - Protected both planned model routes behind reusable bounded-request and shared-quota primitives.
+- Implemented the first real product AI boundary with the official Responses API Structured Outputs interface while preserving client ownership of deterministic parking facts.
 
 ## GPT-5.6 Runtime Use
 
@@ -93,6 +102,7 @@ No product runtime request has been made. GPT-5.6 will be called only from serve
 - Corrective hydration gate: hydration/store suites exited 0 with 2 files and 11 tests passing; `npm test` exited 0 with 8 files and 59 tests passing; `npm run lint` exited 0; `npm run build` compiled and statically generated `/`; Next dev/build introduced no additional tracked changes.
 - Task 6 gate: URL-safety/page-fetch suites exited 0 with 2 files and 33 tests passing; `npm run lint` exited 0.
 - Task 7 gate: bounded-request/quota suites exited 0 with 2 files and 16 tests passing; `npm run lint` exited 0.
+- Task 8 gate: OpenAI parser/analysis/route suites exited 0 with 3 files and 19 tests passing; the related URL-safety regression suite passed; `npm run lint` and `npm run build` exited 0; the full unit gate passed 15 files and 127 tests.
 
 ## Known Tradeoffs
 

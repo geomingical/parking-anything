@@ -27,7 +27,7 @@ function isPublicAddress(address: string): boolean {
   if (!ipaddr.isValid(address)) return false;
 
   let parsed = ipaddr.parse(address);
-  if (parsed.kind() === "ipv6" && parsed.isIPv4MappedAddress()) {
+  if (parsed instanceof ipaddr.IPv6 && parsed.isIPv4MappedAddress()) {
     parsed = parsed.toIPv4Address();
   }
 
