@@ -4,21 +4,11 @@ import { Settings } from "lucide-react";
 import { useState } from "react";
 
 type MissionHeaderProps = {
-  url?: string;
-  onUrlChange?(url: string): void;
-  onAnalyze?(): void;
   onReset?(): void;
-  analyzeDisabled?: boolean;
-  analyzingUrl?: string | null;
 };
 
 export function MissionHeader({
-  url = "",
-  onUrlChange,
-  onAnalyze,
   onReset,
-  analyzeDisabled = false,
-  analyzingUrl = null,
 }: MissionHeaderProps) {
   const [showSettings, setShowSettings] = useState(false);
 
@@ -27,7 +17,7 @@ export function MissionHeader({
       <div className="mx-auto flex max-w-7xl items-start justify-between gap-4">
         <div>
           <p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-[var(--garage)]">
-            AI Tools · Municipal Lot 01
+            Unified Parking Lot 01
           </p>
           <h1 className="text-2xl font-black tracking-[-0.04em] sm:text-3xl">
             Parking Anything
@@ -36,7 +26,7 @@ export function MissionHeader({
             Stop collecting. Start test-driving.
           </p>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--muted-ink)] sm:text-base">
-            Turn every saved AI tool into a concrete trial, an evidenced adoption, or a
+            Turn saved tools and ideas into concrete trials, evidenced adoption, or a
             deliberate exit.
           </p>
         </div>
@@ -81,39 +71,6 @@ export function MissionHeader({
           ) : null}
         </div>
       </div>
-
-      <form
-        className="mx-auto mt-6 flex max-w-7xl flex-col gap-2 sm:flex-row"
-        onSubmit={(event) => {
-          event.preventDefault();
-          onAnalyze?.();
-        }}
-      >
-        <label htmlFor="ai-tool-url" className="sr-only">
-          AI tool URL
-        </label>
-        <input
-          id="ai-tool-url"
-          type="url"
-          value={url}
-          onChange={(event) => onUrlChange?.(event.target.value)}
-          placeholder="https://example.com/ai-tool"
-          disabled={analyzeDisabled || Boolean(analyzingUrl)}
-          className="h-12 min-w-0 flex-1 border-2 border-[var(--ink)] bg-white px-4 text-base placeholder:text-black/40 disabled:cursor-not-allowed disabled:bg-black/5"
-        />
-        <button
-          type="submit"
-          disabled={analyzeDisabled || Boolean(analyzingUrl)}
-          className="h-12 shrink-0 bg-[var(--safety)] px-6 text-sm font-black uppercase tracking-[0.08em] text-black transition-colors hover:bg-black hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          Analyze &amp; Park
-        </button>
-      </form>
-      {analyzingUrl ? (
-        <p className="mx-auto mt-2 max-w-7xl text-sm font-bold" aria-live="polite">
-          Analyzing {analyzingUrl}…
-        </p>
-      ) : null}
     </header>
   );
 }

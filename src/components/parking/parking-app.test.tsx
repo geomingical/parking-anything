@@ -72,6 +72,27 @@ describe("ParkingApp live analysis", () => {
     ).toBeVisible();
   });
 
+  it("switches capture modes by keyboard and keeps the future mode disabled", async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    vi.stubGlobal("fetch", vi.fn());
+    render(<ParkingApp />);
+
+    const toolTab = await screen.findByRole("tab", { name: "Park tool" });
+    const ideaTab = screen.getByRole("tab", { name: "Park idea" });
+    expect(toolTab).toHaveAttribute("aria-selected", "true");
+
+    toolTab.focus();
+    await user.keyboard("{ArrowRight}");
+    expect(ideaTab).toHaveFocus();
+    expect(ideaTab).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByLabelText("Idea title")).toBeVisible();
+
+    const future = screen.getByRole("button", { name: "Park whatever · Future" });
+    expect(future).toBeDisabled();
+    await user.click(future);
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
   it("creates exactly one client-owned parked item from a valid response", async () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     vi.stubGlobal(

@@ -481,7 +481,7 @@ git commit -m "feat: manage mixed parkable state"
 - Modify: `src/components/parking/parking-app.tsx`
 - Modify: `src/components/parking/mission-header.tsx`
 
-- [ ] **Step 1: Write failing capture tests**
+- [x] **Step 1: Write failing capture tests**
 
 Assert keyboard-operable Tool/Idea segmented selection, preserved field input after validation errors, exact 120/2,000 limits, one created parked Idea, zero `fetch` calls, disabled Park whatever semantics, and no regression in Tool analysis.
 
@@ -495,23 +495,23 @@ expect(onPark).toHaveBeenCalledWith(expect.objectContaining({
 }));
 ```
 
-- [ ] **Step 2: Run UI tests and verify RED**
+- [x] **Step 2: Run UI tests and verify RED**
 
 ```bash
 npx vitest run src/components/parking/idea-capture-form.test.tsx src/components/parking/parking-app.test.tsx
 ```
 
-- [ ] **Step 3: Extract Tool capture without behavioral changes**
+- [x] **Step 3: Extract Tool capture without behavioral changes**
 
 Move the existing URL state, Analyze & Park request, loading guard, URL-only warning, retry state, structured response validation, and client item assembly into `ToolCaptureForm`. Change only `category` to `kind` in item assembly.
 
-- [ ] **Step 4: Implement Idea capture and the selector**
+- [x] **Step 4: Implement Idea capture and the selector**
 
 Use native field validation plus the shared Zod schema. Create IDs with `crypto.randomUUID()` and use one ISO timestamp for `createdAt`, `updatedAt`, and `lastActivityAt`. Do not call an API.
 
 Use a tab/segmented-control pattern for active capture modes. Render `Park whatever · Future` as an actual disabled button with an accessible description. Keep Mission Header responsible only for product identity and reset.
 
-- [ ] **Step 5: Run tests and commit**
+- [x] **Step 5: Run tests and commit**
 
 ```bash
 npx vitest run src/components/parking/idea-capture-form.test.tsx src/components/parking/parking-app.test.tsx

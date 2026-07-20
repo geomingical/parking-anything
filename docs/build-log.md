@@ -221,3 +221,10 @@ The dedicated event key was entered locally by the user and remained server-only
 - Every controller command now builds and validates one complete v2 proposal before persistence. Validation failure performs no write or publication; storage failure publishes the valid state with the existing warning. Planning and evidence edits refresh both activity timestamps immediately.
 - Root-cause analysis of the first full gate found only stale schema consumers: Tool assembly still emitted `category`, two tests read the old `.items` envelope, and route fixtures omitted `kind`. Their existing failing regressions were corrected without adding Task 5 capture modes or Task 7 mixed-Patrol behavior.
 - Focused controller/hydration tests passed 2 files and 16 tests; compatibility regressions passed 2 files and 13 tests; the final `npm test` gate passed all 22 files and 196 tests; `npm run lint` exited 0 without warnings.
+
+### 2026-07-20 — v0.5 Phase 5: first-class Idea capture
+
+- Used RED-GREEN TDD for keyboard-operable Tool/Idea capture selection, exact 120/2,000-character Idea limits, preserved invalid input, one locally assembled parked Idea, zero network calls, and native disabled semantics for `Park whatever · Future`.
+- Extracted the verified v0.4 URL workflow into `ToolCaptureForm` without changing its real API request, duplicate guard, URL-only warning, retry behavior, structured-response validation, or client-owned item assembly.
+- `MissionHeader` now owns only product identity and reset. Manual Idea capture uses the shared strict schema, one client ID and timestamp, and immediately enters the same Parking Lot with no AI dependency.
+- The focused capture gate passed 2 files and 9 tests; the full `npm test` gate passed 23 files and 200 tests; `npm run lint` exited 0 without warnings.
