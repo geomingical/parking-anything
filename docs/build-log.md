@@ -125,7 +125,14 @@ Times below are Asia/Taipei commit timestamps from Git. File lists identify the 
 - Added the judge-facing `README.md` in the authoritative 13-section order and documented all 10 `.env.example` variables without values. The README distinguishes Codex's implementation work, GPT-5.6 Luna/Terra runtime roles, and deterministic ownership of facts and state.
 - Added the dated Phase Evidence Index from actual Git commit timestamps and preserved security, QA, and known-tradeoff evidence without inventing deployment results or API usage.
 - Final local release gate from the screenshot-stabilized tree: `npm run lint` exited 0; `npm test` passed 20 files and 159 tests; `npm run test:e2e` passed 15 applicable checks with one intentional duplicate screenshot skip; `npm run build` compiled, type-checked, generated five static pages, and listed both dynamic API routes.
-- External deployment and publication remain intentionally unclaimed and unexecuted pending the explicit GitHub/Vercel authorization checkpoint and direct user entry of production secrets.
+- At the end of the local gate, external deployment and publication were intentionally unclaimed and unexecuted pending the explicit GitHub/Vercel authorization checkpoint and direct user entry of production secrets.
+
+### 2026-07-20 — Phase 12 external project setup
+
+- After explicit user authorization and direct account authentication, created the public repository at `https://github.com/geomingical/parking-anything`, pushed `main`, and verified public visibility plus the remote `README.md` and MIT `LICENSE` objects.
+- Created the Vercel project `aim-ing-data/parking-anything`. Its first server build completed successfully and Vercel assigned `https://parking-anything.vercel.app`; this is recorded only as project setup, not as a verified demo, because production secrets had not yet been entered.
+- The deprecated claimable-deploy fallback returned CLI guidance rather than a deployment. The authenticated Vercel CLI was used instead. No `.env` file or secret value was printed, committed, or intentionally uploaded.
+- Production configuration, secret-name verification, redeployment, and fresh-profile smoke testing remain pending at the explicit human secret-entry checkpoint.
 
 ## Codex Contributions
 

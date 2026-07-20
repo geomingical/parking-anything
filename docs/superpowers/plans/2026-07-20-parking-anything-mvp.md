@@ -1232,11 +1232,11 @@ Deploy only after the user authorizes the external action. Test in a fresh brows
 
 If Redis/deployment is unstable at the July 21 18:00 freeze, set `DEMO_API_ENABLED=false`, keep the deployed seeded workflow, and record that honest fallback in README/build log.
 
-- [ ] **Step 6: Create and publish the public repository**
+- [x] **Step 6: Create and publish the public repository**
 
 After user approval, create the public GitHub repository, push `main`, and verify the remote README and MIT license. Do not push `.env.local`, Playwright artifacts, screenshots containing secrets, or transient logs.
 
-- [ ] **Step 7: Commit release documentation**
+- [x] **Step 7: Commit release documentation**
 
 Run:
 
