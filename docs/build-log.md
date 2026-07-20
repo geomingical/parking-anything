@@ -189,3 +189,10 @@ The dedicated event key was entered locally by the user and remained server-only
 
 - npm reported two moderate dependency advisories during installation. No unplanned `npm audit fix --force` was applied; production dependency impact will be inspected during the release gate.
 - The MVP intentionally uses browser-local persistence and has no account or cross-device synchronization.
+
+### 2026-07-20 — v0.5 Phase 0: protected baseline and repository hygiene
+
+- Verified the v0.5 source at commit `3d88380a98761a5d9dc65b3f9cf82d14911d045c` and the deployed v0.4 rollback source at `1fa4f3d811fab843c7cc6bd0a9a9eda95e99ab55`.
+- Created the local-only annotated tag `v0.4-production` at the verified v0.4 source. Per the implementation authorization boundary, the tag was not pushed and no GitHub or Vercel operation was performed.
+- Isolated implementation on branch `feat/v0.5-unified-parkable` under the repository-local ignored worktree directory. Added tracked ignore rules for both `.worktrees/` and generated `.superpowers/` content without deleting the brainstorming output.
+- Installed the locked dependency tree and ran the untouched baseline: `npm test` passed 20 files and 159 tests. Production remained unchanged.

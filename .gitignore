@@ -13,6 +13,10 @@ coverage/
 playwright-report/
 test-results/
 
+# Local implementation workspaces and generated brainstorming output
+/.worktrees/
+/.superpowers/
+
 # Operating-system files
 .DS_Store
 .vercel

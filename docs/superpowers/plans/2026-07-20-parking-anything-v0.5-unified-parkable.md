@@ -59,7 +59,7 @@
 - Modify: `.gitignore`
 - Verify: `docs/build-log.md`
 
-- [ ] **Step 1: Verify the exact starting state**
+- [x] **Step 1: Verify the exact starting state**
 
 Run:
 
@@ -71,7 +71,7 @@ git tag --list v0.4-production
 
 Expected: `main` matches its remote except known untracked `.superpowers/`; the commit resolves; the tag is absent.
 
-- [ ] **Step 2: Ignore generated brainstorming output**
+- [x] **Step 2: Ignore generated brainstorming output**
 
 Add exactly this repository-local pattern:
 
@@ -81,7 +81,7 @@ Add exactly this repository-local pattern:
 
 Run `git status --short` and confirm `.superpowers/` disappears without being deleted.
 
-- [ ] **Step 3: Record the rollback tag locally**
+- [x] **Step 3: Record the rollback tag locally**
 
 Run:
 
@@ -92,11 +92,11 @@ git show --no-patch --oneline v0.4-production
 
 Expected: the tag resolves to `1fa4f3d`.
 
-- [ ] **Step 4: Stop for explicit authorization before pushing the tag**
+- [x] **Step 4: Stop for explicit authorization before pushing the tag**
 
 Do not run `git push origin v0.4-production` without user authorization. This checkpoint does not block local implementation.
 
-- [ ] **Step 5: Commit repository hygiene**
+- [x] **Step 5: Commit repository hygiene**
 
 ```bash
 git add .gitignore
