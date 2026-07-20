@@ -726,11 +726,11 @@ git commit -m "test: verify unified parkable demo"
 - Modify: `docs/build-log.md`
 - Modify: the existing Task 13 demo/recording document if present; otherwise create `docs/demo-script.md`
 
-- [ ] **Step 1: Update README from observed implementation only**
+- [x] **Step 1: Update README from observed implementation only**
 
 Document Tool and Idea capture, one lifecycle, v2 migration and rollback limitation, result evidence, privacy-bounded mixed Patrol, local setup, tests, and Future scope. Keep Codex build work separate from GPT-5.6 product runtime use.
 
-- [ ] **Step 2: Write a bounded judge narration**
+- [x] **Step 2: Write a bounded judge narration**
 
 The script must show this story in order:
 
@@ -741,11 +741,11 @@ The script must show this story in order:
 5. Garage and Scrapyard show deliberate outcomes for either kind.
 6. Disabled Park whatever and Gather show extension points without fake functionality.
 
-- [ ] **Step 3: Verify docs against the running app**
+- [x] **Step 3: Verify docs against the running app**
 
 Run every README command and rehearse every narration action locally. Remove claims that are not visible or verified.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add README.md docs/build-log.md docs/demo-script.md
