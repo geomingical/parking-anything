@@ -29,11 +29,14 @@ Terminal 2, from `video/parking-anything-build-week/`:
 
 ```bash
 node scripts/capture-hero-frames.mjs
+node --test scripts/capture-hero-frames.integration.mjs
 node scripts/static-check.mjs
 node scripts/layout-check.mjs
 ```
 
 The generator writes exactly 14 indexed 1920×1080 main frames (`frame-00-at-4s.png` through `frame-13-at-149.4s.png`) and one deterministic 4×4 `snapshots/contact-sheet.jpg`. It safely removes only known main-generator artifacts, validates image dimensions, full rendered Future-disclosure foreground/background pixel geometry, and nonblank Future scenes, and never reads or writes the protected teaser project. It uses only the local page, Playwright, and the already installed `sharp` package; it makes no network request. The ordered sample times are `4, 23, 39, 53, 64, 80, 98, 110, 118, 128, 138, 142, 147, 149.4` seconds.
+
+The standalone integration contract owns an ephemeral local server and temporary output directory, executes the real generator twice, requires byte-identical hashes for all 15 artifacts at 1920×1080, and proves the complete teaser tree is byte-identical before and after. `PARKING_ANYTHING_CAPTURE_SERVER_URL` and `PARKING_ANYTHING_CAPTURE_OUTPUT_DIR` exist for that isolated contract; ordinary canonical generation keeps the documented defaults.
 
 The UI-first review contract requires real shipped-product captures to occupy at least 45% of the 1920×1080 frame at every tagged product sample. It also verifies the exact `FUTURE · NOT YET BUILT` text, DOM box/text geometry, clipping, foreground/background pixels, and a nonblank scene through 138.4 seconds. It rejects text-first slides, decorative thumbnail UI, more than one headline or two evidence labels, repeated card/stamp/grid layouts, purposeless vehicles, fabricated Future application states, and captions that collide with or outrank product evidence.
 

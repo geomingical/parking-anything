@@ -195,10 +195,14 @@ git commit -m "feat: redesign Build Week film around product UI"
 ### Task 2: Visual QA, documentation, and Studio handoff
 
 **Files:**
+- Modify: `video/parking-anything-build-week/index.html`
+- Modify: `video/parking-anything-build-week/styles.css`
+- Modify: `video/parking-anything-build-week/scripts/static-check.mjs`
 - Modify: `video/parking-anything-build-week/scripts/layout-check.mjs`
 - Modify: `video/parking-anything-build-week/scripts/capture-hero-frames.mjs`
-- Modify only for verified visual defects: `video/parking-anything-build-week/index.html`
-- Modify only for verified visual defects: `video/parking-anything-build-week/styles.css`
+- Add: `video/parking-anything-build-week/scripts/capture-hero-frames-contract.mjs`
+- Add: `video/parking-anything-build-week/scripts/capture-hero-frames.test.mjs`
+- Add: `video/parking-anything-build-week/scripts/capture-hero-frames.integration.mjs`
 - Regenerate: `video/parking-anything-build-week/snapshots/*.png`
 - Regenerate: `video/parking-anything-build-week/snapshots/contact-sheet.jpg`
 - Modify: `video/parking-anything-build-week/README.md`
@@ -280,6 +284,7 @@ node --test scripts/transcript-contract.test.mjs
 node scripts/verify-transcript.mjs
 node scripts/static-check.mjs
 node scripts/layout-check.mjs
+node --test scripts/capture-hero-frames.integration.mjs
 npx --yes hyperframes check
 npx --yes hyperframes inspect --samples 30
 cd ../..
@@ -287,14 +292,14 @@ npm run check
 git diff --check
 ```
 
-Expected: 7 transcript contract fixtures pass; artifact verifier reports 362 words/60 cues/final 149.2s; static/layout/HyperFrames checks pass; ESLint, 23 Vitest files / 213 tests, TypeScript, and Next.js production build pass.
+Expected: 7 transcript contract fixtures pass; artifact verifier reports 362 words/60 cues/final 149.2s; the standalone capture integration contract passes two-run artifact and teaser-tree hashes; static/layout/HyperFrames checks pass; ESLint, 25 Vitest files / 216 tests, TypeScript, and Next.js production build pass.
 
 - [x] **Step 7: Complete the plan, commit evidence, and hand off Studio**
 
 Mark all plan checkboxes complete. Commit:
 
 ```bash
-git add video/parking-anything-build-week/index.html video/parking-anything-build-week/styles.css video/parking-anything-build-week/scripts/layout-check.mjs video/parking-anything-build-week/scripts/capture-hero-frames.mjs video/parking-anything-build-week/snapshots video/parking-anything-build-week/README.md docs/build-log.md docs/superpowers/plans/2026-07-21-parking-anything-ui-first-video-redesign.md
+git add video/parking-anything-build-week/index.html video/parking-anything-build-week/styles.css video/parking-anything-build-week/scripts/static-check.mjs video/parking-anything-build-week/scripts/layout-check.mjs video/parking-anything-build-week/scripts/capture-hero-frames.mjs video/parking-anything-build-week/scripts/capture-hero-frames-contract.mjs video/parking-anything-build-week/scripts/capture-hero-frames.test.mjs video/parking-anything-build-week/scripts/capture-hero-frames.integration.mjs video/parking-anything-build-week/snapshots video/parking-anything-build-week/README.md docs/build-log.md docs/superpowers/plans/2026-07-21-parking-anything-ui-first-video-redesign.md
 git commit -m "test: verify UI-first Build Week film"
 ```
 

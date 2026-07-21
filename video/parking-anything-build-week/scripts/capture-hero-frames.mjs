@@ -11,8 +11,11 @@ import {
 } from "./capture-hero-frames-contract.mjs";
 
 const projectDir = resolve(new URL("..", import.meta.url).pathname);
-const snapshotsDir = resolve(projectDir, "snapshots");
-const serverUrl = "http://127.0.0.1:3028/parking-anything-build-week/index.html";
+const snapshotsDir = process.env.PARKING_ANYTHING_CAPTURE_OUTPUT_DIR
+  ? resolve(process.env.PARKING_ANYTHING_CAPTURE_OUTPUT_DIR)
+  : resolve(projectDir, "snapshots");
+const serverUrl = process.env.PARKING_ANYTHING_CAPTURE_SERVER_URL
+  || "http://127.0.0.1:3028/parking-anything-build-week/index.html";
 const canvas = { width: 1920, height: 1080 };
 const contactCell = { width: 480, height: 270 };
 
