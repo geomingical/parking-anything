@@ -14,7 +14,8 @@ const beats = [
   { paragraphCount: 1, start: 58.68, end: 72.44 },
   { paragraphCount: 1, start: 72.44, end: 92.12 },
   { paragraphCount: 1, start: 92.12, end: 108.7 },
-  { paragraphCount: 2, start: 108.7, end: 119.26 },
+  { paragraphCount: 1, start: 108.7, end: 140 },
+  { paragraphCount: 2, start: 140, end: 149.5 },
 ];
 
 let paragraphIndex = 0;
@@ -54,7 +55,7 @@ await writeFile(
   resolve(projectDir, "transcript.meta.json"),
   `${JSON.stringify(
     {
-      timingSource: "proportional alignment to the 119.281-second macOS TTS track",
+      timingSource: "proportional alignment to the 149.5-second editorial target",
       provisional: true,
       replaceWith: "npx hyperframes transcribe narration.wav",
       beatBoundaries: beats.map(({ start, end }) => ({ start, end })),
