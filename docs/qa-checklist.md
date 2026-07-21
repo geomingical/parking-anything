@@ -85,3 +85,21 @@ Preview deployment `dpl_9SZMM62Tg267Nh7oKyt4fApGKqh2` was verified at `https://p
 - [x] Desktop 1440x900 and mobile 390x844 reported `scrollWidth === clientWidth`; viewport screenshots are stored as `v0.5-preview-*-plan-test-drive.png` and show reachable planning controls without overlap.
 - [x] The live Preview browser console contained zero error entries.
 - [x] Read-only rollback rehearsal confirmed `parking-anything.vercel.app` still aliases ready production deployment `dpl_8R5o3DrmyPiE3vUyQ1ZbZinfFpHa`; no alias, protection, secret, environment, or production deployment change was made.
+
+## v0.5 production verification — 2026-07-21
+
+Production deployment `dpl_Dm8Evvt8gEpgeEgwt34byn5fNCmB` is `READY` and owns `https://parking-anything.vercel.app`. It is the production copy promoted from verified Preview `dpl_9SZMM62Tg267Nh7oKyt4fApGKqh2`; v0.4 deployment `dpl_8R5o3DrmyPiE3vUyQ1ZbZinfFpHa` remains the recorded rollback target.
+
+- [x] The public production alias opens without Vercel login or deployment authentication.
+- [x] All required Production variable names are configured as encrypted values: `OPENAI_API_KEY`, `OPENAI_ANALYZE_MODEL`, `OPENAI_PATROL_MODEL`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `RATE_LIMIT_HASH_SECRET`, `DEMO_API_ENABLED`, `RATE_LIMIT_IP_MAX`, `RATE_LIMIT_IP_WINDOW_SECONDS`, and `RATE_LIMIT_GLOBAL_DAILY_MAX`. No value was retrieved or printed.
+- [x] A fresh/reset profile received the exact three seed records, showed no false storage warning, and retained subsequent changes after reload.
+- [x] Isolated desktop and mobile production profiles migrated the exact strict v1 envelope while preserving v1 bytes and independently proved that malformed present v2 remains authoritative without changing either key.
+- [x] One quota-bounded real Tool analysis returned a structured GPT-5.6 ticket with the visible URL-only source warning.
+- [x] One quota-bounded real mixed Manager Patrol selected Tool and Idea candidates together and visibly separated deterministic Observed Fact from GPT-5.6 Recommendation or per-entry deterministic fallback.
+- [x] Manual Idea capture required no AI request; planning updated the same parked record immediately, then Test Drive -> evidence -> shared Garage completed and persisted.
+- [x] Tow Away required a local decision reason, moved the Tool into the shared Scrapyard, and persisted after reload.
+- [x] At 390x844, `scrollWidth === clientWidth`; both Future controls remained visible, disabled, and non-functional.
+- [x] The production browser console contained zero error entries.
+- [x] The locally built client bundle contained none of the server-only secret variable names or OpenAI-key-like patterns.
+- [x] Bounded deployment logs contained the expected page, Analyze, and Patrol requests and no error-level entries.
+- [x] Fresh release verification passed ESLint, 23 Vitest files with 213 tests, 25 applicable desktop/mobile E2E tests with three documented skips, and the Next.js production build with both API routes.

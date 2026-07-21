@@ -775,7 +775,7 @@ Expected: no unstaged implementation changes; v0.4 tag still resolves to `1fa4f3
 
 Do not change production environment variables or retrieve secret values. Verify only required variable names exist for Preview. Record the Preview deployment ID and URL without exposing credentials.
 
-- [ ] **Step 3: Test fresh, migrated, and malformed browser profiles**
+- [x] **Step 3: Test fresh, migrated, and malformed browser profiles**
 
 Run the complete smoke checklist in:
 
@@ -793,11 +793,11 @@ Confirm the verified v0.4 deployment can be reassigned and that v1 remains untou
 
 Present the Preview URL, verification summary, screenshot evidence, known limitations, and rollback target. Production promotion requires explicit user approval.
 
-- [ ] **Step 6: After approval, promote and re-run smoke tests**
+- [x] **Step 6: After approval, promote and re-run smoke tests**
 
 Only after explicit approval, assign the production alias to the verified v0.5 deployment. Re-run the fresh-profile judge path, console check, bundle secret-name scan, bounded production logs, and quota-safe API checks.
 
-- [ ] **Step 7: Record verified release evidence and commit**
+- [x] **Step 7: Record verified release evidence and commit**
 
 Append only observed deployment IDs, aliases, test outcomes, and rollback facts.
 
@@ -811,15 +811,15 @@ git push origin HEAD
 
 ## Final Definition of Done
 
-- [ ] The strict v2 union and every persisted invariant are enforced at all entry points.
-- [ ] Exact v1 data migrates once without changing v1, effort tiers, IDs, timestamps, or evidence meaning.
-- [ ] A malformed present v2 key never falls back to v1.
-- [ ] Tool behavior, security, quotas, provenance, hydration, and reset regressions pass.
-- [ ] Idea capture makes no API call and creates one first-class parked record.
-- [ ] One record moves through planning, Test Drive, Garage, or Scrapyard without promotion or duplication.
-- [ ] Manager Patrol is mixed, kind-aware, bounded, private, and advisory only.
-- [ ] Needs review is deterministic and applies to both active kinds.
-- [ ] All unit, E2E, build, accessibility, and three-viewport visual gates pass.
-- [ ] Protected Preview is verified before any production change.
-- [ ] Production promotion and tag push occur only with explicit authorization.
-- [ ] Build log and final narration distinguish Codex implementation work, deterministic product behavior, and GPT-5.6 runtime judgment.
+- [x] The strict v2 union and every persisted invariant are enforced at all entry points.
+- [x] Exact v1 data migrates once without changing v1, effort tiers, IDs, timestamps, or evidence meaning.
+- [x] A malformed present v2 key never falls back to v1.
+- [x] Tool behavior, security, quotas, provenance, hydration, and reset regressions pass.
+- [x] Idea capture makes no API call and creates one first-class parked record.
+- [x] One record moves through planning, Test Drive, Garage, or Scrapyard without promotion or duplication.
+- [x] Manager Patrol is mixed, kind-aware, bounded, private, and advisory only.
+- [x] Needs review is deterministic and applies to both active kinds.
+- [x] All unit, E2E, build, accessibility, and three-viewport visual gates pass.
+- [x] Protected Preview is verified before any production change.
+- [x] Production promotion and tag push occur only with explicit authorization.
+- [x] Build log and final narration distinguish Codex implementation work, deterministic product behavior, and GPT-5.6 runtime judgment.
