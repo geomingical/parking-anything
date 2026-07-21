@@ -1,0 +1,11 @@
+{
+  "namedAnimations": [
+    { "name": "car-enter", "durationMs": 420, "effect": "fade and rise" },
+    { "name": "car-zone-change", "durationMs": 360, "effect": "short vertical lift" },
+    { "name": "car-towed", "durationMs": 420, "effect": "fade and move right" }
+  ],
+  "scrollTriggered": false,
+  "marquee": false,
+  "canvasOrWebGL": false,
+  "notes": "The product uses restrained functional motion. The promo can amplify movement while preserving the utilitarian parking-lot identity."
+}

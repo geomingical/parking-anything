@@ -1,0 +1,26 @@
+[eyebrow] Unified Parking Lot 01
+[h1] Parking Anything
+[h2] Stop collecting. Start test-driving.
+[p] Turn saved tools and ideas into concrete trials, evidenced adoption, or a deliberate exit.
+[button] Park tool
+[button] Park idea
+[button] Park whatever · Future
+[button] Analyze & Park
+[p] Bring people together around parked tools, ideas, experiments, notes, and decisions.
+[button] Gather · Future
+[eyebrow] Decision support
+[h2] Manager Patrol
+[p] Review the stalest active tools and ideas without automatic changes.
+[button] Run Manager Patrol
+[tab] Parking Lot
+[tab] Test Driving
+[tab] Garage
+[tab] Scrapyard
+[label] Needs review
+[label] Planning needed
+[label] Observed Fact
+[label] GPT-5.6 Recommendation
+[button] Start Test Drive
+[button] Park in Garage
+[button] Tow Away
+[button] Review this car
