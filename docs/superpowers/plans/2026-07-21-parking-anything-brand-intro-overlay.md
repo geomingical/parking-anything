@@ -48,6 +48,11 @@ if (brandIntro?.querySelectorAll('[data-brand-tier="true"]').length !== 2) {
 if (brandIntro?.querySelector("button, input, select, textarea, a[href]")) {
   errors.push(`${composition.file}: brand intro must remain noninteractive`);
 }
+for (const selector of ["#s1-copy", "#s1-product"]) {
+  if (!document.querySelector(selector)?.hasAttribute("data-layout-allow-occlusion")) {
+    errors.push(`${composition.file}: ${selector} must declare intentional brand-intro occlusion`);
+  }
+}
 
 const narrationContract = {
   src: [narration?.getAttribute("src"), "narration.wav"],
@@ -238,6 +243,8 @@ enter("#brand-intro-thesis", 0.55, { y: 28 }, { y: 0, duration: 0.55, ease: "sin
 tl.to("#brand-intro", { xPercent: 100, duration: 0.55, ease: "power3.inOut" }, 2.25);
 tl.set("#brand-intro", { opacity: 0 }, 2.8);
 ```
+
+Add `data-layout-allow-occlusion=""` to `#s1-copy` and `#s1-product`, the two text-bearing Scene 1 regions intentionally covered by the brand overlay. Do not place the escape hatch on the entire composition or any later scene.
 
 Do not alter the four existing Scene 1 entrances, any `coverTransition` call, root `data-duration`, narration element, captions, or later timeline statement.
 

@@ -203,6 +203,11 @@ for (const composition of compositions) {
     if (brandIntro?.querySelector("button, input, select, textarea, a[href]")) {
       errors.push(`${composition.file}: brand intro must remain noninteractive`);
     }
+    for (const selector of ["#s1-copy", "#s1-product"]) {
+      if (!document.querySelector(selector)?.hasAttribute("data-layout-allow-occlusion")) {
+        errors.push(`${composition.file}: ${selector} must declare intentional brand-intro occlusion`);
+      }
+    }
 
     const narrationContract = {
       src: [narration?.getAttribute("src"), "narration.wav"],
