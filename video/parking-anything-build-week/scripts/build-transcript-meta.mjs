@@ -3,7 +3,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { promisify } from "node:util";
 import {
-  buildBeatBoundaries,
+  deriveCanonicalBeatBoundaries,
   validateAudioProvenance,
   validateMeta,
   validateTranscript,
@@ -13,19 +13,8 @@ const run = promisify(execFile);
 const root = resolve(new URL("..", import.meta.url).pathname);
 const transcript = JSON.parse(await readFile(resolve(root, "transcript.json"), "utf8"));
 validateTranscript(transcript);
-const anchorPhrases = [
-  "Saving a new tool",
-  "Paste a public tool link",
-  "Ideas enter the same lot",
-  "Every Parkable begins",
-  "Then make a deliberate call",
-  "When the lot starts",
-  "Codex built and tested",
-  "Today the lot holds",
-  "Parking Anything isn't another",
-];
 const lastWordEndSeconds = transcript.at(-1).end;
-const beatBoundaries = buildBeatBoundaries(transcript, anchorPhrases);
+const beatBoundaries = deriveCanonicalBeatBoundaries(transcript);
 const { stdout } = await run("ffprobe", [
   "-v",
   "error",

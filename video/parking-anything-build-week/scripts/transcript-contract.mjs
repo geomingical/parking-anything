@@ -1,5 +1,17 @@
 import assert from "node:assert/strict";
 
+export const CANONICAL_BEAT_ANCHORS = [
+  "Saving a new tool",
+  "Paste a public tool link",
+  "Ideas enter the same lot",
+  "Every Parkable begins",
+  "Then make a deliberate call",
+  "When the lot starts",
+  "Codex built and tested",
+  "Today the lot holds",
+  "Parking Anything isn't another",
+];
+
 function assertFiniteNumber(value, label) {
   assert.equal(typeof value, "number", `${label} must be a finite number; got ${JSON.stringify(value)}`);
   assert.ok(Number.isFinite(value), `${label} must be a finite number; got ${value}`);
@@ -75,6 +87,22 @@ export function buildBeatBoundaries(transcript, phrases) {
   }));
   validateBeatBoundaries(beatBoundaries, lastWordEndSeconds);
   return beatBoundaries;
+}
+
+export function deriveCanonicalBeatBoundaries(transcript) {
+  return buildBeatBoundaries(transcript, CANONICAL_BEAT_ANCHORS);
+}
+
+export function assertBeatBoundariesMatchTranscript(transcript, beatBoundaries) {
+  validateTranscript(transcript);
+  validateBeatBoundaries(beatBoundaries, transcript.at(-1).end);
+  const expected = deriveCanonicalBeatBoundaries(transcript);
+  assert.deepEqual(
+    beatBoundaries,
+    expected,
+    `beatBoundaries are stale or misaligned with transcript-derived canonical anchors; expected=${JSON.stringify(expected)} actual=${JSON.stringify(beatBoundaries)}`,
+  );
+  return expected;
 }
 
 export function validateAudioProvenance(audioProvenance, audioDurationSeconds) {

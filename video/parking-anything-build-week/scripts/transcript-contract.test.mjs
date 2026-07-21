@@ -1,8 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  CANONICAL_BEAT_ANCHORS,
+  assertBeatBoundariesMatchTranscript,
   assertCaptionScriptMatches,
   buildBeatBoundaries,
+  deriveCanonicalBeatBoundaries,
   findUniquePhraseStart,
   parseCaptionScript,
   validateAudioProvenance,
@@ -13,6 +16,17 @@ import {
 
 const word = (text, start, end) => ({ text, start, end });
 const transcript = [word("One", 0, 1), word("Two", 1, 2), word("Three", 2, 3)];
+
+function timedTranscript(phrases) {
+  let time = 0;
+  return phrases.flatMap((phrase) =>
+    phrase.split(/\s+/).map((text) => {
+      const entry = word(text, time, time + 1);
+      time += 1;
+      return entry;
+    }),
+  );
+}
 
 test("validateTranscript rejects empty, null, non-finite, and overlapping words", () => {
   assert.throws(() => validateTranscript([]), /non-empty array/);
@@ -61,9 +75,33 @@ test("validateMeta rejects inconsistent duration and provenance", () => {
     () => validateMeta({ ...validMeta, audioDurationSeconds: 2.9 }, transcript),
     /audioDurationSeconds/,
   );
+  const validAudioProvenance = {
+    provider: "macOS say",
+    voice: "Samantha",
+    sourceRateWpm: 140,
+    sourceDurationSeconds: 150.98825,
+    tempoFactor: 1.011646566,
+    transform: "ffmpeg atempo (pitch-preserving whole track)",
+    effectiveRateWpm: 141.63,
+    finalDurationSeconds: 3.1,
+  };
   assert.throws(
-    () => validateAudioProvenance({ finalDurationSeconds: null }, 3.1),
-    /audioProvenance\.provider/,
+    () => validateAudioProvenance({ ...validAudioProvenance, finalDurationSeconds: null }, 3.1),
+    /audioProvenance\.finalDurationSeconds/,
+  );
+});
+
+test("transcript-derived canonical beats reject a contiguous shifted boundary", () => {
+  const canonicalTranscript = timedTranscript(CANONICAL_BEAT_ANCHORS);
+  const expected = deriveCanonicalBeatBoundaries(canonicalTranscript);
+  const staleButContiguous = expected.map((beat) => ({ ...beat }));
+  staleButContiguous[4].end += 0.25;
+  staleButContiguous[5].start += 0.25;
+
+  validateBeatBoundaries(staleButContiguous, canonicalTranscript.at(-1).end);
+  assert.throws(
+    () => assertBeatBoundariesMatchTranscript(canonicalTranscript, staleButContiguous),
+    /stale or misaligned/,
   );
 });
 

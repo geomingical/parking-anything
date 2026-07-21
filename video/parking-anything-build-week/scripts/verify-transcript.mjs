@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import {
+  assertBeatBoundariesMatchTranscript,
   assertCaptionScriptMatches,
   validateAudioProvenance,
   validateMeta,
@@ -16,6 +17,7 @@ const captions = JSON.parse(await readFile(resolve(root, "captions.json"), "utf8
 const captionsScript = await readFile(resolve(root, "captions.js"), "utf8");
 validateTranscript(transcript);
 validateMeta(meta, transcript);
+assertBeatBoundariesMatchTranscript(transcript, meta.beatBoundaries);
 validateAudioProvenance(meta.audioProvenance, meta.audioDurationSeconds);
 assertCaptionScriptMatches(captions, captionsScript);
 const transcriptText = transcript.map((word) => word.text).join(" ");
