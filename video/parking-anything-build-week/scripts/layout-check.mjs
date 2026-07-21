@@ -100,6 +100,74 @@ for (const capture of captures) {
         };
         const rectsOverlap = (a, b) => a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
         const near = (actual, expected, tolerance = 10) => Math.abs(actual - expected) <= tolerance;
+        const verifyComputedColor = ({ label, element, property, expected }) => {
+          if (!element) {
+            findings.push(`${label} is missing for rendered palette verification`);
+            return;
+          }
+          const actual = getComputedStyle(element)[property];
+          metrics.push(`${label} ${property}=${actual}`);
+          if (actual !== expected) findings.push(`${label} ${property} is ${actual}; expected ${expected}`);
+        };
+
+        if (time === 4) {
+          verifyComputedColor({
+            label: "#scene-1 canvas",
+            element: document.querySelector("#scene-1"),
+            property: "backgroundColor",
+            expected: "rgb(48, 51, 49)",
+          });
+          const activeCaption = [...document.querySelectorAll(".caption-line")]
+            .find((element) => elementOpacity(element) > 0.05);
+          verifyComputedColor({
+            label: "active .caption-line",
+            element: activeCaption,
+            property: "backgroundColor",
+            expected: "rgba(23, 25, 24, 0.95)",
+          });
+          verifyComputedColor({
+            label: "active .caption-line",
+            element: activeCaption,
+            property: "color",
+            expected: "rgb(255, 255, 255)",
+          });
+        }
+
+        if (time === 23) {
+          verifyComputedColor({
+            label: "#s2-copy .evidence-label",
+            element: document.querySelector("#s2-copy .evidence-label"),
+            property: "backgroundColor",
+            expected: "rgb(242, 201, 76)",
+          });
+          verifyComputedColor({
+            label: "#s2-copy .evidence-label",
+            element: document.querySelector("#s2-copy .evidence-label"),
+            property: "color",
+            expected: "rgb(23, 25, 24)",
+          });
+          verifyComputedColor({
+            label: "#s2-route",
+            element: document.querySelector("#s2-route"),
+            property: "stroke",
+            expected: "rgb(47, 125, 92)",
+          });
+        }
+
+        if (time === 113) {
+          verifyComputedColor({
+            label: "#s8-disclosure",
+            element: document.querySelector("#s8-disclosure"),
+            property: "backgroundColor",
+            expected: "rgb(242, 201, 76)",
+          });
+          verifyComputedColor({
+            label: "#s8-disclosure",
+            element: document.querySelector("#s8-disclosure"),
+            property: "color",
+            expected: "rgb(23, 25, 24)",
+          });
+        }
 
         if (time === 0) {
           const openingOpacity = [];
@@ -180,6 +248,6 @@ if (errors.length) {
   console.error(errors.join("\n"));
   process.exitCode = 1;
 } else {
-  console.log("Local visual contract checks passed for frame zero, route geometry, UI widths, Future disclosure, captions, and sampled layouts.");
+  console.log("Local visual contract checks passed for frame zero, rendered palette, route geometry, UI widths, Future disclosure, captions, and sampled layouts.");
   console.log(measurements.join("\n"));
 }
