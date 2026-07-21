@@ -18,7 +18,7 @@
 - Modify: `video/parking-anything-build-week/styles.css`
 - Modify: `video/parking-anything-build-week/STORYBOARD.md`
 
-- [ ] **Step 1: Record protected baselines**
+- [x] **Step 1: Record protected baselines**
 
 Run from the worktree root:
 
@@ -29,7 +29,7 @@ shasum -a 256 video/parking-anything-build-week/narration.wav video/parking-anyt
 
 Expected: both digest files are non-empty. The worktree contains only the interrupted draft modifications in `STORYBOARD.md`, `index.html`, `scripts/static-check.mjs`, and `styles.css`.
 
-- [ ] **Step 2: Add the UI-first static contract before changing the draft**
+- [x] **Step 2: Add the UI-first static contract before changing the draft**
 
 Keep the existing 150-second, nine-scene, eight-transition, local-asset, deterministic-timeline, and caption checks. Add this main-film contract inside the composition loop:
 
@@ -74,7 +74,7 @@ node scripts/static-check.mjs
 
 Expected RED: the interrupted draft fails for missing `product-primary` regions, rejected sign/ghost selectors, excessive stamps, missing motion-purpose attributes, or missing real Future source evidence.
 
-- [ ] **Step 3: Rebuild scenes 1–7 around the exact capture matrix**
+- [x] **Step 3: Rebuild scenes 1–7 around the exact capture matrix**
 
 Keep the existing narration-driven scene boundaries and factual assets. Each scene receives exactly one wrapper with `data-visual-role="product-primary"`; a purposeful two-capture comparison counts as one wrapper.
 
@@ -101,7 +101,7 @@ Use this semantic pattern for each primary region:
 
 Use `data-visual-role="evidence-label"` only on the labels listed in the matrix. Remove ticket walls, ghost words, 2×2 sign grids, four-item stamp rows, reconstructed Patrol cards, and static decorative vehicles. Add a concise `data-motion-purpose` value to every remaining `.car-wrap` and `.route-svg`, such as `enter-product-lot`, `merge-tool-and-idea`, `branch-to-evidence-outcomes`, or `scan-without-auto-action`.
 
-- [ ] **Step 4: Rebuild scene 8 as real evidence plus one minimal roadmap**
+- [x] **Step 4: Rebuild scene 8 as real evidence plus one minimal roadmap**
 
 The Future scene must use two sequential visual states inside one scene, not a card wall:
 
@@ -131,11 +131,11 @@ Timeline sequence:
 - `120.00–138.43s`: minimal map occupies the canvas; small roadside signs appear, then three cars converge at Gather.
 - Transition to scene 9 starts at `138.43s`.
 
-- [ ] **Step 5: Keep scene 9 as a quiet product close**
+- [x] **Step 5: Keep scene 9 as a quiet product close**
 
 Use `scroll-000.png` as the dominant product frame and one concise closing copy block. Preserve the measured `138.84–150.00s` timing, final car move at `145.68s`, and final wash at `149.50s`. Remove any extra stamp row beyond the four lifecycle words already integrated into the route; do not add evidence labels.
 
-- [ ] **Step 6: Replace the typography-heavy CSS hierarchy**
+- [x] **Step 6: Replace the typography-heavy CSS hierarchy**
 
 Add or revise focused layout primitives:
 
@@ -156,7 +156,7 @@ Add or revise focused layout primitives:
 
 Delete unused typography-wall rules instead of overriding them invisibly. Preserve caption safe-area styles and local product palette. Do not reduce caption size, hide overflow, or blur screenshots to conceal layout problems.
 
-- [ ] **Step 7: Align the storyboard and deterministic timeline**
+- [x] **Step 7: Align the storyboard and deterministic timeline**
 
 Update each beat's Visual and Choreography paragraphs to match the capture matrix and UI-first motion. Keep narration and exact measured headings unchanged. Preserve these transition starts:
 
@@ -166,7 +166,7 @@ const transitions = [18.75, 35.23, 47.87, 57.59, 71.17, 90.71, 107.07, 138.43];
 
 Keep the paused registered GSAP timeline, local assets, no randomness, no infinite repeat, and no fake Future interaction.
 
-- [ ] **Step 8: Run GREEN checks and commit**
+- [x] **Step 8: Run GREEN checks and commit**
 
 ```bash
 node scripts/verify-transcript.mjs
@@ -205,7 +205,7 @@ git commit -m "feat: redesign Build Week film around product UI"
 - Modify: `docs/build-log.md`
 - Modify: `docs/superpowers/plans/2026-07-21-parking-anything-ui-first-video-redesign.md`
 
-- [ ] **Step 1: Add browser-verifiable UI-first area checks**
+- [x] **Step 1: Add browser-verifiable UI-first area checks**
 
 Use main sample times:
 
@@ -217,7 +217,7 @@ At each visible shipped-product sample, find `[data-visual-role="product-primary
 
 Add `.evidence-label`, `.future-disclosure`, `.road-sign`, and `.gather-plaza` to text-overflow selectors. Require the Future disclosure to be visible at 110, 118, 128, and 138 seconds. Leave teaser sample times unchanged.
 
-- [ ] **Step 2: Update reproducible capture times and run local checks**
+- [x] **Step 2: Update reproducible capture times and run local checks**
 
 Use the same 14 main sample times in `capture-hero-frames.mjs`, keeping teaser captures unchanged.
 
@@ -231,7 +231,7 @@ node scripts/capture-hero-frames.mjs
 
 Expected: no broken images, console errors, canvas escapes, text overflow, missing Future disclosure, or undersized primary UI regions.
 
-- [ ] **Step 3: Run HyperFrames and generate the review contact sheet**
+- [x] **Step 3: Run HyperFrames and generate the review contact sheet**
 
 ```bash
 npx --yes hyperframes check
@@ -241,7 +241,7 @@ npx --yes hyperframes snapshot --at 4,23,39,53,64,80,98,110,118,128,138,142,147,
 
 Expected: zero errors and zero warnings; intentional screenshot crop or transition coverage may remain info-level only.
 
-- [ ] **Step 4: Visually inspect and correct only demonstrated defects**
+- [x] **Step 4: Visually inspect and correct only demonstrated defects**
 
 Open `snapshots/contact-sheet.jpg` and reject the result if any condition is true:
 
@@ -255,7 +255,7 @@ Open `snapshots/contact-sheet.jpg` and reject the result if any condition is tru
 
 Fix only observed failures in `index.html` or `styles.css`, then rerun steps 2–4 and regenerate the contact sheet.
 
-- [ ] **Step 5: Update documentation and verify protected assets**
+- [x] **Step 5: Update documentation and verify protected assets**
 
 Update `README.md` to state 150 seconds, 149.2445-second audio, 362 words, 60 cues, 14 snapshot times, and the UI-first review contract. Append `2026-07-21 — UI-first film redesign` to `docs/build-log.md` with the rejected typography-wall issue, capture/vehicle/text ratio, exact visual checks, and no-export boundary.
 
@@ -270,7 +270,7 @@ diff -u /tmp/parking-anything-ui-first-audio.before.sha256 /tmp/parking-anything
 
 Expected: both diffs have no output.
 
-- [ ] **Step 6: Run the complete release gate**
+- [x] **Step 6: Run the complete release gate**
 
 ```bash
 cd video/parking-anything-build-week
@@ -287,7 +287,7 @@ git diff --check
 
 Expected: 7 transcript contract fixtures pass; artifact verifier reports 362 words/60 cues/final 149.2s; static/layout/HyperFrames checks pass; ESLint, 23 Vitest files / 213 tests, TypeScript, and Next.js production build pass.
 
-- [ ] **Step 7: Complete the plan, commit evidence, and hand off Studio**
+- [x] **Step 7: Complete the plan, commit evidence, and hand off Studio**
 
 Mark all plan checkboxes complete. Commit:
 

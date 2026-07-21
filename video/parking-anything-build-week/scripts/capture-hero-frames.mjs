@@ -8,7 +8,7 @@ const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
 
 const captures = [
-  { file: "parking-anything-build-week/index.html", timeline: "parking-anything-main", times: [4, 23, 39, 53, 64, 80, 98, 113], snapshotsDir: resolve(projectDir, "snapshots") },
+  { file: "parking-anything-build-week/index.html", timeline: "parking-anything-main", times: [4, 23, 39, 53, 64, 80, 98, 110, 118, 128, 138, 142, 147, 149.4], snapshotsDir: resolve(projectDir, "snapshots") },
   { file: "parking-anything-teaser/index.html", timeline: "parking-anything-teaser", times: [1.5, 6, 11, 16.5], snapshotsDir: resolve(projectDir, "../parking-anything-teaser/snapshots") },
 ];
 

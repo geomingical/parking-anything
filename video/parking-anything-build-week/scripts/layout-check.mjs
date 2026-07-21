@@ -4,10 +4,8 @@ const captures = [
   {
     file: "parking-anything-build-week/index.html",
     timeline: "parking-anything-main",
-    times: [
-      0, 4, 19.16, 23, 35.64, 39, 48.28, 53, 58, 61.1, 62.3, 63.5, 64.8, 65.5, 71.58,
-      80, 91.12, 98, 107.48, 113, 119, 120, 120.6, 122, 130, 138.4, 138.84, 145, 149.75,
-    ],
+    times: [4, 23, 39, 53, 64, 80, 98, 110, 118, 128, 138, 142, 147, 149.4],
+    contractTimes: [0, 61.1, 62.3, 63.5, 64.8, 65.5, 113],
   },
   { file: "parking-anything-teaser/index.html", timeline: "parking-anything-teaser", times: [1.5, 6, 11, 16.5] },
 ];
@@ -30,12 +28,13 @@ for (const capture of captures) {
   );
   brokenImages.forEach((src) => errors.push(`${capture.file}: broken image ${src}`));
 
-  for (const time of capture.times) {
+  for (const time of [...capture.times, ...(capture.contractTimes || [])]) {
+    const isSampleTime = capture.times.includes(time);
     await page.evaluate(({ timeline, time }) => {
       window.__timelines[timeline].pause().time(time, false);
     }, { timeline: capture.timeline, time });
 
-    const issues = await page.evaluate(() => {
+    const issues = isSampleTime ? await page.evaluate(() => {
       const selectors = [
         "h1",
         "h2",
@@ -50,6 +49,10 @@ for (const capture of captures) {
         ".browser-bar",
         ".lifecycle-step",
         ".caption-line",
+        ".evidence-label",
+        ".future-disclosure",
+        ".road-sign",
+        ".gather-plaza",
       ].join(",");
 
       const isEffectivelyVisible = (element) => {
@@ -79,7 +82,7 @@ for (const capture of captures) {
           }
           return findings;
         });
-    });
+    }) : [];
 
     issues.forEach((issue) => errors.push(`${capture.file}@${time}s: ${issue}`));
 
@@ -99,6 +102,61 @@ for (const capture of captures) {
           return opacity;
         };
         const rectsOverlap = (a, b) => a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+        const visibleRegionRect = (element) => {
+          const rect = element.getBoundingClientRect();
+          const clipped = {
+            left: Math.max(0, rect.left),
+            top: Math.max(0, rect.top),
+            right: Math.min(1920, rect.right),
+            bottom: Math.min(1080, rect.bottom),
+          };
+          let current = element.parentElement;
+          while (current && clipped.right > clipped.left && clipped.bottom > clipped.top) {
+            const style = getComputedStyle(current);
+            const ancestorRect = current.getBoundingClientRect();
+            if (["auto", "clip", "hidden", "scroll"].includes(style.overflowX)) {
+              clipped.left = Math.max(clipped.left, ancestorRect.left);
+              clipped.right = Math.min(clipped.right, ancestorRect.right);
+            }
+            if (["auto", "clip", "hidden", "scroll"].includes(style.overflowY)) {
+              clipped.top = Math.max(clipped.top, ancestorRect.top);
+              clipped.bottom = Math.min(clipped.bottom, ancestorRect.bottom);
+            }
+            current = current.parentElement;
+          }
+          return clipped.right > clipped.left && clipped.bottom > clipped.top ? clipped : null;
+        };
+        const rectangleUnionArea = (rectangles) => {
+          const xEdges = [...new Set(rectangles.flatMap((rect) => [rect.left, rect.right]))].sort((a, b) => a - b);
+          let area = 0;
+          for (let index = 0; index < xEdges.length - 1; index += 1) {
+            const left = xEdges[index];
+            const right = xEdges[index + 1];
+            if (right <= left) continue;
+            const intervals = rectangles
+              .filter((rect) => rect.left < right && rect.right > left)
+              .map((rect) => [rect.top, rect.bottom])
+              .sort((a, b) => a[0] - b[0]);
+            let coveredY = 0;
+            let activeStart;
+            let activeEnd;
+            for (const [top, bottom] of intervals) {
+              if (activeStart === undefined) {
+                activeStart = top;
+                activeEnd = bottom;
+              } else if (top <= activeEnd) {
+                activeEnd = Math.max(activeEnd, bottom);
+              } else {
+                coveredY += activeEnd - activeStart;
+                activeStart = top;
+                activeEnd = bottom;
+              }
+            }
+            if (activeStart !== undefined) coveredY += activeEnd - activeStart;
+            area += (right - left) * coveredY;
+          }
+          return area;
+        };
         const near = (actual, expected, tolerance = 10) => Math.abs(actual - expected) <= tolerance;
         const verifyComputedColor = ({ label, element, property, expected }) => {
           if (!element) {
@@ -212,14 +270,30 @@ for (const capture of captures) {
           });
         }
 
-        if ([107.48, 113, 119, 120, 120.6, 122, 130, 138.4].includes(time)) {
+        if ([110, 113, 118, 128, 138].includes(time)) {
           const disclosure = document.querySelector("#s8-disclosure");
           const style = getComputedStyle(disclosure);
           const opacity = elementOpacity(disclosure);
           if (opacity <= 0.95 || style.display === "none" || style.visibility !== "visible") {
             findings.push(`Future disclosure must remain visible, got opacity ${opacity.toFixed(3)}, display ${style.display}, visibility ${style.visibility}`);
           }
-          if ([107.48, 120, 130, 138.4].includes(time)) metrics.push(`Future disclosure opacity=${opacity.toFixed(3)}`);
+          metrics.push(`Future disclosure opacity=${opacity.toFixed(3)}`);
+        }
+
+        const shippedProductTimes = [4, 23, 39, 53, 64, 80, 98];
+        const visibleProductRegions = [...document.querySelectorAll('[data-visual-role="product-primary"]')]
+          .filter((element) => elementOpacity(element) > 0.05)
+          .map(visibleRegionRect)
+          .filter(Boolean);
+        if (shippedProductTimes.includes(time) && !visibleProductRegions.length) {
+          findings.push("shipped-product sample has no visible product-primary region");
+        } else if (visibleProductRegions.length) {
+          const coverage = rectangleUnionArea(visibleProductRegions) / (1920 * 1080);
+          const percentage = coverage * 100;
+          metrics.push(`visible product-primary union=${percentage.toFixed(2)}% (minimum 45%)`);
+          if (coverage + Number.EPSILON < 0.45) {
+            findings.push(`visible product-primary union covers ${percentage.toFixed(2)}% of 1920x1080; expected at least 45%`);
+          }
         }
 
         const visibleCaption = [...document.querySelectorAll(".caption-line")].find((element) => elementOpacity(element) > 0.05);
@@ -248,6 +322,6 @@ if (errors.length) {
   console.error(errors.join("\n"));
   process.exitCode = 1;
 } else {
-  console.log("Local visual contract checks passed for frame zero, rendered palette, route geometry, UI widths, Future disclosure, captions, and sampled layouts.");
+  console.log("Local visual contract checks passed for frame zero, rendered palette, route geometry, UI widths, 45% product-primary union area, Future disclosure, captions, and sampled layouts.");
   console.log(measurements.join("\n"));
 }

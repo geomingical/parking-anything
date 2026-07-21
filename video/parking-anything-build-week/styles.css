@@ -106,6 +106,10 @@ body {
   line-height: 0.96;
 }
 
+.nowrap {
+  white-space: nowrap;
+}
+
 .body-copy {
   max-width: 1020px;
   margin: 0;
@@ -404,7 +408,7 @@ body {
   will-change: transform;
 }
 
-[data-composition-id="parking-anything-teaser"] .ticket-grid {
+#parking-anything-teaser .ticket-grid {
   position: absolute;
   inset: 120px 100px;
   z-index: 2;
@@ -414,7 +418,7 @@ body {
   gap: 24px;
 }
 
-[data-composition-id="parking-anything-teaser"] .ticket {
+#parking-anything-teaser .ticket {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
@@ -429,7 +433,7 @@ body {
   text-transform: uppercase;
 }
 
-[data-composition-id="parking-anything-teaser"] .ticket em {
+#parking-anything-teaser .ticket em {
   color: #f2c94c;
   font-style: normal;
 }
