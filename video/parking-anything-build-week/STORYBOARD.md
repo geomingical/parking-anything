@@ -34,7 +34,7 @@ All six captured product states and all three vehicle assets appear. The full pr
 
 ## Main Film
 
-### BEAT 1 — THE BACKLOG BECOMES A LOT (0:00–0:20)
+### BEAT 1 — THE BACKLOG BECOMES A LOT (0.00–19.12s)
 
 **VO:** “Saving a new tool feels productive. So does writing down a good idea. But weeks later, the links are still untouched, the ideas are still vague, and collecting has quietly replaced deciding. Parking Anything turns that backlog into a decision system. Stop collecting. Start test-driving.”
 
@@ -56,7 +56,7 @@ All six captured product states and all three vehicle assets appear. The full pr
 
 **SFX:** Paper-ticket ticks, soft accumulation clicks, then one low ignition pulse on “Start test-driving.”
 
-### BEAT 2 — PARK A TOOL (0:20–0:37)
+### BEAT 2 — PARK A TOOL (19.12–35.26s)
 
 **VO:** “Paste a public tool link, and GPT-5.6 analyzes what it appears to do, proposes a usefulness hypothesis, estimates the trial effort, and gives you one concrete first task. The model prepares the ticket. It doesn't own the decision.”
 
@@ -78,7 +78,7 @@ All six captured product states and all three vehicle assets appear. The full pr
 
 **SFX:** Key taps, one confirmation clack, quiet servo glide.
 
-### BEAT 3 — ONE LOT, TWO INPUTS (0:37–0:52)
+### BEAT 3 — ONE LOT, TWO INPUTS (35.26–49.28s)
 
 **VO:** “Ideas enter the same lot. Capture the thought in seconds, then add an effort tier and a first test task when you're ready. Tools and ideas become Parkables: different inputs, one shared lifecycle.”
 
@@ -100,7 +100,7 @@ All six captured product states and all three vehicle assets appear. The full pr
 
 **SFX:** Two indicator clicks from opposite stereo sides, resolving into one centered lock sound.
 
-### BEAT 4 — BOUNDED TEST DRIVE (0:52–1:02)
+### BEAT 4 — BOUNDED TEST DRIVE (49.28–59.05s)
 
 **VO:** “Every Parkable begins in the Parking Lot. Start a bounded Test Drive. Record what happened, attach a result, and turn curiosity into evidence.”
 
@@ -122,7 +122,7 @@ All six captured product states and all three vehicle assets appear. The full pr
 
 **SFX:** Short ignition, low rolling texture, parking brake click, receipt tear.
 
-### BEAT 5 — EVIDENCE OR EXIT (1:02–1:18)
+### BEAT 5 — EVIDENCE OR EXIT (59.05–74.34s)
 
 **VO:** “Then make a deliberate call. Evidence earns a place in the Garage. A clear reason sends the item to the Scrapyard. Nothing disappears just because an algorithm said so, and nothing reaches the Garage without proof.”
 
@@ -144,7 +144,7 @@ All six captured product states and all three vehicle assets appear. The full pr
 
 **SFX:** Two distinct gate lifts, pen stroke on the reason, warm chime for Garage, grounded metal click for Scrapyard.
 
-### BEAT 6 — MANAGER PATROL (1:18–1:37)
+### BEAT 6 — MANAGER PATROL (74.34–93.05s)
 
 **VO:** “When the lot starts going stale, Manager Patrol reviews up to three active Parkables that need attention. It keeps observed facts separate from GPT-5.6 recommendations, and it never changes status automatically. Review the car, plan the missing test, or take the next action yourself.”
 
@@ -166,7 +166,7 @@ All six captured product states and all three vehicle assets appear. The full pr
 
 **SFX:** Soft scan pulse, two dry label clicks, deliberate half-second music drop on “never changes status automatically”.
 
-### BEAT 7 — INTENTIONALLY BOUNDED (1:37–1:51)
+### BEAT 7 — INTENTIONALLY BOUNDED (93.05–106.65s)
 
 **VO:** “The current product is intentionally bounded: one user, one browser-local collection, no login, and no fake collaboration layer. Model calls are constrained, provenance stays visible, and deterministic product rules remain in control.”
 
@@ -188,7 +188,7 @@ All six captured product states and all three vehicle assets appear. The full pr
 
 **SFX:** Four muted sign impacts, inspection stamp, steady pulse returning.
 
-### BEAT 8 — DECIDE WHAT DESERVES YOUR TIME (1:51–2:00)
+### BEAT 8 — DECIDE WHAT DESERVES YOUR TIME (106.65–120.00s; VO ends 118.12s)
 
 **VO:** “Parking Anything isn't another place to save everything. It's a place to decide what deserves your time. Park it. Test-drive it. Keep the evidence—or make the exit.”
 

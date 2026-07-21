@@ -1,0 +1,39 @@
+{
+  "timingSource": "proportional alignment to the 118.120-second macOS TTS track",
+  "provisional": true,
+  "replaceWith": "npx hyperframes transcribe narration.wav",
+  "beatBoundaries": [
+    {
+      "start": 0,
+      "end": 19.12
+    },
+    {
+      "start": 19.12,
+      "end": 35.26
+    },
+    {
+      "start": 35.26,
+      "end": 49.28
+    },
+    {
+      "start": 49.28,
+      "end": 59.05
+    },
+    {
+      "start": 59.05,
+      "end": 74.34
+    },
+    {
+      "start": 74.34,
+      "end": 93.05
+    },
+    {
+      "start": 93.05,
+      "end": 106.65
+    },
+    {
+      "start": 106.65,
+      "end": 118.12
+    }
+  ]
+}
