@@ -5,7 +5,7 @@ const captures = [
     file: "parking-anything-build-week/index.html",
     timeline: "parking-anything-main",
     times: [4, 23, 39, 53, 64, 80, 98, 110, 118, 128, 138, 142, 147, 149.4],
-    contractTimes: [0, 61.1, 62.3, 63.5, 64.8, 65.5, 113, 138.4],
+    contractTimes: [0, 0.4, 1.2, 2.4, 2.9, 61.1, 62.3, 63.5, 64.8, 65.5, 113, 138.4],
   },
   { file: "parking-anything-teaser/index.html", timeline: "parking-anything-teaser", times: [1.5, 6, 11, 16.5] },
 ];
@@ -235,6 +235,52 @@ for (const capture of captures) {
             if (opacity > 0.01) findings.push(`${selector} must be hidden at frame zero, got opacity ${opacity.toFixed(3)}`);
           }
           metrics.push(`frame zero ${openingOpacity.join(", ")}`);
+        }
+
+        if ([0.4, 1.2, 2.4, 2.9].includes(time)) {
+          const intro = document.querySelector("#brand-intro");
+          const title = document.querySelector("#brand-intro-title");
+          const thesis = document.querySelector("#brand-intro-thesis");
+          if (!intro || !title || !thesis) {
+            findings.push("brand intro overlay and both text tiers must exist");
+          } else {
+            const introOpacity = elementOpacity(intro);
+            const introRect = intro.getBoundingClientRect();
+            const titleRect = title.getBoundingClientRect();
+            const thesisRect = thesis.getBoundingClientRect();
+            const activeCaption = [...document.querySelectorAll(".caption-line")]
+              .find((element) => elementOpacity(element) > 0.05);
+
+            if (time <= 2.4 && introOpacity <= 0.95) {
+              findings.push(`brand intro must cover Scene 1 at ${time}s`);
+            }
+            if (time === 1.2 && (elementOpacity(title) <= 0.95 || elementOpacity(thesis) <= 0.95)) {
+              findings.push("both brand tiers must be fully visible at 1.2s");
+            }
+            if ([0.4, 1.2].includes(time)) {
+              for (const [label, rect] of [["title", titleRect], ["thesis", thesisRect]]) {
+                if (rect.left < 0 || rect.top < 0 || rect.right > 1920 || rect.bottom > 1080) {
+                  findings.push(`brand intro ${label} leaves the canvas`);
+                }
+              }
+            }
+            if (activeCaption && thesisRect.bottom > activeCaption.getBoundingClientRect().top) {
+              findings.push("brand intro thesis collides with the caption safe area");
+            }
+            if (time === 2.9 && introRect.left < 1919) {
+              findings.push(`brand intro must be fully off-canvas by 2.9s; left=${introRect.left.toFixed(1)}`);
+            }
+            if (time === 2.9 && introOpacity > 0.01) {
+              findings.push(`brand intro must be hidden after its reveal; opacity=${introOpacity.toFixed(3)}`);
+            }
+          }
+
+          if (time === 2.9) {
+            for (const selector of ["#s1-copy", "#s1-product"]) {
+              const opacity = elementOpacity(document.querySelector(selector));
+              if (opacity <= 0.95) findings.push(`${selector} must be fully revealed by 2.9s`);
+            }
+          }
         }
 
         const widthContracts = {

@@ -187,6 +187,48 @@ for (const composition of compositions) {
       errors.push(`${composition.file}: narration duration must match measured audio length 149.2445`);
     }
 
+    const brandIntro = document.querySelector("#brand-intro");
+    if (document.querySelectorAll("#brand-intro").length !== 1) {
+      errors.push(`${composition.file}: expected one brand intro overlay`);
+    }
+    if (brandIntro?.querySelector("#brand-intro-title")?.textContent.trim() !== "PARKING ANYTHING") {
+      errors.push(`${composition.file}: brand intro title must be PARKING ANYTHING`);
+    }
+    if (brandIntro?.querySelector("#brand-intro-thesis")?.textContent.trim() !== "DECIDE WHAT DESERVES YOUR TIME") {
+      errors.push(`${composition.file}: brand intro thesis mismatch`);
+    }
+    if (brandIntro?.querySelectorAll('[data-brand-tier="true"]').length !== 2) {
+      errors.push(`${composition.file}: brand intro must contain exactly two text tiers`);
+    }
+    if (brandIntro?.querySelector("button, input, select, textarea, a[href]")) {
+      errors.push(`${composition.file}: brand intro must remain noninteractive`);
+    }
+
+    const narrationContract = {
+      src: [narration?.getAttribute("src"), "narration.wav"],
+      start: [narration?.dataset.start, "0"],
+      duration: [narration?.dataset.duration, "149.2445"],
+      trackIndex: [narration?.dataset.trackIndex, "0"],
+      volume: [narration?.dataset.volume, "1"],
+    };
+    for (const [key, [actual, expected]] of Object.entries(narrationContract)) {
+      if (actual !== expected) {
+        errors.push(`${composition.file}: narration ${key} must remain ${expected}`);
+      }
+    }
+
+    for (const timingContract of [
+      'enter("#brand-intro-title", 0.18',
+      'enter("#brand-intro-thesis", 0.55',
+      'enter("#brand-intro-route", 0.32',
+      'tl.to("#brand-intro", { xPercent: 100, duration: 0.55, ease: "power3.inOut" }, 2.25)',
+      'tl.set("#brand-intro", { opacity: 0 }, 2.8)',
+    ]) {
+      if (!source.includes(timingContract)) {
+        errors.push(`${composition.file}: missing brand intro choreography ${timingContract}`);
+      }
+    }
+
     const shippedSceneMatrix = [
       { id: "scene-1", headline: "Saved it. Forgot it.", evidence: [], screenshot: "capture/screenshots/scroll-000.png", minWidth: "62" },
       { id: "scene-2", headline: "Paste. Analyze. Test.", evidence: ["GPT-5.6 prepares the ticket"], screenshot: "capture/screenshots/scroll-000.png" },

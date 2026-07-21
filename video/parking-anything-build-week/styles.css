@@ -54,6 +54,68 @@ body {
   color: #ffffff;
 }
 
+.brand-intro {
+  position: absolute;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  padding: 120px 150px 180px;
+  overflow: hidden;
+  background-color: #303331;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.12) 2px, transparent 2px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.12) 2px, transparent 2px);
+  background-size: 190px 160px;
+  color: #ffffff;
+  will-change: transform;
+}
+
+.brand-intro-wipe {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 44px;
+  background: #f2c94c;
+}
+
+.brand-intro-copy {
+  display: flex;
+  width: 100%;
+  max-width: 1480px;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.brand-intro-title,
+.brand-intro-thesis {
+  margin: 0;
+  opacity: 0;
+}
+
+.brand-intro-title {
+  font-size: 146px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 0.92;
+}
+
+.brand-intro-route {
+  width: 460px;
+  height: 14px;
+  background: #f2c94c;
+  opacity: 0;
+  transform-origin: left center;
+}
+
+.brand-intro-thesis {
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  line-height: 1.2;
+}
+
 .scene-content {
   position: relative;
   z-index: 4;
