@@ -14,6 +14,8 @@ When the lot starts going stale, Manager Patrol reviews up to three active Parka
 
 Codex built and tested this bounded product: one user, browser-local persistence, no login, and collaboration honestly out of scope. Inside it, G P T five point six advises; deterministic rules and visible provenance stay in control.
 
+Today, the lot holds tools and ideas. The road ahead is wider: trips, books, gear, side projects—anything asking for your time before it earns a commitment. And when a private decision becomes worth sharing, Gather could turn compatible Parkables into a real-world meetup: compare notes, test together, or meet the people behind the same curiosity. These controls are visible today, but honestly disabled. They are the road ahead—not features we're pretending already exist.
+
 Parking Anything isn't another place to save everything. It's a place to decide what deserves your time.
 
 Park it. Test-drive it. Keep the evidence—or make the exit.

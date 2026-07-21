@@ -1,6 +1,6 @@
 # Parking Anything — Build Week Narration
 
-## Main film — 120 seconds
+## Main film — 150 seconds
 
 Saving a new tool feels productive. So does writing down a good idea. But weeks later, the links are still untouched, the ideas are still vague, and collecting has quietly replaced deciding.
 
@@ -17,6 +17,8 @@ Then make a deliberate call. Evidence earns a place in the Garage. A clear reaso
 When the lot starts going stale, Manager Patrol reviews up to three active Parkables that need attention. It keeps observed facts separate from GPT-5.6 recommendations, and it never changes status automatically. Review the car, plan the missing test, or take the next action yourself.
 
 Codex built and tested this bounded product: one user, browser-local persistence, no login, and collaboration honestly out of scope. Inside it, GPT-5.6 advises; deterministic rules and visible provenance stay in control.
+
+Today, the lot holds tools and ideas. The road ahead is wider: trips, books, gear, side projects—anything asking for your time before it earns a commitment. And when a private decision becomes worth sharing, Gather could turn compatible Parkables into a real-world meetup: compare notes, test together, or meet the people behind the same curiosity. These controls are visible today, but honestly disabled. They are the road ahead—not features we're pretending already exist.
 
 Parking Anything isn't another place to save everything. It's a place to decide what deserves your time.
 

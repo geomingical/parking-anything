@@ -5,7 +5,7 @@
 **Post-approval export audio:** restrained mechanical underscore + sparse interface SFX, added only after a licensed/local source is approved
 **VO direction:** American female voice, calm and decisive, product-builder register; conversational contractions, visible pauses after short thesis lines, never breathless
 **Style basis:** `DESIGN.md`
-**Main duration:** 120 seconds
+**Main duration:** 150 seconds
 **Teaser duration:** 20 seconds
 
 ## Global Direction
@@ -20,16 +20,16 @@ Export-pass sound design: low, warm mechanical pulse at roughly 92 BPM, soft rub
 
 | Asset | Type | Assign to Beat | Role |
 | --- | --- | --- | --- |
-| `capture/screenshots/scroll-000.png` | Product screenshot | 1, 8 | Recognizable full product surface and brand bookends |
+| `capture/screenshots/scroll-000.png` | Product screenshot | 1, 9 | Recognizable full product surface and brand bookends |
 | `capture/screenshots/mixed-lot.png` | Product screenshot | 3, 4 | Unified Tool and Idea proof |
 | `capture/screenshots/planned-inspector.png` | Product screenshot | 3, 4 | Planning and evidence workflow |
 | `capture/screenshots/garage.png` | Product screenshot | 5 | Evidence-backed adoption destination |
 | `capture/screenshots/scrapyard.png` | Product screenshot | 5 | Deliberate-exit destination |
 | `capture/screenshots/mixed-patrol.png` | Product screenshot | 6 | Observed Fact versus GPT-5.6 Recommendation |
-| `capture/assets/cars/quick-spin.png` | Transparent vehicle | 1–8 | Primary Parkable moving through the lifecycle |
+| `capture/assets/cars/quick-spin.png` | Transparent vehicle | 1–9 | Primary Parkable moving through the lifecycle |
 | `capture/assets/cars/focused-session.png` | Transparent vehicle | 2, 4, 6 | Second effort tier and supporting depth |
 | `capture/assets/cars/weekend-project.png` | Transparent vehicle | 3, 5, 7 | Third effort tier and supporting depth |
-| Typographic `Parking Anything` wordmark | Brand mark | 1, 8 | Opening and closing identity; no separate logo exists |
+| Typographic `Parking Anything` wordmark | Brand mark | 1, 9 | Opening and closing identity; no separate logo exists |
 
 All six captured product states and all three vehicle assets appear. The full product surface opens and closes the film.
 
@@ -189,7 +189,31 @@ All six captured product states and all three vehicle assets appear. The full pr
 
 **SFX:** Four muted sign impacts, inspection stamp, steady pulse returning.
 
-### BEAT 8 — DECIDE WHAT DESERVES YOUR TIME (108.70–120.00s; final word ends 119.26s)
+### BEAT 8 — THE ROAD AHEAD (approximately 108.70–140.00s)
+
+**VO:** “Today, the lot holds tools and ideas. The road ahead is wider: trips, books, gear, side projects—anything asking for your time before it earns a commitment. And when a private decision becomes worth sharing, Gather could turn compatible Parkables into a real-world meetup: compare notes, test together, or meet the people behind the same curiosity. These controls are visible today, but honestly disabled. They are the road ahead—not features we're pretending already exist.”
+
+**Concept:** The verified private decision system expands into two explicitly speculative directions: more kinds of Parkables and a path from private evaluation to an in-person Gather meetup.
+
+**Visual:** Begin from the real disabled Future controls. The parking grid expands into TRIP, BOOK, GEAR, and SIDE PROJECT bays, then separate PERSONAL LOTS connect to a circular GATHER plaza. A persistent label reads “FUTURE · NOT YET BUILT.”
+
+**Boundary:** No fabricated UI, pointer click, account flow, matching result, notification, loading state, success state, or cloud-sync behavior.
+
+**Mood:** Honest horizon line; the product’s real boundary remains visible while the next questions widen.
+
+**Assets:** Disabled Future control crop from `scroll-000.png`, `quick-spin.png`, `focused-session.png`, `weekend-project.png`.
+
+**Techniques:** Deterministic Canvas 2D grid expansion; SVG route drawing; per-word kinetic typography; CSS 3D disabled-control crop.
+
+**Choreography:** The disabled Future controls HOLD in their real inactive state. The grid EXPANDS into four labeled bays. PERSONAL LOTS DRAW as distinct circles, then yellow routes CONNECT them to the GATHER plaza without simulating an interaction. “FUTURE · NOT YET BUILT” remains visible throughout.
+
+**Transition:** The circular GATHER plaza contracts into a single yellow route line; Beat 9 enters only after the line covers the full frame.
+
+**Depth:** BG expanding parking grid; MG disabled controls and personal lots; FG labeled bays, connecting routes, persistent boundary label, and vehicles.
+
+**SFX:** Low road-grid pulse, four restrained bay markers, no interface-confirmation sound.
+
+### BEAT 9 — DECIDE WHAT DESERVES YOUR TIME (approximately 140.00–150.00s)
 
 **VO:** “Parking Anything isn't another place to save everything. It's a place to decide what deserves your time. Park it. Test-drive it. Keep the evidence—or make the exit.”
 
