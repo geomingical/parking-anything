@@ -13,6 +13,11 @@ const compositions = [
 const errors = [];
 const stylesSource = await readFile(resolve(projectDir, "styles.css"), "utf8");
 const storyboardSource = await readFile(resolve(projectDir, "STORYBOARD.md"), "utf8");
+const layoutCheckSource = await readFile(resolve(projectDir, "scripts/layout-check.mjs"), "utf8");
+
+if (!layoutCheckSource.includes('process.env.PARKING_ANYTHING_LAYOUT_SERVER_URL || "http://127.0.0.1:3028"')) {
+  errors.push("scripts/layout-check.mjs: local server URL must be overridable for isolated worktree verification");
+}
 
 const expectedStoryboardHeadings = [
   "### BEAT 1 — THE BACKLOG BECOMES A LOT (0.00–19.40s)",

@@ -166,7 +166,7 @@ Expected: both commands pass.
 **Files:**
 - Create: `video/parking-anything-build-week/renders/parking-anything-build-week-elevenlabs-150s.mp4`
 
-- [ ] **Step 1: Run the complete local test and composition gates**
+- [x] **Step 1: Run the complete local test and composition gates**
 
 Run:
 
@@ -179,7 +179,7 @@ npx hyperframes check --at 4,23,39,53,64,80,98,110,118,128,138,142,147,149.4
 
 Expected: repository tests pass; static, layout, runtime, motion, and contrast checks report no blocking errors.
 
-- [ ] **Step 2: Render the final MP4**
+- [x] **Step 2: Render the final MP4**
 
 From `video/parking-anything-build-week`, run:
 
@@ -191,6 +191,6 @@ npx hyperframes render \
 
 Expected: a 150-second 1920×1080 H.264 MP4 with one AAC audio stream.
 
-- [ ] **Step 3: Verify media delivery**
+- [x] **Step 3: Verify media delivery**
 
 Run `ffprobe` to confirm duration, resolution, frame rate, codecs, and audio channels; run `ffmpeg -af volumedetect` to confirm non-silent audio without clipping; retain the original MP4 and narration assets for rollback.

@@ -5,10 +5,11 @@ const captures = [
     file: "parking-anything-build-week/index.html",
     timeline: "parking-anything-main",
     times: [4, 23, 39, 53, 64, 80, 98, 110, 118, 128, 138, 142, 147, 149.4],
-    contractTimes: [0, 0.4, 1.2, 2.4, 2.9, 61.1, 62.3, 63.5, 64.8, 65.5, 113, 138.4],
+    contractTimes: [0, 0.4, 1.2, 2.4, 2.9, 62.23, 63.43, 64.63, 65.93, 66.63, 113, 138.4],
   },
   { file: "parking-anything-teaser/index.html", timeline: "parking-anything-teaser", times: [1.5, 6, 11, 16.5] },
 ];
+const serverUrl = process.env.PARKING_ANYTHING_LAYOUT_SERVER_URL || "http://127.0.0.1:3028";
 
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
@@ -20,7 +21,7 @@ page.on("console", (message) => {
 page.on("pageerror", (error) => errors.push(`page error: ${error.message}`));
 
 for (const capture of captures) {
-  await page.goto(`http://127.0.0.1:3028/${capture.file}`, { waitUntil: "load" });
+  await page.goto(`${serverUrl}/${capture.file}`, { waitUntil: "load" });
   await page.waitForFunction((timeline) => Boolean(window.__timelines?.[timeline]), capture.timeline);
 
   const brokenImages = await page.locator("img").evaluateAll((images) =>
