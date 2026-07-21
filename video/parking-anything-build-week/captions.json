@@ -185,43 +185,43 @@
     "end": 94.86
   },
   {
-    "text": "One user, one browser local collection,",
+    "text": "One user, browser local persistence,",
     "start": 95.02,
-    "end": 97.74
+    "end": 97.68
   },
   {
-    "text": "no login, and no fake collaboration layer.",
-    "start": 97.86,
-    "end": 100.84
+    "text": "no login, and collaboration honestly out of scope.",
+    "start": 97.8,
+    "end": 101.26
   },
   {
     "text": "Inside it, GPT-5.6 advises.",
-    "start": 100.96,
-    "end": 104.46
+    "start": 101.38,
+    "end": 104.88
   },
   {
     "text": "Deterministic rules and visible provenance stay in control.",
-    "start": 104.52,
-    "end": 108.16
+    "start": 104.94,
+    "end": 108.58
   },
   {
     "text": "Parking Anything isn't another place to save everything.",
-    "start": 108.28,
-    "end": 111.44
+    "start": 108.7,
+    "end": 111.88
   },
   {
     "text": "It's a place to decide what deserves your time.",
-    "start": 111.56,
-    "end": 114.38
+    "start": 112,
+    "end": 114.74
   },
   {
     "text": "Park it, test drive it,",
-    "start": 114.5,
-    "end": 116.32
+    "start": 114.92,
+    "end": 116.74
   },
   {
     "text": "keep the evidence, or make the exit.",
-    "start": 116.44,
-    "end": 118.84
+    "start": 116.86,
+    "end": 119.26
   }
 ]

@@ -12,7 +12,7 @@ Both use the v0.5 product captures, the exact product palette, deterministic GSA
 - `DESIGN.md` — brand reference and visual guardrails.
 - `SCRIPT.md` — approved main and teaser narration.
 - `STORYBOARD.md` — beat timing, assets, motion, transitions, and sound direction.
-- `transcript.json` — HyperFrames Whisper word-level alignment for the local 118.84-second fallback voice.
+- `transcript.json` — HyperFrames Whisper word-level alignment for the local 119.281-second fallback voice.
 - `transcript.meta.json` — transcription provenance and measured beat boundaries.
 - `captions.json` / `captions.js` — generated readable cues and timeline data; rebuild with `node scripts/build-captions.mjs`.
 

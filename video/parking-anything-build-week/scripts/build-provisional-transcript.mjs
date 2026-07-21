@@ -7,14 +7,14 @@ const narration = await readFile(resolve(projectDir, "narration.txt"), "utf8");
 const paragraphs = narration.trim().split(/\n\s*\n/);
 
 const beats = [
-  { paragraphCount: 2, start: 0, end: 19.28 },
-  { paragraphCount: 1, start: 19.28, end: 35.92 },
-  { paragraphCount: 1, start: 35.92, end: 48.72 },
-  { paragraphCount: 1, start: 48.72, end: 58.56 },
-  { paragraphCount: 1, start: 58.56, end: 72.32 },
-  { paragraphCount: 1, start: 72.32, end: 91.77 },
-  { paragraphCount: 1, start: 91.77, end: 108.16 },
-  { paragraphCount: 2, start: 108.16, end: 118.84 },
+  { paragraphCount: 2, start: 0, end: 19.4 },
+  { paragraphCount: 1, start: 19.4, end: 36.04 },
+  { paragraphCount: 1, start: 36.04, end: 48.84 },
+  { paragraphCount: 1, start: 48.84, end: 58.68 },
+  { paragraphCount: 1, start: 58.68, end: 72.44 },
+  { paragraphCount: 1, start: 72.44, end: 92.12 },
+  { paragraphCount: 1, start: 92.12, end: 108.7 },
+  { paragraphCount: 2, start: 108.7, end: 119.26 },
 ];
 
 let paragraphIndex = 0;
@@ -54,7 +54,7 @@ await writeFile(
   resolve(projectDir, "transcript.meta.json"),
   `${JSON.stringify(
     {
-      timingSource: "proportional alignment to the 118.120-second macOS TTS track",
+      timingSource: "proportional alignment to the 119.281-second macOS TTS track",
       provisional: true,
       replaceWith: "npx hyperframes transcribe narration.wav",
       beatBoundaries: beats.map(({ start, end }) => ({ start, end })),

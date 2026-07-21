@@ -1157,271 +1157,271 @@
   {
     "text": "user,",
     "start": 95.2,
-    "end": 95.82
-  },
-  {
-    "text": "one",
-    "start": 95.82,
-    "end": 96.03
+    "end": 95.8
   },
   {
     "text": "browser",
-    "start": 96.03,
-    "end": 96.51
+    "start": 95.8,
+    "end": 96.24
   },
   {
     "text": "local",
-    "start": 96.54,
-    "end": 96.87
+    "start": 96.39,
+    "end": 96.67
   },
   {
-    "text": "collection,",
-    "start": 96.87,
-    "end": 97.74
+    "text": "persistence,",
+    "start": 96.77,
+    "end": 97.68
   },
   {
     "text": "no",
-    "start": 97.86,
-    "end": 97.94
+    "start": 97.8,
+    "end": 97.95
   },
   {
     "text": "login,",
-    "start": 97.94,
-    "end": 98.68
+    "start": 97.95,
+    "end": 98.67
   },
   {
     "text": "and",
-    "start": 98.68,
-    "end": 98.89
-  },
-  {
-    "text": "no",
-    "start": 98.89,
-    "end": 99.03
-  },
-  {
-    "text": "fake",
-    "start": 99.03,
-    "end": 99.31
+    "start": 98.79,
+    "end": 98.97
   },
   {
     "text": "collaboration",
-    "start": 99.31,
-    "end": 99.82
+    "start": 98.97,
+    "end": 99.76
   },
   {
-    "text": "layer.",
-    "start": 100.26,
-    "end": 100.84
+    "text": "honestly",
+    "start": 100.19,
+    "end": 100.37
+  },
+  {
+    "text": "out",
+    "start": 100.37,
+    "end": 100.54
+  },
+  {
+    "text": "of",
+    "start": 100.6,
+    "end": 100.7
+  },
+  {
+    "text": "scope.",
+    "start": 100.7,
+    "end": 101.26
   },
   {
     "text": "Inside",
-    "start": 100.96,
-    "end": 101.41
+    "start": 101.38,
+    "end": 101.84
   },
   {
     "text": "it,",
-    "start": 101.41,
-    "end": 101.8
+    "start": 101.84,
+    "end": 102.24
   },
   {
     "text": "GPT",
-    "start": 101.8,
-    "end": 102.16
+    "start": 102.24,
+    "end": 102.61
   },
   {
     "text": "5.6",
-    "start": 102.16,
-    "end": 102.93
+    "start": 102.75,
+    "end": 103.88
   },
   {
     "text": "advises.",
-    "start": 103.36,
-    "end": 104.46
+    "start": 103.88,
+    "end": 104.88
   },
   {
     "text": "Deterministic",
-    "start": 104.52,
-    "end": 105.23
+    "start": 104.94,
+    "end": 105.67
   },
   {
     "text": "rules",
-    "start": 105.25,
-    "end": 105.46
+    "start": 105.68,
+    "end": 106.02
   },
   {
     "text": "and",
-    "start": 105.57,
-    "end": 105.73
+    "start": 106.02,
+    "end": 106.2
   },
   {
     "text": "visible",
-    "start": 105.73,
-    "end": 106.16
+    "start": 106.2,
+    "end": 106.62
   },
   {
     "text": "provenance",
-    "start": 106.16,
-    "end": 106.55
+    "start": 106.62,
+    "end": 106.98
   },
   {
     "text": "stay",
-    "start": 106.98,
-    "end": 107.14
+    "start": 107.4,
+    "end": 107.57
   },
   {
     "text": "in",
-    "start": 107.14,
-    "end": 107.31
+    "start": 107.57,
+    "end": 107.73
   },
   {
     "text": "control.",
-    "start": 107.31,
-    "end": 108.16
-  },
-  {
-    "text": "Parking",
-    "start": 108.28,
+    "start": 107.73,
     "end": 108.58
   },
   {
+    "text": "Parking",
+    "start": 108.7,
+    "end": 109.03
+  },
+  {
     "text": "anything",
-    "start": 108.58,
-    "end": 109.06
+    "start": 109.03,
+    "end": 109.54
   },
   {
     "text": "isn't",
-    "start": 109.06,
-    "end": 109.36
+    "start": 109.54,
+    "end": 109.85
   },
   {
     "text": "another",
-    "start": 109.36,
-    "end": 109.76
+    "start": 109.85,
+    "end": 110.3
   },
   {
     "text": "place",
-    "start": 109.8,
-    "end": 110.12
+    "start": 110.3,
+    "end": 110.62
   },
   {
     "text": "to",
-    "start": 110.12,
-    "end": 110.25
+    "start": 110.62,
+    "end": 110.67
   },
   {
     "text": "save",
-    "start": 110.25,
-    "end": 110.26
+    "start": 110.67,
+    "end": 111.1
   },
   {
     "text": "everything.",
-    "start": 110.68,
-    "end": 111.44
+    "start": 111.1,
+    "end": 111.88
   },
   {
     "text": "It's",
-    "start": 111.56,
-    "end": 111.72
+    "start": 112,
+    "end": 112.16
   },
   {
     "text": "a",
-    "start": 111.72,
-    "end": 111.79
+    "start": 112.16,
+    "end": 112.23
   },
   {
     "text": "place",
-    "start": 111.79,
-    "end": 112.13
+    "start": 112.23,
+    "end": 112.57
   },
   {
     "text": "to",
-    "start": 112.21,
-    "end": 112.28
+    "start": 112.65,
+    "end": 112.72
   },
   {
     "text": "decide",
-    "start": 112.28,
-    "end": 112.71
+    "start": 112.72,
+    "end": 113.14
   },
   {
     "text": "what",
-    "start": 112.71,
-    "end": 112.99
+    "start": 113.14,
+    "end": 113.42
   },
   {
     "text": "deserves",
-    "start": 112.99,
-    "end": 113.52
-  },
-  {
-    "text": "your",
-    "start": 113.52,
+    "start": 113.42,
     "end": 113.96
   },
   {
+    "text": "your",
+    "start": 113.97,
+    "end": 113.98
+  },
+  {
     "text": "time.",
-    "start": 113.96,
-    "end": 114.38
+    "start": 114.4,
+    "end": 114.74
   },
   {
     "text": "Park",
-    "start": 114.5,
-    "end": 114.8
-  },
-  {
-    "text": "it,",
-    "start": 114.8,
+    "start": 114.92,
     "end": 115.22
   },
   {
-    "text": "test",
+    "text": "it,",
     "start": 115.22,
-    "end": 115.55
+    "end": 115.64
   },
   {
-    "text": "drive",
-    "start": 115.55,
+    "text": "test",
+    "start": 115.64,
     "end": 115.97
   },
   {
-    "text": "it,",
+    "text": "drive",
     "start": 115.97,
-    "end": 116.32
+    "end": 116.39
+  },
+  {
+    "text": "it,",
+    "start": 116.39,
+    "end": 116.74
   },
   {
     "text": "keep",
-    "start": 116.44,
-    "end": 116.67
+    "start": 116.86,
+    "end": 117.09
   },
   {
     "text": "the",
-    "start": 116.67,
-    "end": 116.93
+    "start": 117.09,
+    "end": 117.35
   },
   {
     "text": "evidence,",
-    "start": 116.93,
-    "end": 117.67
+    "start": 117.35,
+    "end": 118.09
   },
   {
     "text": "or",
-    "start": 117.81,
-    "end": 117.93
+    "start": 118.23,
+    "end": 118.35
   },
   {
     "text": "make",
-    "start": 117.96,
-    "end": 118.24
+    "start": 118.38,
+    "end": 118.68
   },
   {
     "text": "the",
-    "start": 118.24,
-    "end": 118.41
+    "start": 118.68,
+    "end": 118.83
   },
   {
     "text": "exit.",
-    "start": 118.75,
-    "end": 118.84
+    "start": 119.18,
+    "end": 119.26
   }
 ]

@@ -79,3 +79,21 @@
 - [x] Run `npx hyperframes inspect --samples 24` on both projects and review all info diagnostics.
 - [x] Launch the main Studio at `http://localhost:3027` and the teaser Studio at `http://localhost:3026`.
 - [x] Do not render MP4 until the user explicitly approves the Studio preview.
+
+### Task 7: Apply the approved narration review correction
+
+**Files:**
+- Modify: `video/parking-anything-build-week/SCRIPT.md`
+- Modify: `video/parking-anything-build-week/narration.txt`
+- Regenerate: `video/parking-anything-build-week/narration.wav`
+- Regenerate: `video/parking-anything-build-week/transcript.json`
+- Modify: `video/parking-anything-build-week/transcript.meta.json`
+- Regenerate: `video/parking-anything-build-week/captions.json`
+- Regenerate: `video/parking-anything-build-week/captions.js`
+- Modify only if measured timing changes require it: `video/parking-anything-build-week/index.html`, `video/parking-anything-build-week/STORYBOARD.md`
+
+- [x] Replace only `no fake collaboration layer` with the approved, factually bounded line: `one user, browser-local persistence, no login, and collaboration honestly out of scope.`
+- [x] Re-record Samantha at 140 words per minute and verify the audio duration remains under the fixed 120-second composition.
+- [x] Re-transcribe the English narration with HyperFrames Whisper `small.en`, rebuild caption cues, and update measured provenance.
+- [x] Align scene/audio timing only where the new measured word boundaries require it; leave the teaser and unrelated visuals untouched.
+- [x] Run static, layout, HyperFrames, transcript/caption, repository, and visual verification before committing.
