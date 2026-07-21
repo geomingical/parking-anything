@@ -37,7 +37,7 @@ All six captured product states and all three vehicle assets appear. The full pr
 
 ## Main Film
 
-### BEAT 1 — THE BACKLOG BECOMES A LOT (0.12–19.16s; scene visible from 0.00s)
+### BEAT 1 — THE BACKLOG BECOMES A LOT (0.00–19.40s)
 
 **VO:** “Saving a new tool feels productive. So does writing down a good idea. But weeks later, the links are still untouched, the ideas are still vague, and collecting has quietly replaced deciding. Parking Anything turns that backlog into a decision system. Stop collecting. Start test-driving.”
 
@@ -59,7 +59,7 @@ All six captured product states and all three vehicle assets appear. The full pr
 
 **SFX:** Paper-ticket ticks, soft accumulation clicks, then one low ignition pulse on “Start test-driving.”
 
-### BEAT 2 — PARK A TOOL (19.16–35.64s)
+### BEAT 2 — PARK A TOOL (19.40–36.04s)
 
 **VO:** “Paste a public tool link, and GPT-5.6 analyzes what it appears to do, proposes a usefulness hypothesis, estimates the trial effort, and gives you one concrete first task. The model prepares the ticket. It doesn't own the decision.”
 
@@ -81,7 +81,7 @@ All six captured product states and all three vehicle assets appear. The full pr
 
 **SFX:** Key taps, one confirmation clack, quiet servo glide.
 
-### BEAT 3 — ONE LOT, TWO INPUTS (35.64–48.28s)
+### BEAT 3 — ONE LOT, TWO INPUTS (36.04–48.84s)
 
 **VO:** “Ideas enter the same lot. Capture the thought in seconds, then add an effort tier and a first test task when you're ready. Tools and ideas become Parkables: different inputs, one shared lifecycle.”
 
@@ -103,7 +103,7 @@ All six captured product states and all three vehicle assets appear. The full pr
 
 **SFX:** Two indicator clicks from opposite stereo sides, resolving into one centered lock sound.
 
-### BEAT 4 — BOUNDED TEST DRIVE (48.28–58.00s)
+### BEAT 4 — BOUNDED TEST DRIVE (48.84–58.68s)
 
 **VO:** “Every Parkable begins in the Parking Lot. Start a bounded Test Drive. Record what happened, attach a result, and turn curiosity into evidence.”
 
@@ -125,7 +125,7 @@ All six captured product states and all three vehicle assets appear. The full pr
 
 **SFX:** Short ignition, low rolling texture, parking brake click, receipt tear.
 
-### BEAT 5 — EVIDENCE OR EXIT (58.00–71.58s)
+### BEAT 5 — EVIDENCE OR EXIT (58.68–72.44s)
 
 **VO:** “Then make a deliberate call. Evidence earns a place in the Garage. A clear reason sends the item to the Scrapyard. Nothing disappears just because an algorithm said so, and nothing reaches the Garage without proof.”
 
@@ -147,7 +147,7 @@ All six captured product states and all three vehicle assets appear. The full pr
 
 **SFX:** Two distinct gate lifts, pen stroke on the reason, warm chime for Garage, grounded metal click for Scrapyard.
 
-### BEAT 6 — MANAGER PATROL (71.58–91.12s)
+### BEAT 6 — MANAGER PATROL (72.44–92.12s)
 
 **VO:** “When the lot starts going stale, Manager Patrol reviews up to three active Parkables that need attention. It keeps observed facts separate from GPT-5.6 recommendations, and it never changes status automatically. Review the car, plan the missing test, or take the next action yourself.”
 
@@ -169,7 +169,7 @@ All six captured product states and all three vehicle assets appear. The full pr
 
 **SFX:** Soft scan pulse, two dry label clicks, deliberate half-second music drop on “never changes status automatically”.
 
-### BEAT 7 — CODEX BUILD · GPT-5.6 RUNTIME (91.12–107.48s)
+### BEAT 7 — CODEX BUILD · GPT-5.6 RUNTIME (92.12–108.70s)
 
 **VO:** “Codex built and tested this bounded product: one user, browser-local persistence, no login, and collaboration honestly out of scope. Inside it, GPT-5.6 advises; deterministic rules and visible provenance stay in control.”
 
@@ -191,7 +191,7 @@ All six captured product states and all three vehicle assets appear. The full pr
 
 **SFX:** Four muted sign impacts, inspection stamp, steady pulse returning.
 
-### BEAT 8 — THE ROAD AHEAD (107.48–138.84s)
+### BEAT 8 — THE ROAD AHEAD (approximately 108.70–140.00s)
 
 **VO:** “Today, the lot holds tools and ideas. The road ahead is wider: trips, books, gear, side projects—anything asking for your time before it earns a commitment. And when a private decision becomes worth sharing, Gather could turn compatible Parkables into a real-world meetup: compare notes, test together, or meet the people behind the same curiosity. These controls are visible today, but honestly disabled. They are the road ahead—not features we're pretending already exist.”
 
@@ -215,7 +215,7 @@ All six captured product states and all three vehicle assets appear. The full pr
 
 **SFX:** Low road-grid pulse, four restrained bay markers, no interface-confirmation sound.
 
-### BEAT 9 — DECIDE WHAT DESERVES YOUR TIME (138.84–150.00s; final word 149.20s)
+### BEAT 9 — DECIDE WHAT DESERVES YOUR TIME (approximately 140.00–150.00s)
 
 **VO:** “Parking Anything isn't another place to save everything. It's a place to decide what deserves your time. Park it. Test-drive it. Keep the evidence—or make the exit.”
 

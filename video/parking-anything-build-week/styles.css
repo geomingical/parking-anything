@@ -398,7 +398,7 @@ body {
   will-change: transform;
 }
 
-.ticket-grid {
+[data-composition-id="parking-anything-teaser"] .ticket-grid {
   position: absolute;
   inset: 120px 100px;
   z-index: 2;
@@ -408,7 +408,7 @@ body {
   gap: 24px;
 }
 
-.ticket {
+[data-composition-id="parking-anything-teaser"] .ticket {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
@@ -423,153 +423,13 @@ body {
   text-transform: uppercase;
 }
 
-.ticket em {
+[data-composition-id="parking-anything-teaser"] .ticket em {
   color: #f2c94c;
   font-style: normal;
 }
 
-.ui-card {
-  border: 3px solid #171918;
-  background: #ffffff;
-  padding: 24px;
-  box-shadow: 10px 10px 0 rgba(23, 25, 24, 0.13);
-}
-
-.ui-label {
-  color: #5f645f;
-  font-size: 18px;
-  font-weight: 900;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-.ui-value {
-  margin-top: 8px;
-  font-size: 27px;
-  font-weight: 900;
-  line-height: 1.2;
-}
-
-.metric {
-  font-variant-numeric: tabular-nums;
-}
-
-.lifecycle {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  border: 4px solid #171918;
-  background: #ffffff;
-}
-
-.lifecycle-step {
-  display: flex;
-  min-height: 90px;
-  align-items: center;
-  justify-content: center;
-  border-right: 2px solid rgba(23, 25, 24, 0.28);
-  color: #171918;
-  font-size: 24px;
-  font-weight: 900;
-}
-
-.lifecycle-step:last-child {
-  border-right: 0;
-}
-
-.lifecycle-step.active {
-  background: #f2c94c;
-}
-
-.decision-column {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  min-width: 0;
-  min-height: 0;
-}
-
-.decision-column .browser-shell {
-  min-height: 0;
-}
-
-.decision-card {
-  flex: 0 0 auto;
-  min-height: 150px;
-  border: 4px solid #171918;
-  background: #ffffff;
-  color: #171918;
-  padding: 24px;
-}
-
-.decision-card.green {
-  border-top: 18px solid #2f7d5c;
-}
-
-.decision-card.red {
-  border-top: 18px solid #b84a45;
-}
-
-.decision-card h3 {
-  margin: 0 0 10px;
-  font-size: 36px;
-  font-weight: 900;
-}
-
-.decision-card p {
-  margin: 0;
-  color: #5f645f;
-  font-size: 23px;
-  line-height: 1.35;
-}
-
-.patrol-columns {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 4px minmax(0, 1fr);
-  gap: 34px;
-  align-items: stretch;
-}
-
-.patrol-rule {
-  background: #2f7d5c;
-  transform-origin: top center;
-}
-
-.action-row {
-  display: flex;
-  gap: 18px;
-  flex-wrap: wrap;
-}
-
-.action-chip {
-  display: flex;
-  min-height: 58px;
-  align-items: center;
-  border: 3px solid #171918;
-  background: #f7f7f2;
-  padding: 0 20px;
-  color: #171918;
-  font-size: 20px;
-  font-weight: 900;
-}
-
 .future-scene {
   background-color: #303331;
-}
-
-.future-grid {
-  position: relative;
-  z-index: 4;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  height: 100%;
-  padding: 62px 92px 118px;
-  gap: 24px;
-  background-color: #303331;
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.14) 2px, rgba(255, 255, 255, 0) 2px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.14) 2px, rgba(255, 255, 255, 0) 2px);
-  background-size: 160px 140px;
 }
 
 .future-disclosure {
@@ -587,56 +447,6 @@ body {
   font-size: 20px;
   font-weight: 900;
   letter-spacing: 0.16em;
-}
-
-.future-header {
-  position: relative;
-  z-index: 4;
-  width: 1320px;
-}
-
-.future-header .eyebrow {
-  color: #f2c94c;
-}
-
-.future-title {
-  max-width: 1300px;
-  margin: 14px 0 0;
-  color: #ffffff;
-  font-size: 74px;
-  font-weight: 900;
-  letter-spacing: -0.04em;
-  line-height: 0.98;
-}
-
-.future-bays {
-  position: relative;
-  z-index: 4;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 22px;
-}
-
-.future-bay {
-  display: flex;
-  min-height: 142px;
-  align-items: flex-end;
-  justify-content: space-between;
-  padding: 22px 24px;
-  border: 4px solid #ffffff;
-  background: rgba(48, 51, 49, 0.92);
-  box-shadow: 10px 10px 0 rgba(242, 201, 76, 0.28);
-  color: #ffffff;
-  font-size: 29px;
-  font-weight: 900;
-  letter-spacing: 0.10em;
-}
-
-.future-network {
-  position: relative;
-  z-index: 4;
-  min-height: 350px;
-  flex: 1;
 }
 
 .future-routes {
@@ -657,7 +467,6 @@ body {
   stroke-dashoffset: 1400;
 }
 
-.personal-lot,
 .gather-plaza {
   position: absolute;
   z-index: 3;
@@ -667,31 +476,6 @@ body {
   border: 4px solid #ffffff;
   color: #ffffff;
   font-weight: 900;
-}
-
-.personal-lot {
-  width: 154px;
-  height: 154px;
-  border-radius: 50%;
-  background: #4a4d4b;
-  font-size: 18px;
-  letter-spacing: 0.10em;
-  text-align: center;
-}
-
-.personal-lot:nth-of-type(1) {
-  left: 128px;
-  top: 98px;
-}
-
-.personal-lot:nth-of-type(2) {
-  left: 408px;
-  top: 213px;
-}
-
-.personal-lot:nth-of-type(3) {
-  right: 128px;
-  top: 98px;
 }
 
 .gather-plaza {
@@ -728,21 +512,6 @@ body {
   width: 100%;
   height: 100%;
   object-fit: contain;
-}
-
-.future-car-a {
-  left: 690px;
-  top: 88px;
-}
-
-.future-car-b {
-  left: 810px;
-  top: 232px;
-}
-
-.future-car-c {
-  right: 692px;
-  top: 88px;
 }
 
 .future-source,
@@ -804,6 +573,7 @@ body {
   font-weight: 900;
   letter-spacing: 0.12em;
   white-space: nowrap;
+  opacity: 0;
 }
 
 .future-roadmap .gather-plaza {
@@ -812,6 +582,7 @@ body {
   z-index: 5;
   width: 340px;
   height: 250px;
+  opacity: 0;
 }
 
 .future-roadmap .future-car {

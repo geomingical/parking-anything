@@ -11,6 +11,65 @@ const compositions = [
 ];
 
 const errors = [];
+const stylesSource = await readFile(resolve(projectDir, "styles.css"), "utf8");
+const storyboardSource = await readFile(resolve(projectDir, "STORYBOARD.md"), "utf8");
+
+const expectedStoryboardHeadings = [
+  "### BEAT 1 — THE BACKLOG BECOMES A LOT (0.00–19.40s)",
+  "### BEAT 2 — PARK A TOOL (19.40–36.04s)",
+  "### BEAT 3 — ONE LOT, TWO INPUTS (36.04–48.84s)",
+  "### BEAT 4 — BOUNDED TEST DRIVE (48.84–58.68s)",
+  "### BEAT 5 — EVIDENCE OR EXIT (58.68–72.44s)",
+  "### BEAT 6 — MANAGER PATROL (72.44–92.12s)",
+  "### BEAT 7 — CODEX BUILD · GPT-5.6 RUNTIME (92.12–108.70s)",
+  "### BEAT 8 — THE ROAD AHEAD (approximately 108.70–140.00s)",
+  "### BEAT 9 — DECIDE WHAT DESERVES YOUR TIME (approximately 140.00–150.00s)",
+];
+const storyboardHeadings = storyboardSource.match(/^### BEAT .+$/gm) || [];
+if (JSON.stringify(storyboardHeadings) !== JSON.stringify(expectedStoryboardHeadings)) {
+  errors.push("STORYBOARD.md: nine Beat section headings must remain byte-exact with the parent storyboard");
+}
+
+const legacyCssSelectors = [
+  "ticket-grid",
+  "ticket",
+  "ui-card",
+  "ui-label",
+  "ui-value",
+  "metric",
+  "lifecycle",
+  "lifecycle-step",
+  "decision-column",
+  "decision-card",
+  "patrol-columns",
+  "patrol-rule",
+  "action-row",
+  "action-chip",
+  "future-grid",
+  "future-header",
+  "future-title",
+  "future-bays",
+  "future-bay",
+  "future-network",
+  "personal-lot",
+];
+for (const selector of legacyCssSelectors) {
+  const unscopedSelector = new RegExp(`^\\s*\\.${selector.replaceAll("-", "\\-")}(?:[\\s,:.{]|$)`, "m");
+  if (unscopedSelector.test(stylesSource)) errors.push(`styles.css: remove unscoped legacy selector .${selector}`);
+}
+
+function cssRuleHas(selector, declaration) {
+  const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const rule = stylesSource.match(new RegExp(`${escaped}\\s*\\{([^}]*)\\}`, "s"));
+  return Boolean(rule && new RegExp(`(?:^|;)\\s*${declaration}\\s*(?:;|$)`).test(rule[1]));
+}
+
+if (!cssRuleHas(".road-sign", "opacity:\\s*0")) {
+  errors.push("styles.css: Future road signs must be hidden before their post-120s entrance");
+}
+if (!cssRuleHas(".future-roadmap .gather-plaza", "opacity:\\s*0")) {
+  errors.push("styles.css: Gather plaza must be hidden before its post-120s entrance");
+}
 
 const inspectorScreenshot = resolve(projectDir, "capture/screenshots/planned-inspector.png");
 try {
@@ -128,6 +187,31 @@ for (const composition of compositions) {
       }
     }
 
+    const directTweens = [...source.matchAll(/tl\.to\(\s*["']([^"']+)["']\s*,\s*\{([^}]*)\}\s*,\s*(\d+(?:\.\d+)?)\s*\)/gs)].map((match) => ({
+      target: match[1],
+      body: match[2],
+      time: Number(match[3]),
+    }));
+    const numericProperty = (body, property) => {
+      const match = body.match(new RegExp(`(?:^|,)\\s*${property}\\s*:\\s*(-?\\d+(?:\\.\\d+)?)`));
+      return match ? Number(match[1]) : undefined;
+    };
+    const requireVehicleTween = ({ target, time, x, y, duration }) => {
+      const tween = directTweens.find((candidate) => candidate.target === target && candidate.time === time);
+      if (
+        !tween
+        || numericProperty(tween.body, "x") !== x
+        || numericProperty(tween.body, "y") !== y
+        || numericProperty(tween.body, "duration") !== duration
+      ) {
+        errors.push(`${composition.file}: ${target} must travel to (${x}, ${y}) at ${time}s over ${duration}s`);
+      }
+    };
+    requireVehicleTween({ target: "#s3-car-tool", time: 38.4, x: 645, y: 360, duration: 3 });
+    requireVehicleTween({ target: "#s3-car-idea", time: 38.4, x: -645, y: 360, duration: 3 });
+    requireVehicleTween({ target: "#s5-car-green", time: 61.1, x: -440, y: -490, duration: 3.4 });
+    requireVehicleTween({ target: "#s5-car-red", time: 61.1, x: 440, y: -490, duration: 3.4 });
+
     const future = document.querySelector("#scene-8");
     if (!future?.classList.contains("future-scene")) {
       errors.push(`${composition.file}: missing Future scene 8`);
@@ -151,9 +235,11 @@ for (const composition of compositions) {
     if (future?.querySelector("button, input, select, textarea, a[href]")) {
       errors.push(`${composition.file}: Future scene must remain noninteractive`);
     }
-    const futureSourceId = futureSource[0]?.id;
-    if ((futureSourceId && source.includes(`enter("#${futureSourceId}"`)) || source.includes('enter("#s8-disclosure"')) {
-      errors.push(`${composition.file}: Future disclosure must be visible from the scene's first frame`);
+    const inlineScriptSource = [...document.querySelectorAll("script:not([src])")].map((script) => script.textContent).join("\n");
+    for (const selector of ["#s8-disclosure", ".future-disclosure"]) {
+      const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const animatedDisclosure = new RegExp(`(?:\\benter|\\b(?:tl|gsap)\\.(?:to|from|fromTo|set))\\s*\\(\\s*["'][^"']*${escaped}`).test(inlineScriptSource);
+      if (animatedDisclosure) errors.push(`${composition.file}: Future disclosure cannot be targeted by animation selector ${selector}`);
     }
 
     const expectedTransitionStarts = ["18.75", "35.23", "47.87", "57.59", "71.17", "90.71", "107.07", "138.43"];
