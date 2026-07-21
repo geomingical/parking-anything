@@ -63,7 +63,7 @@ function groupWords(words) {
     const normalized = cue.text
       .replace(/Parking anything/gi, "Parking Anything")
       .replace(/GPT 5\.6/g, "GPT-5.6")
-      .replace(/real world meetup/gi, "real-world meetup")
+      .replace(/\breal world meetup\b/gi, "real-world meetup")
       .replace(/test driving/gi, "test-driving");
     return { ...cue, text: exactCopy.get(normalized.toLowerCase()) || normalized };
   });

@@ -43,5 +43,15 @@
       "start": 138.84,
       "end": 149.2
     }
-  ]
+  ],
+  "audioProvenance": {
+    "provider": "macOS say",
+    "voice": "Samantha",
+    "sourceRateWpm": 140,
+    "sourceDurationSeconds": 150.98825,
+    "tempoFactor": 1.011646566,
+    "transform": "ffmpeg atempo (pitch-preserving whole track)",
+    "effectiveRateWpm": 141.63,
+    "finalDurationSeconds": 149.2445
+  }
 }
