@@ -4,7 +4,7 @@
 
 **Goal:** Replace the Samantha narration with the user-approved ElevenLabs IVC take, preserve the 150-second composition, and realign captions and scene choreography to the new spoken timings.
 
-**Architecture:** Keep `narration.wav` as the composition's stable audio entry point. Normalize the approved 142.419563-second ElevenLabs MP3 with pitch-preserving `atempo=0.9542700937052958`, match delivery loudness to `-16 LUFS / -1.5 dBTP`, resample to 48 kHz PCM, and pad the tail to 149.3 seconds. Regenerate the word transcript, caption cues, provenance metadata, and nine beat anchors; express scene choreography relative to the new beat starts so future narration changes are auditable.
+**Architecture:** Keep `narration.wav` as the composition's stable audio entry point. Normalize the approved 142.419563-second ElevenLabs MP3 with pitch-preserving `atempo=0.9542700937052958`, match the legacy narration within `0.5 LU` while holding peaks near `-1.5 dBTP`, resample to 48 kHz PCM, and pad the tail to 149.3 seconds. Regenerate the word transcript, caption cues, provenance metadata, and nine beat anchors; express scene choreography relative to the new beat starts so future narration changes are auditable.
 
 **Tech Stack:** FFmpeg/ffprobe, whisper.cpp `small.en` with DTW word timing, HyperFrames transcript importer, Node.js test runner, JSDOM static checks, GSAP, HyperFrames CLI.
 
@@ -67,25 +67,25 @@ Expected: all transcript contract tests pass.
 - Modify: `video/parking-anything-build-week/captions.json`
 - Modify: `video/parking-anything-build-week/captions.js`
 
-- [ ] **Step 1: Build the final narration asset**
+- [x] **Step 1: Build the final narration asset**
 
 Run:
 
 ```bash
 ffmpeg -hide_banner -y \
   -i video/parking-anything-build-week/narration-elevenlabs-retimed.wav \
-  -af "loudnorm=I=-16:LRA=7:TP=-1.5,apad=pad_dur=0.070667" \
-  -t 149.3 -ar 48000 -ac 1 -c:a pcm_s16le \
+  -af "loudnorm=I=-16:LRA=7:TP=-1.5,volume=1.7dB,alimiter=limit=0.841395:attack=5:release=50:level=false,asetpts=N/SR/TB,apad=whole_dur=149.3,atrim=duration=149.3" \
+  -ar 48000 -ac 1 -c:a pcm_s16le \
   video/parking-anything-build-week/narration.wav
 ```
 
-Expected: a 149.3-second, 48 kHz, mono PCM WAV near `-16 LUFS` with true peak at or below `-1.5 dBTP`, with the original candidate unchanged.
+Expected: a 149.3-second, 48 kHz, mono PCM WAV around `-17.23 LUFS / -1.49 dBTP`, within `0.5 LU` of the legacy narration's `-16.77 LUFS`, with the original candidate unchanged.
 
-- [ ] **Step 2: Import the verified word transcript**
+- [x] **Step 2: Import the verified word transcript**
 
 Copy `/private/tmp/transcript.json`, produced from the retimed WAV by whisper.cpp `small.en` with DTW, to `video/parking-anything-build-week/transcript.json`. It must contain 361 non-overlapping words, start at 0.13 seconds, and end with `exit.` at 149.26 seconds.
 
-- [ ] **Step 3: Rebuild metadata and captions**
+- [x] **Step 3: Rebuild metadata and captions**
 
 Run:
 

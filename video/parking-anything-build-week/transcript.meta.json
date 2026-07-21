@@ -3,55 +3,59 @@
   "provisional": false,
   "engine": "whisper",
   "model": "small.en",
-  "wordCount": 362,
-  "audioDurationSeconds": 149.2445,
-  "lastWordEndSeconds": 149.2,
+  "wordCount": 361,
+  "audioDurationSeconds": 149.3,
+  "lastWordEndSeconds": 149.26,
   "beatBoundaries": [
     {
-      "start": 0.12,
-      "end": 19.16
+      "start": 0.13,
+      "end": 19.69
     },
     {
-      "start": 19.16,
-      "end": 35.64
+      "start": 19.69,
+      "end": 36.35
     },
     {
-      "start": 35.64,
-      "end": 48.28
+      "start": 36.35,
+      "end": 49.49
     },
     {
-      "start": 48.28,
-      "end": 58
+      "start": 49.49,
+      "end": 59.13
     },
     {
-      "start": 58,
-      "end": 71.58
+      "start": 59.13,
+      "end": 72.61
     },
     {
-      "start": 71.58,
-      "end": 91.12
+      "start": 72.61,
+      "end": 93.33
     },
     {
-      "start": 91.12,
-      "end": 107.48
+      "start": 93.33,
+      "end": 109.83
     },
     {
-      "start": 107.48,
-      "end": 138.84
+      "start": 109.83,
+      "end": 139.65
     },
     {
-      "start": 138.84,
-      "end": 149.2
+      "start": 139.65,
+      "end": 149.26
     }
   ],
   "audioProvenance": {
-    "provider": "macOS say",
-    "voice": "Samantha",
-    "sourceRateWpm": 140,
-    "sourceDurationSeconds": 150.98825,
-    "tempoFactor": 1.011646566,
-    "transform": "ffmpeg atempo (pitch-preserving whole track)",
-    "effectiveRateWpm": 141.63,
-    "finalDurationSeconds": 149.2445
+    "provider": "ElevenLabs",
+    "voice": "Park anything",
+    "model": "Eleven Multilingual v2",
+    "speed": 1.08,
+    "stability": 0.5,
+    "similarityBoost": 0.75,
+    "style": 0,
+    "speakerBoost": true,
+    "sourceDurationSeconds": 142.419563,
+    "tempoFactor": 0.9542700937052958,
+    "transform": "ffmpeg atempo (pitch-preserving), EBU R128 loudness normalization, 48 kHz PCM, padded tail",
+    "finalDurationSeconds": 149.3
   }
 }
