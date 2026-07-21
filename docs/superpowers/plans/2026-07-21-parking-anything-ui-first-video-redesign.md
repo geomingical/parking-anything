@@ -219,7 +219,7 @@ Add `.evidence-label`, `.future-disclosure`, `.road-sign`, and `.gather-plaza` t
 
 - [x] **Step 2: Update reproducible capture times and run local checks**
 
-Use the same 14 main sample times in `capture-hero-frames.mjs`, keeping teaser captures unchanged.
+Use the same 14 main sample times in `capture-hero-frames.mjs`. Generate only canonical main artifacts; do not read or write the protected teaser capture tree.
 
 With `python3 -m http.server 3028 --bind 127.0.0.1` running from `video/`, run:
 
@@ -236,10 +236,12 @@ Expected: no broken images, console errors, canvas escapes, text overflow, missi
 ```bash
 npx --yes hyperframes check
 npx --yes hyperframes inspect --samples 30
-npx --yes hyperframes snapshot --at 4,23,39,53,64,80,98,110,118,128,138,142,147,149.4 --no-end --output snapshots
+npx --yes hyperframes snapshot --at 4,23,39,53,64,80,98,110,118,128,138,138.4,142,147,149.4 --no-end --output /private/tmp/parking-anything-hf-review
 ```
 
 Expected: zero errors and zero warnings; intentional screenshot crop or transition coverage may remain info-level only.
+
+The HyperFrames output is temporary renderer evidence. `capture-hero-frames.mjs` is the canonical generator for the 14 indexed committed frames and singular contact sheet.
 
 - [x] **Step 4: Visually inspect and correct only demonstrated defects**
 

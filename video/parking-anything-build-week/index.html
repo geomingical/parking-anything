@@ -241,6 +241,7 @@
       window.__timelines = window.__timelines || {};
 
       const tl = gsap.timeline({ paused: true, defaults: { duration: 0.55, ease: "power2.out" } });
+      tl.set(".transition-cover", { xPercent: 0 }, 0);
 
       function enter(target, time, fromVars, toVars) {
         tl.fromTo(
@@ -252,12 +253,14 @@
       }
 
       function coverTransition(oldScene, newScene, cover, time) {
+        tl.set(cover, { visibility: "visible", xPercent: 0 }, time);
         tl.fromTo(
           cover,
           { xPercent: 0 },
           { xPercent: 200, duration: 0.82, ease: "power3.inOut", immediateRender: false },
           time,
         );
+        tl.set(cover, { visibility: "hidden" }, time + 0.82);
         tl.set(newScene, { opacity: 1 }, time + 0.41);
         tl.set(oldScene, { opacity: 0 }, time + 0.41);
       }

@@ -114,6 +114,9 @@ if (!cssRuleHas("#s1-copy,\n#s1-product,\n#s1-car", "opacity:\\s*0")) {
 if (!cssRuleHas(".caption-layer", "bottom:\\s*24px") || !cssRuleHas(".caption-layer", "z-index:\\s*90")) {
   errors.push("styles.css: caption layer must retain its 24px safe-area offset and z-index 90");
 }
+if (!cssRuleHas(".transition-cover", "visibility:\\s*hidden")) {
+  errors.push("styles.css: transition covers must be hidden outside their explicit timeline windows");
+}
 if (!/\.caption-layer\s*\{[^}]*width:\s*min\(1380px,\s*calc\(100%\s*-\s*160px\)\)/s.test(stylesSource)) {
   errors.push("styles.css: caption layer must retain its bounded 160px horizontal safe area");
 }
@@ -356,6 +359,15 @@ for (const composition of compositions) {
     const transitionStarts = [...source.matchAll(/coverTransition\([^;]+?,\s*(\d+(?:\.\d+)?)\);/g)].map((match) => match[1]);
     if (JSON.stringify(transitionStarts) !== JSON.stringify(expectedTransitionStarts)) {
       errors.push(`${composition.file}: transition start times changed`);
+    }
+    if (!/tl\.set\(\s*["']\.transition-cover["']\s*,\s*\{\s*xPercent:\s*0\s*\}\s*,\s*0\s*\)/.test(source)) {
+      errors.push(`${composition.file}: transition covers need an explicit timeline-zero state for deterministic random-access rendering`);
+    }
+    if (!/tl\.set\(\s*cover\s*,\s*\{\s*visibility:\s*["']visible["']\s*,\s*xPercent:\s*0\s*\}\s*,\s*time\s*\)/.test(source)) {
+      errors.push(`${composition.file}: each transition cover must become visible and reset at its own transition start`);
+    }
+    if (!/tl\.set\(\s*cover\s*,\s*\{\s*visibility:\s*["']hidden["']\s*\}\s*,\s*time\s*\+\s*0\.82\s*\)/.test(source)) {
+      errors.push(`${composition.file}: each transition cover must hide at the end of its transition window`);
     }
     for (const timingContract of [
       'tl.to("#s8-source .browser-shot", { scale: 1.04, duration: 9.02',

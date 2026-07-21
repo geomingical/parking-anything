@@ -5,7 +5,7 @@ const captures = [
     file: "parking-anything-build-week/index.html",
     timeline: "parking-anything-main",
     times: [4, 23, 39, 53, 64, 80, 98, 110, 118, 128, 138, 142, 147, 149.4],
-    contractTimes: [0, 61.1, 62.3, 63.5, 64.8, 65.5, 113],
+    contractTimes: [0, 61.1, 62.3, 63.5, 64.8, 65.5, 113, 138.4],
   },
   { file: "parking-anything-teaser/index.html", timeline: "parking-anything-teaser", times: [1.5, 6, 11, 16.5] },
 ];
@@ -270,14 +270,52 @@ for (const capture of captures) {
           });
         }
 
-        if ([110, 113, 118, 128, 138].includes(time)) {
+        if ([110, 113, 118, 128, 138, 138.4].includes(time)) {
           const disclosure = document.querySelector("#s8-disclosure");
           const style = getComputedStyle(disclosure);
           const opacity = elementOpacity(disclosure);
+          const rect = disclosure.getBoundingClientRect();
+          const textRange = document.createRange();
+          textRange.selectNodeContents(disclosure);
+          const textRect = textRange.getBoundingClientRect();
           if (opacity <= 0.95 || style.display === "none" || style.visibility !== "visible") {
             findings.push(`Future disclosure must remain visible, got opacity ${opacity.toFixed(3)}, display ${style.display}, visibility ${style.visibility}`);
           }
-          metrics.push(`Future disclosure opacity=${opacity.toFixed(3)}`);
+          if (disclosure.textContent.trim() !== "FUTURE · NOT YET BUILT") {
+            findings.push(`Future disclosure text changed to ${JSON.stringify(disclosure.textContent.trim())}`);
+          }
+          if (rect.width < 340 || rect.height < 54) {
+            findings.push(`Future disclosure geometry collapsed to ${rect.width.toFixed(1)}x${rect.height.toFixed(1)}px`);
+          }
+          if (rect.left < 0 || rect.top < 0 || rect.right > 1920 || rect.bottom > 1080) {
+            findings.push(`Future disclosure leaves canvas at (${rect.left.toFixed(1)}, ${rect.top.toFixed(1)}, ${rect.right.toFixed(1)}, ${rect.bottom.toFixed(1)})`);
+          }
+          if (disclosure.scrollWidth > disclosure.clientWidth + 2 || disclosure.scrollHeight > disclosure.clientHeight + 2) {
+            findings.push(`Future disclosure clips content (${disclosure.scrollWidth}x${disclosure.scrollHeight} scroll vs ${disclosure.clientWidth}x${disclosure.clientHeight} client)`);
+          }
+          if (
+            textRect.width < 250
+            || textRect.height < 18
+            || textRect.left < rect.left
+            || textRect.top < rect.top
+            || textRect.right > rect.right
+            || textRect.bottom > rect.bottom
+          ) {
+            findings.push(`Future disclosure text geometry is clipped or empty (${textRect.width.toFixed(1)}x${textRect.height.toFixed(1)}px)`);
+          }
+
+          const scene = document.querySelector("#scene-8");
+          const sceneRect = scene.getBoundingClientRect();
+          const sceneOpacity = elementOpacity(scene);
+          const visibleFutureLayers = ["#s8-source", "#s8-roadmap"]
+            .map((selector) => elementOpacity(document.querySelector(selector)))
+            .filter((layerOpacity) => layerOpacity > 0.2).length;
+          if (sceneOpacity <= 0.95 || sceneRect.width < 1919 || sceneRect.height < 1079 || visibleFutureLayers < 1) {
+            findings.push(`Future scene must remain nonblank and full-canvas, got opacity ${sceneOpacity.toFixed(3)}, ${sceneRect.width.toFixed(1)}x${sceneRect.height.toFixed(1)}px, visible layers ${visibleFutureLayers}`);
+          }
+          metrics.push(
+            `Future disclosure opacity=${opacity.toFixed(3)}, box=${rect.width.toFixed(1)}x${rect.height.toFixed(1)}px, text=${textRect.width.toFixed(1)}x${textRect.height.toFixed(1)}px, sceneOpacity=${sceneOpacity.toFixed(3)}, visibleLayers=${visibleFutureLayers}`,
+          );
         }
 
         const shippedProductTimes = [4, 23, 39, 53, 64, 80, 98];

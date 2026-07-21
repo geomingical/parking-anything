@@ -33,9 +33,9 @@ node scripts/static-check.mjs
 node scripts/layout-check.mjs
 ```
 
-The inspected main hero frames and the singular 14-frame `snapshots/contact-sheet.jpg` are under `snapshots/`. The deterministic main sample times are `4, 23, 39, 53, 64, 80, 98, 110, 118, 128, 138, 142, 147, 149.4` seconds; teaser sample times remain unchanged.
+The generator writes exactly 14 indexed 1920×1080 main frames (`frame-00-at-4s.png` through `frame-13-at-149.4s.png`) and one deterministic 4×4 `snapshots/contact-sheet.jpg`. It safely removes only known main-generator artifacts, validates image dimensions, full rendered Future-disclosure foreground/background pixel geometry, and nonblank Future scenes, and never reads or writes the protected teaser project. It uses only the local page, Playwright, and the already installed `sharp` package; it makes no network request. The ordered sample times are `4, 23, 39, 53, 64, 80, 98, 110, 118, 128, 138, 142, 147, 149.4` seconds.
 
-The UI-first review contract requires real shipped-product captures to occupy at least 45% of the 1920×1080 frame at every tagged product sample. It also rejects text-first slides, decorative thumbnail UI, more than one headline or two evidence labels, repeated card/stamp/grid layouts, purposeless vehicles, fabricated Future application states, missing `FUTURE · NOT YET BUILT` disclosure, and captions that collide with or outrank product evidence.
+The UI-first review contract requires real shipped-product captures to occupy at least 45% of the 1920×1080 frame at every tagged product sample. It also verifies the exact `FUTURE · NOT YET BUILT` text, DOM box/text geometry, clipping, foreground/background pixels, and a nonblank scene through 138.4 seconds. It rejects text-first slides, decorative thumbnail UI, more than one headline or two evidence labels, repeated card/stamp/grid layouts, purposeless vehicles, fabricated Future application states, and captions that collide with or outrank product evidence.
 
 ## HyperFrames completion gate
 
@@ -44,7 +44,7 @@ The installed skill requires the following main-film commands before Studio hand
 ```bash
 npx --yes hyperframes check
 npx --yes hyperframes inspect --samples 30
-npx --yes hyperframes snapshot --at 4,23,39,53,64,80,98,110,118,128,138,142,147,149.4 --no-end --output snapshots
+npx --yes hyperframes snapshot --at 4,23,39,53,64,80,98,110,118,128,138,138.4,142,147,149.4 --no-end --output /private/tmp/parking-anything-hf-review
 npx --yes hyperframes preview --port 3027
 ```
 
@@ -53,8 +53,10 @@ In the restricted QA environment, registry resolution for `npx --yes` was unavai
 ```bash
 node /Users/ming/.npm/_npx/702923228c2ce1e6/node_modules/hyperframes/bin/hyperframes.mjs check
 node /Users/ming/.npm/_npx/702923228c2ce1e6/node_modules/hyperframes/bin/hyperframes.mjs inspect --samples 30
-node /Users/ming/.npm/_npx/702923228c2ce1e6/node_modules/hyperframes/bin/hyperframes.mjs snapshot --at 4,23,39,53,64,80,98,110,118,128,138,142,147,149.4 --no-end --output snapshots
+node /Users/ming/.npm/_npx/702923228c2ce1e6/node_modules/hyperframes/bin/hyperframes.mjs snapshot --at 4,23,39,53,64,80,98,110,118,128,138,138.4,142,147,149.4 --no-end --output /private/tmp/parking-anything-hf-review
 ```
+
+HyperFrames snapshots are renderer-verification artifacts in a temporary directory. Run `node scripts/capture-hero-frames.mjs` to reproduce the committed canonical names and singular contact sheet.
 
 The main narration was transcribed with HyperFrames Whisper `small.en`; animation cuts are aligned to the measured paragraph boundaries in `transcript.meta.json`.
 
@@ -63,6 +65,6 @@ Current local Studio endpoints:
 - Main film: `http://localhost:3027/#project/parking-anything-build-week?v=5&t=0&tab=renders&rc=1`
 - Teaser: `http://localhost:3026/#project/parking-anything-teaser`
 
-HyperFrames `check` passes runtime, layout, motion, and 22/22 WCAG AA contrast checks. HyperFrames 0.7.65 still reports four non-blocking lint warnings: three for intentional reuse of first-party screenshot/vehicle sources and one for the 387-line composition. The 30-sample `inspect` reports zero errors and zero warnings; its remaining info items are intentional screenshot crops and transition coverage.
+HyperFrames `check` passes runtime, layout, motion, and 22/22 WCAG AA contrast checks. HyperFrames 0.7.65 still reports four non-blocking lint warnings: three for intentional reuse of first-party screenshot/vehicle sources and one for the 390-line composition. The 30-sample `inspect` reports zero errors and zero warnings; its remaining info items are intentional screenshot crops and transition coverage.
 
 Do not render an MP4 until the Studio preview has been reviewed and the user explicitly requests export.

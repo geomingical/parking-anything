@@ -624,6 +624,7 @@ body {
   z-index: 100;
   width: 1920px;
   height: 1080px;
+  visibility: hidden;
   pointer-events: none;
   will-change: transform;
 }
