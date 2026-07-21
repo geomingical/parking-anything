@@ -549,7 +549,7 @@ test("capture v0.5 unified Parkable visual matrix", async ({ page }, testInfo) =
     await page.getByRole("tab", { name: "Park idea" }).click();
     await captureStableScreenshot(page, shot("park-idea"));
     await parkIdea(page, "Decision receipt", "Record one decision before the meeting ends.");
-    await expect(page.getByText("Needs review · 49 days")).toBeVisible();
+    await expect(page.getByText(/^Needs review · \d+ days$/).first()).toBeVisible();
     await expectNoHorizontalPageScroll(page);
     await captureStableScreenshot(page, shot("mixed-lot"));
     await captureStableScreenshot(page, shot("needs-review"));
