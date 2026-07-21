@@ -17,7 +17,7 @@
 - Modify: `video/parking-anything-build-week/scripts/transcript-contract.mjs`
 - Modify: `video/parking-anything-build-week/scripts/build-transcript-meta.mjs`
 
-- [ ] **Step 1: Write the failing ElevenLabs provenance test**
+- [x] **Step 1: Write the failing ElevenLabs provenance test**
 
 Replace the Samantha fixture with this approved provenance payload and add assertions that a wrong provider and wrong tempo factor are rejected:
 
@@ -38,21 +38,21 @@ const validAudioProvenance = {
 };
 ```
 
-- [ ] **Step 2: Run the contract test and verify red**
+- [x] **Step 2: Run the contract test and verify red**
 
 Run: `node --test video/parking-anything-build-week/scripts/transcript-contract.test.mjs`
 
 Expected: FAIL because `validateAudioProvenance` still requires `macOS say` and `Samantha`.
 
-- [ ] **Step 3: Implement the ElevenLabs contract**
+- [x] **Step 3: Implement the ElevenLabs contract**
 
 Require the exact provider, voice, model, generation settings, source duration, tempo factor, transform description, and equality between `finalDurationSeconds` and the probed narration duration. Preserve the existing finite-number and duration-coverage checks.
 
-- [ ] **Step 4: Update metadata generation**
+- [x] **Step 4: Update metadata generation**
 
 Set `build-transcript-meta.mjs` to emit the approved ElevenLabs payload, with `finalDurationSeconds` populated from `ffprobe`.
 
-- [ ] **Step 5: Run the focused contract test and verify green**
+- [x] **Step 5: Run the focused contract test and verify green**
 
 Run: `node --test video/parking-anything-build-week/scripts/transcript-contract.test.mjs`
 

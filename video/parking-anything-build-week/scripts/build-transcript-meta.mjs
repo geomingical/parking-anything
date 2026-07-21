@@ -26,13 +26,17 @@ const { stdout } = await run("ffprobe", [
 ]);
 const audioDurationSeconds = Number(stdout.trim());
 const audioProvenance = {
-  provider: "macOS say",
-  voice: "Samantha",
-  sourceRateWpm: 140,
-  sourceDurationSeconds: 150.98825,
-  tempoFactor: 1.011646566,
-  transform: "ffmpeg atempo (pitch-preserving whole track)",
-  effectiveRateWpm: 141.63,
+  provider: "ElevenLabs",
+  voice: "Park anything",
+  model: "Eleven Multilingual v2",
+  speed: 1.08,
+  stability: 0.5,
+  similarityBoost: 0.75,
+  style: 0,
+  speakerBoost: true,
+  sourceDurationSeconds: 142.419563,
+  tempoFactor: 0.9542700937052958,
+  transform: "ffmpeg atempo (pitch-preserving), EBU R128 loudness normalization, 48 kHz PCM, padded tail",
   finalDurationSeconds: audioDurationSeconds,
 };
 const meta = {

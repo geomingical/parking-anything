@@ -107,18 +107,25 @@ export function assertBeatBoundariesMatchTranscript(transcript, beatBoundaries) 
 
 export function validateAudioProvenance(audioProvenance, audioDurationSeconds) {
   assert.ok(audioProvenance && typeof audioProvenance === "object" && !Array.isArray(audioProvenance), "audioProvenance must be an object");
-  assert.equal(audioProvenance.provider, "macOS say", `audioProvenance.provider must be macOS say; got ${JSON.stringify(audioProvenance.provider)}`);
-  assert.equal(audioProvenance.voice, "Samantha", `audioProvenance.voice must be Samantha; got ${JSON.stringify(audioProvenance.voice)}`);
-  for (const field of ["sourceRateWpm", "sourceDurationSeconds", "tempoFactor", "effectiveRateWpm", "finalDurationSeconds"]) {
+  assert.equal(audioProvenance.provider, "ElevenLabs", `audioProvenance.provider must be ElevenLabs; got ${JSON.stringify(audioProvenance.provider)}`);
+  assert.equal(audioProvenance.voice, "Park anything", `audioProvenance.voice must be Park anything; got ${JSON.stringify(audioProvenance.voice)}`);
+  assert.equal(audioProvenance.model, "Eleven Multilingual v2", `audioProvenance.model must be Eleven Multilingual v2; got ${JSON.stringify(audioProvenance.model)}`);
+  for (const field of ["speed", "stability", "similarityBoost", "style", "sourceDurationSeconds", "tempoFactor", "finalDurationSeconds"]) {
     assertFiniteNumber(audioProvenance[field], `audioProvenance.${field}`);
   }
-  assert.equal(audioProvenance.sourceRateWpm, 140, "audioProvenance.sourceRateWpm must be 140");
-  assert.equal(audioProvenance.sourceDurationSeconds, 150.98825, "audioProvenance.sourceDurationSeconds must be 150.98825");
-  assert.equal(audioProvenance.tempoFactor, 1.011646566, "audioProvenance.tempoFactor must be 1.011646566");
-  assert.equal(audioProvenance.transform, "ffmpeg atempo (pitch-preserving whole track)", "audioProvenance.transform must record the approved transform");
-  assert.equal(audioProvenance.effectiveRateWpm, 141.63, "audioProvenance.effectiveRateWpm must be 141.63");
+  assert.equal(audioProvenance.speed, 1.08, "audioProvenance.speed must be 1.08");
+  assert.equal(audioProvenance.stability, 0.5, "audioProvenance.stability must be 0.5");
+  assert.equal(audioProvenance.similarityBoost, 0.75, "audioProvenance.similarityBoost must be 0.75");
+  assert.equal(audioProvenance.style, 0, "audioProvenance.style must be 0");
+  assert.equal(audioProvenance.speakerBoost, true, "audioProvenance.speakerBoost must be true");
+  assert.equal(audioProvenance.sourceDurationSeconds, 142.419563, "audioProvenance.sourceDurationSeconds must be 142.419563");
+  assert.equal(audioProvenance.tempoFactor, 0.9542700937052958, "audioProvenance.tempoFactor must be 0.9542700937052958");
+  assert.equal(
+    audioProvenance.transform,
+    "ffmpeg atempo (pitch-preserving), EBU R128 loudness normalization, 48 kHz PCM, padded tail",
+    "audioProvenance.transform must record the approved transform",
+  );
   assert.equal(audioProvenance.finalDurationSeconds, audioDurationSeconds, "audioProvenance.finalDurationSeconds must equal audioDurationSeconds");
-  assert.ok(audioProvenance.finalDurationSeconds <= audioProvenance.sourceDurationSeconds, "audioProvenance final duration must not exceed source duration");
   return audioProvenance;
 }
 
