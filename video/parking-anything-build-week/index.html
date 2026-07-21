@@ -10,7 +10,7 @@
   </head>
   <body>
     <div data-hf-id="hf-xjbm" id="parking-anything-main" data-composition-id="parking-anything-main" data-width="1920" data-height="1080" data-start="0" data-duration="150">
-      <audio data-hf-id="hf-ttbt" id="main-narration" src="narration.wav" data-start="0" data-duration="149.2445" data-track-index="0" data-volume="1"></audio>
+      <audio data-hf-id="hf-ttbt" id="main-narration" src="narration.wav" data-start="0" data-duration="149.3" data-track-index="0" data-volume="1"></audio>
 
       <div id="brand-intro" class="brand-intro" aria-label="Parking Anything introduction">
         <div class="brand-intro-wipe" aria-hidden="true"></div>
@@ -250,6 +250,22 @@
       window.__timelines = window.__timelines || {};
 
       const tl = gsap.timeline({ paused: true, defaults: { duration: 0.55, ease: "power2.out" } });
+      const beatStarts = Object.freeze({
+        scene1: 0.13,
+        scene2: 19.69,
+        scene3: 36.35,
+        scene4: 49.49,
+        scene5: 59.13,
+        scene6: 72.61,
+        scene7: 93.33,
+        scene8: 109.83,
+        scene9: 139.65,
+      });
+      const futureCues = Object.freeze({
+        privateDecision: 119.83,
+        gather: 122.74,
+      });
+      const closingCues = Object.freeze({ parkIt: 145.43 });
       tl.set(".transition-cover", { xPercent: 0 }, 0);
 
       function enter(target, time, fromVars, toVars) {
@@ -303,100 +319,97 @@
       tl.to("#brand-intro", { xPercent: 100, duration: 0.55, ease: "power3.inOut" }, 2.25);
       tl.set("#brand-intro", { opacity: 0 }, 2.8);
 
-      enter("#s1-grid", 0.18, { opacity: 0 }, { opacity: 1, duration: 0.9, ease: "sine.out" });
-      enter("#s1-copy", 0.36, { x: -82 }, { x: 0, duration: 0.72, ease: "expo.out" });
-      enter("#s1-product", 0.72, { x: 130, scale: 0.93, rotationY: -7 }, { x: 0, scale: 1, rotationY: 0, duration: 0.96, ease: "power4.out" });
-      enter("#s1-car", 1.22, { x: -510, rotation: -12 }, { x: 0, rotation: 0, duration: 1.2, ease: "back.out(1.15)" });
-      tl.to("#s1-route", { strokeDashoffset: 0, duration: 2.0, ease: "power3.out" }, 0.88);
-      tl.to("#s1-grid", { backgroundPosition: "190px 160px", duration: 18.2, ease: "none" }, 0.6);
-      tl.to("#s1-product .browser-shot", { scale: 1.035, duration: 16.4, ease: "none" }, 1.7);
+      enter("#s1-grid", beatStarts.scene1 + 0.05, { opacity: 0 }, { opacity: 1, duration: 0.9, ease: "sine.out" });
+      enter("#s1-copy", beatStarts.scene1 + 0.23, { x: -82 }, { x: 0, duration: 0.72, ease: "expo.out" });
+      enter("#s1-product", beatStarts.scene1 + 0.59, { x: 130, scale: 0.93, rotationY: -7 }, { x: 0, scale: 1, rotationY: 0, duration: 0.96, ease: "power4.out" });
+      enter("#s1-car", beatStarts.scene1 + 1.09, { x: -510, rotation: -12 }, { x: 0, rotation: 0, duration: 1.2, ease: "back.out(1.15)" });
+      tl.to("#s1-route", { strokeDashoffset: 0, duration: 2.0, ease: "power3.out" }, beatStarts.scene1 + 0.75);
+      tl.to("#s1-grid", { backgroundPosition: "190px 160px", duration: 18.2, ease: "none" }, beatStarts.scene1 + 0.47);
+      tl.to("#s1-product .browser-shot", { scale: 1.035, duration: 16.4, ease: "none" }, beatStarts.scene1 + 1.57);
 
-      coverTransition("#scene-1", "#scene-2", "#transition-1", 18.75);
-      enter("#s2-grid", 19.26, { opacity: 0 }, { opacity: 1, duration: 0.7, ease: "sine.out" });
-      enter("#s2-copy", 19.42, { x: -72 }, { x: 0, duration: 0.62, ease: "power3.out" });
-      enter("#s2-copy .evidence-label", 19.68, { y: 38, scale: 0.92 }, { y: 0, scale: 1, duration: 0.46, ease: "back.out(1.12)" });
-      enter("#s2-product", 19.92, { x: 130, scale: 0.94, rotationY: -7 }, { x: 0, scale: 1, rotationY: 0, duration: 0.9, ease: "expo.out" });
-      tl.to("#s2-route", { strokeDashoffset: 0, duration: 1.6, ease: "power2.out" }, 20.04);
-      tl.to("#s2-browser .browser-shot", { scale: 1.04, duration: 14.4, ease: "none" }, 20.44);
+      coverTransition("#scene-1", "#scene-2", "#transition-1", beatStarts.scene2 - 0.41);
+      enter("#s2-grid", beatStarts.scene2 + 0.1, { opacity: 0 }, { opacity: 1, duration: 0.7, ease: "sine.out" });
+      enter("#s2-copy", beatStarts.scene2 + 0.26, { x: -72 }, { x: 0, duration: 0.62, ease: "power3.out" });
+      enter("#s2-copy .evidence-label", beatStarts.scene2 + 0.52, { y: 38, scale: 0.92 }, { y: 0, scale: 1, duration: 0.46, ease: "back.out(1.12)" });
+      enter("#s2-product", beatStarts.scene2 + 0.76, { x: 130, scale: 0.94, rotationY: -7 }, { x: 0, scale: 1, rotationY: 0, duration: 0.9, ease: "expo.out" });
+      tl.to("#s2-route", { strokeDashoffset: 0, duration: 1.6, ease: "power2.out" }, beatStarts.scene2 + 0.88);
+      tl.to("#s2-browser .browser-shot", { scale: 1.04, duration: 14.4, ease: "none" }, beatStarts.scene2 + 1.28);
 
-      coverTransition("#scene-2", "#scene-3", "#transition-2", 35.23);
-      enter("#s3-grid", 35.78, { opacity: 0 }, { opacity: 1, duration: 0.7, ease: "sine.out" });
-      enter("#s3-copy", 35.9, { y: -55 }, { y: 0, duration: 0.58, ease: "circ.out" });
-      enter("#s3-copy .evidence-label", 36.12, { scale: 0.76 }, { scale: 1, stagger: 0.1, duration: 0.46, ease: "back.out(1.2)" });
-      enter("#s3-tool", 36.36, { x: -150, rotationY: 10, scale: 0.94 }, { x: 0, rotationY: 0, scale: 1, duration: 0.82, ease: "power4.out" });
-      enter("#s3-idea", 36.5, { x: 150, rotationY: -10, scale: 0.94 }, { x: 0, rotationY: 0, scale: 1, duration: 0.82, ease: "back.out(1.08)" });
-      enter("#s3-car-tool", 36.82, { x: -180, y: -80, rotation: -15 }, { x: 0, y: 0, rotation: 0, duration: 0.8, ease: "power3.out" });
-      enter("#s3-car-idea", 36.94, { x: 180, y: -80, rotation: 15 }, { x: 0, y: 0, rotation: 0, duration: 0.8, ease: "circ.out" });
-      tl.to("#s3-route-a, #s3-route-b", { strokeDashoffset: 0, duration: 1.6, stagger: 0.08, ease: "power3.out" }, 36.32);
-      tl.to("#s3-route-c", { strokeDashoffset: 0, duration: 1.1, ease: "power4.out" }, 37.47);
-      tl.to("#s3-car-tool", { x: 645, y: 360, rotation: 4, duration: 3.0, ease: "power2.inOut" }, 38.4);
-      tl.to("#s3-car-idea", { x: -645, y: 360, rotation: -4, duration: 3.0, ease: "power2.inOut" }, 38.4);
-      tl.to("#s3-tool .browser-shot", { scale: 1.035, duration: 10.8, ease: "none" }, 37.22);
-      tl.to("#s3-idea .browser-shot", { y: -22, duration: 10.4, ease: "sine.inOut" }, 37.42);
+      coverTransition("#scene-2", "#scene-3", "#transition-2", beatStarts.scene3 - 0.41);
+      enter("#s3-grid", beatStarts.scene3 + 0.14, { opacity: 0 }, { opacity: 1, duration: 0.7, ease: "sine.out" });
+      enter("#s3-copy", beatStarts.scene3 + 0.26, { y: -55 }, { y: 0, duration: 0.58, ease: "circ.out" });
+      enter("#s3-copy .evidence-label", beatStarts.scene3 + 0.48, { scale: 0.76 }, { scale: 1, stagger: 0.1, duration: 0.46, ease: "back.out(1.2)" });
+      enter("#s3-tool", beatStarts.scene3 + 0.72, { x: -150, rotationY: 10, scale: 0.94 }, { x: 0, rotationY: 0, scale: 1, duration: 0.82, ease: "power4.out" });
+      enter("#s3-idea", beatStarts.scene3 + 0.86, { x: 150, rotationY: -10, scale: 0.94 }, { x: 0, rotationY: 0, scale: 1, duration: 0.82, ease: "back.out(1.08)" });
+      enter("#s3-car-tool", beatStarts.scene3 + 1.18, { x: -180, y: -80, rotation: -15 }, { x: 0, y: 0, rotation: 0, duration: 0.8, ease: "power3.out" });
+      enter("#s3-car-idea", beatStarts.scene3 + 1.3, { x: 180, y: -80, rotation: 15 }, { x: 0, y: 0, rotation: 0, duration: 0.8, ease: "circ.out" });
+      tl.to("#s3-route-a, #s3-route-b", { strokeDashoffset: 0, duration: 1.6, stagger: 0.08, ease: "power3.out" }, beatStarts.scene3 + 0.68);
+      tl.to("#s3-route-c", { strokeDashoffset: 0, duration: 1.1, ease: "power4.out" }, beatStarts.scene3 + 1.83);
+      tl.to("#s3-car-tool", { x: 645, y: 360, rotation: 4, duration: 3.0, ease: "power2.inOut" }, beatStarts.scene3 + 2.76);
+      tl.to("#s3-car-idea", { x: -645, y: 360, rotation: -4, duration: 3.0, ease: "power2.inOut" }, beatStarts.scene3 + 2.76);
+      tl.to("#s3-tool .browser-shot", { scale: 1.035, duration: 10.8, ease: "none" }, beatStarts.scene3 + 1.58);
+      tl.to("#s3-idea .browser-shot", { y: -22, duration: 10.4, ease: "sine.inOut" }, beatStarts.scene3 + 1.78);
 
-      coverTransition("#scene-3", "#scene-4", "#transition-3", 47.87);
-      enter("#s4-grid", 48.4, { opacity: 0 }, { opacity: 1, duration: 0.66, ease: "sine.out" });
-      enter("#s4-copy", 48.5, { x: 85 }, { x: 0, duration: 0.62, ease: "power4.out" });
-      enter("#s4-copy .evidence-label", 48.72, { y: 42 }, { y: 0, stagger: 0.09, duration: 0.46, ease: "back.out(1.1)" });
-      enter("#s4-product", 49.18, { x: -120, scale: 0.94 }, { x: 0, scale: 1, duration: 0.7, ease: "power3.out" });
-      enter("#s4-car", 49.72, { x: -180, rotation: -8 }, { x: 0, rotation: 0, duration: 0.62, ease: "power4.out" });
-      tl.to("#s4-route", { strokeDashoffset: 0, duration: 1.45, ease: "power3.out" }, 49.02);
-      tl.to("#s4-car", { x: 560, y: -150, duration: 3.0, ease: "power2.inOut" }, 50.52);
-      tl.to("#s4-browser .browser-shot", { scale: 1.04, duration: 7.7, ease: "none" }, 49.92);
+      coverTransition("#scene-3", "#scene-4", "#transition-3", beatStarts.scene4 - 0.41);
+      enter("#s4-grid", beatStarts.scene4 + 0.12, { opacity: 0 }, { opacity: 1, duration: 0.66, ease: "sine.out" });
+      enter("#s4-copy", beatStarts.scene4 + 0.22, { x: 85 }, { x: 0, duration: 0.62, ease: "power4.out" });
+      enter("#s4-copy .evidence-label", beatStarts.scene4 + 0.44, { y: 42 }, { y: 0, stagger: 0.09, duration: 0.46, ease: "back.out(1.1)" });
+      enter("#s4-product", beatStarts.scene4 + 0.9, { x: -120, scale: 0.94 }, { x: 0, scale: 1, duration: 0.7, ease: "power3.out" });
+      enter("#s4-car", beatStarts.scene4 + 1.44, { x: -180, rotation: -8 }, { x: 0, rotation: 0, duration: 0.62, ease: "power4.out" });
+      tl.to("#s4-route", { strokeDashoffset: 0, duration: 1.45, ease: "power3.out" }, beatStarts.scene4 + 0.74);
+      tl.to("#s4-car", { x: 560, y: -150, duration: 3.0, ease: "power2.inOut" }, beatStarts.scene4 + 2.24);
+      tl.to("#s4-browser .browser-shot", { scale: 1.04, duration: 7.7, ease: "none" }, beatStarts.scene4 + 1.64);
 
-      coverTransition("#scene-4", "#scene-5", "#transition-4", 57.59);
-      enter("#s5-grid", 58.14, { opacity: 0 }, { opacity: 1, duration: 0.68, ease: "sine.out" });
-      enter("#s5-copy", 58.27, { y: -70 }, { y: 0, duration: 0.62, ease: "power3.out" });
-      enter("#s5-copy .evidence-label", 58.48, { scale: 0.8 }, { scale: 1, stagger: 0.11, duration: 0.5, ease: "expo.out" });
-      enter("#s5-garage", 58.77, { x: -160, rotationY: 8 }, { x: 0, rotationY: 0, duration: 0.8, ease: "circ.out" });
-      enter("#s5-scrap", 58.91, { x: 160, rotationY: -8 }, { x: 0, rotationY: 0, duration: 0.8, ease: "back.out(1.08)" });
-      enter("#s5-car-green", 59.27, { y: -120, rotation: -9 }, { y: 0, rotation: 0, duration: 0.62, ease: "power4.out" });
-      enter("#s5-car-red", 59.39, { y: -120, rotation: 9 }, { y: 0, rotation: 0, duration: 0.62, ease: "power3.out" });
-      tl.to("#s5-route-green, #s5-route-red", { strokeDashoffset: 0, duration: 1.7, stagger: 0.08, ease: "power2.out" }, 58.59);
-      tl.to("#s5-car-green", { keyframes: s5GreenRouteKeyframes }, 61.1);
-      tl.to("#s5-car-red", { keyframes: s5RedRouteKeyframes }, 61.1);
-      tl.to("#s5-garage .browser-shot", { y: -28, duration: 10.9, ease: "sine.inOut" }, 59.79);
-      tl.to("#s5-scrap .browser-shot", { y: -28, duration: 10.7, ease: "sine.inOut" }, 59.99);
+      coverTransition("#scene-4", "#scene-5", "#transition-4", beatStarts.scene5 - 0.41);
+      enter("#s5-grid", beatStarts.scene5 + 0.14, { opacity: 0 }, { opacity: 1, duration: 0.68, ease: "sine.out" });
+      enter("#s5-copy", beatStarts.scene5 + 0.27, { y: -70 }, { y: 0, duration: 0.62, ease: "power3.out" });
+      enter("#s5-copy .evidence-label", beatStarts.scene5 + 0.48, { scale: 0.8 }, { scale: 1, stagger: 0.11, duration: 0.5, ease: "expo.out" });
+      enter("#s5-garage", beatStarts.scene5 + 0.77, { x: -160, rotationY: 8 }, { x: 0, rotationY: 0, duration: 0.8, ease: "circ.out" });
+      enter("#s5-scrap", beatStarts.scene5 + 0.91, { x: 160, rotationY: -8 }, { x: 0, rotationY: 0, duration: 0.8, ease: "back.out(1.08)" });
+      enter("#s5-car-green", beatStarts.scene5 + 1.27, { y: -120, rotation: -9 }, { y: 0, rotation: 0, duration: 0.62, ease: "power4.out" });
+      enter("#s5-car-red", beatStarts.scene5 + 1.39, { y: -120, rotation: 9 }, { y: 0, rotation: 0, duration: 0.62, ease: "power3.out" });
+      tl.to("#s5-route-green, #s5-route-red", { strokeDashoffset: 0, duration: 1.7, stagger: 0.08, ease: "power2.out" }, beatStarts.scene5 + 0.59);
+      tl.to("#s5-car-green", { keyframes: s5GreenRouteKeyframes }, beatStarts.scene5 + 3.1);
+      tl.to("#s5-car-red", { keyframes: s5RedRouteKeyframes }, beatStarts.scene5 + 3.1);
+      tl.to("#s5-garage .browser-shot", { y: -28, duration: 10.9, ease: "sine.inOut" }, beatStarts.scene5 + 1.79);
+      tl.to("#s5-scrap .browser-shot", { y: -28, duration: 10.7, ease: "sine.inOut" }, beatStarts.scene5 + 1.99);
 
-      coverTransition("#scene-5", "#scene-6", "#transition-5", 71.17);
-      enter("#s6-grid", 71.68, { opacity: 0 }, { opacity: 1, duration: 0.66, ease: "sine.out" });
-      enter("#s6-copy", 71.8, { x: -85 }, { x: 0, duration: 0.64, ease: "power3.out" });
-      enter("#s6-copy .evidence-label", 72.02, { y: 42 }, { y: 0, stagger: 0.1, duration: 0.48, ease: "back.out(1.08)" });
-      enter("#s6-product", 72.26, { x: -130, rotationY: 8, scale: 0.94 }, { x: 0, rotationY: 0, scale: 1, duration: 0.82, ease: "power4.out" });
-      tl.to("#s6-browser .browser-shot", { scale: 1.045, duration: 17.0, ease: "none" }, 73.14);
-      tl.fromTo("#s6-scan", { xPercent: -120 }, { xPercent: 520, duration: 4.2, ease: "sine.inOut", immediateRender: false }, 76.2);
+      coverTransition("#scene-5", "#scene-6", "#transition-5", beatStarts.scene6 - 0.41);
+      enter("#s6-grid", beatStarts.scene6 + 0.1, { opacity: 0 }, { opacity: 1, duration: 0.66, ease: "sine.out" });
+      enter("#s6-copy", beatStarts.scene6 + 0.22, { x: -85 }, { x: 0, duration: 0.64, ease: "power3.out" });
+      enter("#s6-copy .evidence-label", beatStarts.scene6 + 0.44, { y: 42 }, { y: 0, stagger: 0.1, duration: 0.48, ease: "back.out(1.08)" });
+      enter("#s6-product", beatStarts.scene6 + 0.68, { x: -130, rotationY: 8, scale: 0.94 }, { x: 0, rotationY: 0, scale: 1, duration: 0.82, ease: "power4.out" });
+      tl.to("#s6-browser .browser-shot", { scale: 1.045, duration: 17.0, ease: "none" }, beatStarts.scene6 + 1.56);
+      tl.fromTo("#s6-scan", { xPercent: -120 }, { xPercent: 520, duration: 4.2, ease: "sine.inOut", immediateRender: false }, beatStarts.scene6 + 4.62);
 
-      coverTransition("#scene-6", "#scene-7", "#transition-6", 90.71);
-      enter("#s7-grid", 91.26, { opacity: 0 }, { opacity: 1, duration: 0.62, ease: "sine.out" });
-      enter("#s7-copy", 91.39, { x: -100 }, { x: 0, duration: 0.68, ease: "expo.out" });
-      enter("#s7-copy .evidence-label", 91.7, { y: 44 }, { y: 0, stagger: 0.1, duration: 0.5, ease: "back.out(1.12)" });
-      enter("#s7-product", 92.03, { x: 150, scale: 0.93, rotationY: -9 }, { x: 0, scale: 1, rotationY: 0, duration: 0.78, ease: "power4.out" });
-      enter("#s7-car", 93.01, { x: 180, rotation: 14 }, { x: 0, rotation: 0, duration: 0.66, ease: "power4.out" });
-      tl.to("#s7-product .browser-shot", { y: -34, duration: 13.2, ease: "sine.inOut" }, 92.61);
-      tl.to("#s7-grid", { backgroundPosition: "210px 170px", duration: 14.6, ease: "none" }, 91.41);
+      coverTransition("#scene-6", "#scene-7", "#transition-6", beatStarts.scene7 - 0.41);
+      enter("#s7-grid", beatStarts.scene7 + 0.14, { opacity: 0 }, { opacity: 1, duration: 0.62, ease: "sine.out" });
+      enter("#s7-copy", beatStarts.scene7 + 0.27, { x: -100 }, { x: 0, duration: 0.68, ease: "expo.out" });
+      enter("#s7-copy .evidence-label", beatStarts.scene7 + 0.58, { y: 44 }, { y: 0, stagger: 0.1, duration: 0.5, ease: "back.out(1.12)" });
+      enter("#s7-product", beatStarts.scene7 + 0.91, { x: 150, scale: 0.93, rotationY: -9 }, { x: 0, scale: 1, rotationY: 0, duration: 0.78, ease: "power4.out" });
+      enter("#s7-car", beatStarts.scene7 + 1.89, { x: 180, rotation: 14 }, { x: 0, rotation: 0, duration: 0.66, ease: "power4.out" });
+      tl.to("#s7-product .browser-shot", { y: -34, duration: 13.2, ease: "sine.inOut" }, beatStarts.scene7 + 1.49);
+      tl.to("#s7-grid", { backgroundPosition: "210px 170px", duration: 14.6, ease: "none" }, beatStarts.scene7 + 0.29);
 
-      const futureStart = 107.48;
-      const closingStart = 138.84;
+      coverTransition("#scene-7", "#scene-8", "#transition-7", beatStarts.scene8 - 0.41);
+      tl.to("#s8-source .browser-shot", { scale: 1.04, duration: 9.02, ease: "none" }, beatStarts.scene8);
+      tl.to("#s8-source", { opacity: 0, scale: 0.92, duration: 3.5, ease: "sine.inOut" }, futureCues.privateDecision - 2.14);
+      tl.to("#s8-roadmap", { opacity: 1, scale: 1, duration: 3.5, ease: "sine.inOut" }, futureCues.privateDecision - 2.14);
+      enter("#s8-signs .road-sign", futureCues.gather - 1.36, { y: -62, scale: 0.9 }, { y: 0, scale: 1, stagger: 0.09, duration: 0.58, ease: "back.out(1.08)" });
+      enter("#s8-gather", futureCues.gather - 1.08, { scale: 0.7 }, { scale: 1, duration: 0.82, ease: "circ.out" });
+      tl.to("#s8-route-a, #s8-route-b, #s8-route-c", { strokeDashoffset: 0, duration: 2.2, stagger: 0.12, ease: "power3.out" }, futureCues.gather - 1.2);
+      enter("#s8-car-a", futureCues.gather - 0.82, { x: -620, y: 170, rotation: -18 }, { x: 0, y: 0, rotation: 0, duration: 5.4, ease: "power3.out" });
+      enter("#s8-car-b", futureCues.gather - 0.52, { x: -540, y: 330, rotation: -10 }, { x: 0, y: 0, rotation: 0, duration: 6.0, ease: "circ.out" });
+      enter("#s8-car-c", futureCues.gather - 0.2, { x: 620, y: 190, rotation: 18 }, { x: 0, y: 0, rotation: 0, duration: 5.7, ease: "expo.out" });
 
-      coverTransition("#scene-7", "#scene-8", "#transition-7", 107.07);
-      tl.to("#s8-source .browser-shot", { scale: 1.04, duration: 9.02, ease: "none" }, futureStart);
-      tl.to("#s8-source", { opacity: 0, scale: 0.92, duration: 3.5, ease: "sine.inOut" }, 116.5);
-      tl.to("#s8-roadmap", { opacity: 1, scale: 1, duration: 3.5, ease: "sine.inOut" }, 116.5);
-      enter("#s8-signs .road-sign", 120.18, { y: -62, scale: 0.9 }, { y: 0, scale: 1, stagger: 0.09, duration: 0.58, ease: "back.out(1.08)" });
-      enter("#s8-gather", 120.46, { scale: 0.7 }, { scale: 1, duration: 0.82, ease: "circ.out" });
-      tl.to("#s8-route-a, #s8-route-b, #s8-route-c", { strokeDashoffset: 0, duration: 2.2, stagger: 0.12, ease: "power3.out" }, 120.34);
-      enter("#s8-car-a", 120.72, { x: -620, y: 170, rotation: -18 }, { x: 0, y: 0, rotation: 0, duration: 5.4, ease: "power3.out" });
-      enter("#s8-car-b", 121.02, { x: -540, y: 330, rotation: -10 }, { x: 0, y: 0, rotation: 0, duration: 6.0, ease: "circ.out" });
-      enter("#s8-car-c", 121.34, { x: 620, y: 190, rotation: 18 }, { x: 0, y: 0, rotation: 0, duration: 5.7, ease: "expo.out" });
-
-      coverTransition("#scene-8", "#scene-9", "#transition-8", 138.43);
-      enter("#s9-grid", closingStart + 0.1, { opacity: 0 }, { opacity: 1, duration: 0.68, ease: "sine.out" });
-      enter("#s9-copy", closingStart + 0.25, { x: -110 }, { x: 0, duration: 0.72, ease: "expo.out" });
-      enter("#s9-product", closingStart + 0.47, { x: 130, scale: 0.91, rotationY: -8 }, { x: 0, scale: 1, rotationY: 0, duration: 0.86, ease: "power4.out" });
-      enter("#s9-car", closingStart + 1.65, { x: -180, rotation: -9 }, { x: 0, rotation: 0, duration: 0.68, ease: "power3.out" });
-      tl.to("#s9-route", { strokeDashoffset: 0, duration: 2.0, ease: "power3.out" }, closingStart + 0.35);
-      tl.to("#s9-car", { x: 1120, y: -510, duration: 3.4, ease: "power2.inOut" }, 145.68);
-      tl.to("#s9-product .browser-shot", { scale: 1.035, duration: 9.0, ease: "none" }, closingStart + 1.15);
+      coverTransition("#scene-8", "#scene-9", "#transition-8", beatStarts.scene9 - 0.41);
+      enter("#s9-grid", beatStarts.scene9 + 0.1, { opacity: 0 }, { opacity: 1, duration: 0.68, ease: "sine.out" });
+      enter("#s9-copy", beatStarts.scene9 + 0.25, { x: -110 }, { x: 0, duration: 0.72, ease: "expo.out" });
+      enter("#s9-product", beatStarts.scene9 + 0.47, { x: 130, scale: 0.91, rotationY: -8 }, { x: 0, scale: 1, rotationY: 0, duration: 0.86, ease: "power4.out" });
+      enter("#s9-car", beatStarts.scene9 + 1.65, { x: -180, rotation: -9 }, { x: 0, rotation: 0, duration: 0.68, ease: "power3.out" });
+      tl.to("#s9-route", { strokeDashoffset: 0, duration: 2.0, ease: "power3.out" }, beatStarts.scene9 + 0.35);
+      tl.to("#s9-car", { x: 1120, y: -510, duration: 3.4, ease: "power2.inOut" }, closingCues.parkIt + 0.68);
+      tl.to("#s9-product .browser-shot", { scale: 1.035, duration: 9.0, ease: "none" }, beatStarts.scene9 + 1.15);
       tl.to("#final-wash", { opacity: 1, duration: 0.5, ease: "sine.in" }, 149.5);
 
       window.__timelines["parking-anything-main"] = tl;

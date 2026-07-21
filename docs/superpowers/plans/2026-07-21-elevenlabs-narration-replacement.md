@@ -106,7 +106,7 @@ Expected: nine canonical beat boundaries `[0.13, 19.69, 36.35, 49.49, 59.13, 72.
 - Modify: `video/parking-anything-build-week/STORYBOARD.md`
 - Do not modify: `video/parking-anything-build-week/SCRIPT.md`
 
-- [ ] **Step 1: Add a failing static timing contract**
+- [x] **Step 1: Add a failing static timing contract**
 
 Update the narration duration expectation to `149.3` and require this exact static timing map in `index.html`:
 
@@ -128,11 +128,11 @@ Run: `node video/parking-anything-build-week/scripts/static-check.mjs`
 
 Expected: FAIL until `index.html` adopts the new duration and timing map.
 
-- [ ] **Step 2: Express scene entrances relative to beat starts**
+- [x] **Step 2: Express scene entrances relative to beat starts**
 
 Replace absolute scene-entry timestamps with `beatStarts.sceneN + offset`, and schedule each transition at the next beat start minus `0.41`. Preserve animation durations and unrelated visual properties.
 
-- [ ] **Step 3: Align semantic Future and closing moments**
+- [x] **Step 3: Align semantic Future and closing moments**
 
 Use these transcript-derived cue times:
 
@@ -146,11 +146,11 @@ const closingCues = Object.freeze({ parkIt: 145.43 });
 
 Start the Future crossfade 2.14 seconds before `privateDecision`, stage signs/routes/cars relative to `gather`, and start the final parking move 0.68 seconds after `parkIt`. Keep `final-wash` at 149.5 seconds.
 
-- [ ] **Step 4: Update durable documentation**
+- [x] **Step 4: Update durable documentation**
 
 Record the 149.3-second ElevenLabs IVC narration, 361-word transcript, last word at 149.26 seconds, and the nine measured beat boundaries in `README.md` and `STORYBOARD.md`. Preserve all product and Future disclosure language.
 
-- [ ] **Step 5: Run static and transcript checks**
+- [x] **Step 5: Run static and transcript checks**
 
 Run:
 

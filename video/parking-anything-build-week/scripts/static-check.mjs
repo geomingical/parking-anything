@@ -183,8 +183,8 @@ for (const composition of compositions) {
 
   if (composition.id === "parking-anything-main") {
     const narration = document.querySelector("#main-narration");
-    if (narration?.dataset.duration !== "149.2445") {
-      errors.push(`${composition.file}: narration duration must match measured audio length 149.2445`);
+    if (narration?.dataset.duration !== "149.3") {
+      errors.push(`${composition.file}: narration duration must match measured audio length 149.3`);
     }
 
     const brandIntro = document.querySelector("#brand-intro");
@@ -212,7 +212,7 @@ for (const composition of compositions) {
     const narrationContract = {
       src: [narration?.getAttribute("src"), "narration.wav"],
       start: [narration?.dataset.start, "0"],
-      duration: [narration?.dataset.duration, "149.2445"],
+      duration: [narration?.dataset.duration, "149.3"],
       trackIndex: [narration?.dataset.trackIndex, "0"],
       volume: [narration?.dataset.volume, "1"],
     };
@@ -292,10 +292,10 @@ for (const composition of compositions) {
       }
     }
 
-    const directTweens = [...source.matchAll(/tl\.to\(\s*["']([^"']+)["']\s*,\s*\{([^}]*)\}\s*,\s*(\d+(?:\.\d+)?)\s*\)/gs)].map((match) => ({
+    const directTweens = [...source.matchAll(/tl\.to\(\s*["']([^"']+)["']\s*,\s*\{([^}]*)\}\s*,\s*([^\n)]+)\s*\)/gs)].map((match) => ({
       target: match[1],
       body: match[2],
-      time: Number(match[3]),
+      time: match[3].trim(),
     }));
     const numericProperty = (body, property) => {
       const match = body.match(new RegExp(`(?:^|,)\\s*${property}\\s*:\\s*(-?\\d+(?:\\.\\d+)?)`));
@@ -312,8 +312,8 @@ for (const composition of compositions) {
         errors.push(`${composition.file}: ${target} must travel to (${x}, ${y}) at ${time}s over ${duration}s`);
       }
     };
-    requireVehicleTween({ target: "#s3-car-tool", time: 38.4, x: 645, y: 360, duration: 3 });
-    requireVehicleTween({ target: "#s3-car-idea", time: 38.4, x: -645, y: 360, duration: 3 });
+    requireVehicleTween({ target: "#s3-car-tool", time: "beatStarts.scene3 + 2.76", x: 645, y: 360, duration: 3 });
+    requireVehicleTween({ target: "#s3-car-idea", time: "beatStarts.scene3 + 2.76", x: -645, y: 360, duration: 3 });
 
     const s5Geometry = {
       green: {
@@ -366,9 +366,9 @@ for (const composition of compositions) {
       if (JSON.stringify(actualGeometry) !== JSON.stringify(expectedKeyframes)) {
         errors.push(`${composition.file}: S5 ${branch} keyframes must follow vertical, curve, terminal, and capture route checkpoints`);
       }
-      const tweenContract = new RegExp(`tl\\.to\\(\\s*["']#s5-car-${branch}["']\\s*,\\s*\\{\\s*keyframes:\\s*${variableName}\\s*\\}\\s*,\\s*61\\.1\\s*\\)`);
+      const tweenContract = new RegExp(`tl\\.to\\(\\s*["']#s5-car-${branch}["']\\s*,\\s*\\{\\s*keyframes:\\s*${variableName}\\s*\\}\\s*,\\s*beatStarts\\.scene5\\s*\\+\\s*3\\.1\\s*\\)`);
       if (!tweenContract.test(source)) {
-        errors.push(`${composition.file}: S5 ${branch} car must use ${variableName} at 61.1s`);
+        errors.push(`${composition.file}: S5 ${branch} car must use ${variableName} at beatStarts.scene5 + 3.1s`);
       }
     }
 
@@ -402,8 +402,31 @@ for (const composition of compositions) {
       if (animatedDisclosure) errors.push(`${composition.file}: Future disclosure cannot be targeted by animation selector ${selector}`);
     }
 
-    const expectedTransitionStarts = ["18.75", "35.23", "47.87", "57.59", "71.17", "90.71", "107.07", "138.43"];
-    const transitionStarts = [...source.matchAll(/coverTransition\([^;]+?,\s*(\d+(?:\.\d+)?)\);/g)].map((match) => match[1]);
+    const expectedBeatStarts = `const beatStarts = Object.freeze({
+        scene1: 0.13,
+        scene2: 19.69,
+        scene3: 36.35,
+        scene4: 49.49,
+        scene5: 59.13,
+        scene6: 72.61,
+        scene7: 93.33,
+        scene8: 109.83,
+        scene9: 139.65,
+      });`;
+    if (!source.includes(expectedBeatStarts)) {
+      errors.push(`${composition.file}: missing transcript-derived beatStarts timing map`);
+    }
+    const expectedTransitionStarts = [
+      "beatStarts.scene2 - 0.41",
+      "beatStarts.scene3 - 0.41",
+      "beatStarts.scene4 - 0.41",
+      "beatStarts.scene5 - 0.41",
+      "beatStarts.scene6 - 0.41",
+      "beatStarts.scene7 - 0.41",
+      "beatStarts.scene8 - 0.41",
+      "beatStarts.scene9 - 0.41",
+    ];
+    const transitionStarts = [...source.matchAll(/coverTransition\([^;]+?,\s*(beatStarts\.scene\d\s*-\s*0\.41)\);/g)].map((match) => match[1]);
     if (JSON.stringify(transitionStarts) !== JSON.stringify(expectedTransitionStarts)) {
       errors.push(`${composition.file}: transition start times changed`);
     }
@@ -420,7 +443,7 @@ for (const composition of compositions) {
       'tl.to("#s8-source .browser-shot", { scale: 1.04, duration: 9.02',
       'tl.to("#s8-source", { opacity: 0, scale: 0.92, duration: 3.5',
       'tl.to("#s8-roadmap", { opacity: 1, scale: 1, duration: 3.5',
-      'tl.to("#s9-car", { x: 1120, y: -510, duration: 3.4, ease: "power2.inOut" }, 145.68)',
+      'tl.to("#s9-car", { x: 1120, y: -510, duration: 3.4, ease: "power2.inOut" }, closingCues.parkIt + 0.68)',
       'tl.to("#final-wash", { opacity: 1, duration: 0.5, ease: "sine.in" }, 149.5)',
     ]) {
       if (!source.includes(timingContract)) errors.push(`${composition.file}: missing exact choreography contract ${timingContract}`);

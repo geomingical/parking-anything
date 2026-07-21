@@ -12,8 +12,8 @@ Both use the v0.5 product captures, the exact product palette, deterministic GSA
 - `DESIGN.md` — brand reference and visual guardrails.
 - `SCRIPT.md` — approved main and teaser narration.
 - `STORYBOARD.md` — beat timing, assets, motion, transitions, and sound direction.
-- `narration.wav` — 149.2445-second local voiceover.
-- `transcript.json` — HyperFrames Whisper word-level alignment for the 362-word narration.
+- `narration.wav` — 149.3-second, loudness-matched ElevenLabs IVC voiceover.
+- `transcript.json` — HyperFrames Whisper word-level alignment for the 361-word narration.
 - `transcript.meta.json` — transcription provenance and measured beat boundaries.
 - `captions.json` / `captions.js` — 60 readable cues and timeline data; rebuild with `node scripts/build-captions.mjs`.
 
@@ -61,7 +61,7 @@ node /Users/ming/.npm/_npx/702923228c2ce1e6/node_modules/hyperframes/bin/hyperfr
 
 HyperFrames snapshots are renderer-verification artifacts in a temporary directory. Run `node scripts/capture-hero-frames.mjs` to reproduce the committed canonical names and singular contact sheet.
 
-The main narration was transcribed with HyperFrames Whisper `small.en`; animation cuts are aligned to the measured paragraph boundaries in `transcript.meta.json`.
+The main narration uses the user-approved ElevenLabs `Park anything` IVC voice (`Eleven Multilingual v2`, speed `1.08`) and was transcribed with HyperFrames Whisper `small.en`. Animation cuts are aligned to the measured paragraph boundaries in `transcript.meta.json`: `0.13, 19.69, 36.35, 49.49, 59.13, 72.61, 93.33, 109.83, 139.65, 149.26` seconds.
 
 Current local Studio endpoints:
 

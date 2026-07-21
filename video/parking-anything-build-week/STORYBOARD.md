@@ -3,11 +3,11 @@
 **Format:** 1920×1080, 30 fps, landscape
 **Studio audio:** HyperFrames-aligned voiceover only; synchronized English captions remain visible with sound off
 **Post-approval export audio:** restrained mechanical underscore + sparse interface SFX, added only after a licensed/local source is approved
-**VO direction:** American female voice, calm and decisive, product-builder register; conversational contractions, visible pauses after short thesis lines, never breathless
+**VO direction:** User-approved ElevenLabs IVC voice, natural, calm, and decisive; product-builder register, conversational contractions, visible pauses after short thesis lines, never breathless
 **Style basis:** `DESIGN.md`
 **Main duration:** 150 seconds
-**Measured audio:** 149.2445 seconds; final spoken word ends at 149.20 seconds
-**Measured beat boundaries:** 0.12, 19.16, 35.64, 48.28, 58.00, 71.58, 91.12, 107.48, 138.84, 149.20 seconds; Scene 1 remains visible from composition time 0
+**Measured audio:** 149.3-second ElevenLabs IVC narration; final spoken word ends at 149.26 seconds
+**Measured beat boundaries:** 0.13, 19.69, 36.35, 49.49, 59.13, 72.61, 93.33, 109.83, 139.65, 149.26 seconds; Scene 1 remains visible from composition time 0
 **Teaser duration:** 20 seconds
 
 ## Global Direction
