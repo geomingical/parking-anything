@@ -1,6 +1,7 @@
 import { access, readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { JSDOM } from "jsdom";
+import sharp from "sharp";
 
 const projectDir = resolve(new URL("..", import.meta.url).pathname);
 
@@ -10,6 +11,28 @@ const compositions = [
 ];
 
 const errors = [];
+
+const inspectorScreenshot = resolve(projectDir, "capture/screenshots/planned-inspector.png");
+try {
+  const { data } = await sharp(inspectorScreenshot)
+    .extract({ left: 100, top: 500, width: 1, height: 1 })
+    .removeAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  const luminance = (data[0] + data[1] + data[2]) / 3;
+  if (luminance < 220) {
+    errors.push("planned-inspector.png: modal backdrop darkens the product surface");
+  }
+  const inspectorStats = await sharp(inspectorScreenshot)
+    .extract({ left: 900, top: 480, width: 480, height: 360 })
+    .greyscale()
+    .stats();
+  if (inspectorStats.entropy < 2.3) {
+    errors.push("planned-inspector.png: inspector content is visually blank");
+  }
+} catch {
+  errors.push("planned-inspector.png: unable to verify clean product surface");
+}
 
 for (const composition of compositions) {
   const compositionPath = resolve(projectDir, composition.file);
