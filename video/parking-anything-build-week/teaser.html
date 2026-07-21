@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, initial-scale=1" />
+    <title>Parking Anything — 20 Second Teaser</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="vendor/gsap.min.js"></script>
+  </head>
+  <body>
+    <div
+      id="parking-anything-teaser"
+      data-composition-id="parking-anything-teaser"
+      data-width="1920"
+      data-height="1080"
+      data-start="0"
+      data-duration="20"
+    >
+      <audio
+        id="teaser-narration"
+        src="teaser-narration.wav"
+        data-start="0"
+        data-duration="17.439"
+        data-track-index="0"
+        data-volume="1"
+      ></audio>
+
+      <section id="teaser-scene-1" class="scene asphalt" aria-label="Saved it, forgot it">
+        <div id="t1-grid" class="ambient-grid" data-layout-ignore></div>
+        <div id="t1-tickets" class="ticket-grid" data-layout-ignore>
+          <div class="ticket">AI tool <em>saved</em></div>
+          <div class="ticket">Idea <em>later</em></div>
+          <div class="ticket">Workflow <em>untested</em></div>
+          <div class="ticket">Prototype <em>someday</em></div>
+          <div class="ticket">Prompt <em>forgotten</em></div>
+          <div class="ticket">Reference <em>unopened</em></div>
+          <div class="ticket">Experiment <em>waiting</em></div>
+          <div class="ticket">Decision <em>deferred</em></div>
+        </div>
+        <div class="scene-content" style="justify-content: center">
+          <p id="t1-eyebrow" class="eyebrow" style="color: #f2c94c">Your digital backlog</p>
+          <h1 id="t1-title" class="teaser-headline" style="color: #ffffff">Saved it. Forgot it.</h1>
+          <p id="t1-sub" class="teaser-sub" style="width: max-content; padding: 10px 18px; border-top: 5px solid #f2c94c; background: #171918">Collecting quietly replaced deciding.</p>
+        </div>
+        <div id="t1-car" class="car-wrap" style="right: 180px; bottom: 110px; width: 280px; height: 280px">
+          <img class="car-img" src="capture/assets/cars/quick-spin.png" alt="" />
+        </div>
+      </section>
+
+      <section id="teaser-scene-2" class="scene paper" aria-label="One bounded Test Drive">
+        <div id="t2-grid" class="paper-grid" data-layout-ignore></div>
+        <svg class="route-svg" viewBox="0 0 1920 1080" aria-hidden="true">
+          <path id="t2-route-a" class="route-path green" d="M110 240 H620 V540 H940" />
+          <path id="t2-route-b" class="route-path red" d="M1810 240 H1300 V540 H980" />
+          <path id="t2-route-c" class="route-path" d="M960 540 V950" />
+        </svg>
+        <div class="scene-content">
+          <p id="t2-eyebrow" class="eyebrow">Different inputs · one Parkable lifecycle</p>
+          <h2 id="t2-title" class="teaser-headline">One bounded Test Drive.</h2>
+          <div id="t2-browser" class="browser-shell" style="position: absolute; right: 110px; top: 260px; width: 760px; height: 650px">
+            <div class="browser-bar"><span>Tool + Idea</span><span>Shared lot</span></div>
+            <div class="browser-shot-wrap"><img class="browser-shot" src="capture/screenshots/mixed-lot.png" alt="Unified Parking Lot" /></div>
+          </div>
+          <div id="t2-step" class="stamp" style="margin-top: 200px; font-size: 30px">Park → Test Drive → Evidence</div>
+        </div>
+        <div id="t2-car-a" class="car-wrap" style="left: 175px; top: 450px; width: 160px; height: 160px"><img class="car-img" src="capture/assets/cars/quick-spin.png" alt="" /></div>
+        <div id="t2-car-b" class="car-wrap" style="right: 175px; top: 450px; width: 160px; height: 160px"><img class="car-img" src="capture/assets/cars/weekend-project.png" alt="" /></div>
+      </section>
+
+      <section id="teaser-scene-3" class="scene asphalt" aria-label="Garage or Scrapyard">
+        <div id="t3-grid" class="ambient-grid" data-layout-ignore></div>
+        <svg class="route-svg" viewBox="0 0 1920 1080" aria-hidden="true">
+          <path id="t3-green" class="route-path green" d="M960 970 V660 H480 V210" />
+          <path id="t3-red" class="route-path red" d="M960 970 V660 H1440 V210" />
+        </svg>
+        <div class="scene-content">
+          <p id="t3-eyebrow" class="eyebrow" style="color: #f2c94c">A deliberate decision</p>
+          <h2 id="t3-title" class="teaser-headline" style="color: #ffffff">Garage—or Scrapyard.</h2>
+          <div class="split-stage">
+            <div id="t3-garage" class="browser-shell">
+              <div class="browser-bar"><span>Evidence</span><span>Garage</span></div>
+              <div class="browser-shot-wrap"><img class="browser-shot" src="capture/screenshots/garage.png" alt="Garage state" /></div>
+            </div>
+            <div id="t3-scrap" class="browser-shell">
+              <div class="browser-bar"><span>Reason</span><span>Scrapyard</span></div>
+              <div class="browser-shot-wrap"><img class="browser-shot" src="capture/screenshots/scrapyard.png" alt="Scrapyard state" /></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="teaser-scene-4" class="scene paper" aria-label="AI advises, you decide">
+        <div id="t4-grid" class="paper-grid" data-layout-ignore></div>
+        <div class="scene-content" style="justify-content: center">
+          <p id="t4-eyebrow" class="eyebrow">Observed Fact · GPT-5.6 Recommendation</p>
+          <h2 id="t4-title" class="teaser-headline" style="max-width: 980px; font-size: 130px">AI advises. You decide.</h2>
+          <div id="t4-browser" class="browser-shell" style="position: absolute; right: 100px; top: 130px; width: 720px; height: 650px">
+            <div class="browser-bar"><span>Manager Patrol</span><span>No automatic changes</span></div>
+            <div class="browser-shot-wrap"><img class="browser-shot patrol" src="capture/screenshots/mixed-patrol.png" alt="Manager Patrol evidence" /></div>
+          </div>
+          <div id="t4-brand" style="margin-top: 80px; max-width: 880px">
+            <div class="wordmark" style="font-size: 74px">Parking Anything</div>
+            <div class="stamp" style="margin-top: 24px; font-size: 28px">Stop collecting. Start test-driving.</div>
+          </div>
+        </div>
+        <div id="t4-car" class="car-wrap" style="left: 820px; bottom: 42px; width: 180px; height: 180px"><img class="car-img" src="capture/assets/cars/focused-session.png" alt="" /></div>
+      </section>
+
+      <div id="teaser-transition-1" class="transition-cover yellow" data-layout-ignore></div>
+      <div id="teaser-transition-2" class="transition-cover paper" data-layout-ignore></div>
+      <div id="teaser-transition-3" class="transition-cover ink" data-layout-ignore></div>
+      <div id="teaser-final-wash" class="final-wash" data-layout-ignore></div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true, defaults: { duration: 0.45, ease: "power2.out" } });
+
+      function enter(target, time, fromVars, toVars) {
+        tl.fromTo(
+          target,
+          { opacity: 0, ...fromVars },
+          { opacity: 1, duration: 0.48, ease: "power2.out", immediateRender: false, ...toVars },
+          time,
+        );
+      }
+
+      function coverTransition(oldScene, newScene, cover, time) {
+        tl.fromTo(cover, { xPercent: 0 }, { xPercent: 200, duration: 0.62, ease: "power4.inOut", immediateRender: false }, time);
+        tl.set(newScene, { opacity: 1 }, time + 0.31);
+        tl.set(oldScene, { opacity: 0 }, time + 0.31);
+      }
+
+      enter("#t1-grid", 0.16, { opacity: 0 }, { opacity: 1, duration: 0.55, ease: "sine.out" });
+      enter("#t1-tickets .ticket", 0.24, { y: 90, scale: 0.94 }, { y: 0, scale: 1, stagger: 0.035, duration: 0.52, ease: "expo.out" });
+      enter("#t1-eyebrow", 0.42, { x: -70 }, { x: 0, duration: 0.38, ease: "power4.out" });
+      enter("#t1-title", 0.54, { scale: 0.86 }, { scale: 1, duration: 0.58, ease: "back.out(1.18)" });
+      enter("#t1-sub", 0.78, { y: 60 }, { y: 0, duration: 0.44, ease: "circ.out" });
+      enter("#t1-car", 0.88, { x: 190, rotation: 14 }, { x: 0, rotation: 0, duration: 0.56, ease: "power3.out" });
+      tl.to("#t1-grid", { backgroundPosition: "190px 160px", duration: 3.5, ease: "none" }, 0.4);
+
+      coverTransition("#teaser-scene-1", "#teaser-scene-2", "#teaser-transition-1", 3.69);
+      enter("#t2-grid", 4.05, { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "sine.out" });
+      enter("#t2-eyebrow", 4.12, { y: -55 }, { y: 0, duration: 0.36, ease: "circ.out" });
+      enter("#t2-title", 4.22, { x: -100 }, { x: 0, duration: 0.52, ease: "expo.out" });
+      enter("#t2-browser", 4.48, { x: 120, scale: 0.92, rotationY: -9 }, { x: 0, scale: 1, rotationY: 0, duration: 0.62, ease: "power4.out" });
+      enter("#t2-car-a", 4.62, { x: -170, rotation: -12 }, { x: 0, rotation: 0, duration: 0.5, ease: "back.out(1.12)" });
+      enter("#t2-car-b", 4.72, { x: 170, rotation: 12 }, { x: 0, rotation: 0, duration: 0.5, ease: "power3.out" });
+      tl.to("#t2-route-a, #t2-route-b", { strokeDashoffset: 0, stagger: 0.06, duration: 0.8, ease: "power3.out" }, 4.4);
+      tl.to("#t2-route-c", { strokeDashoffset: 0, duration: 0.65, ease: "power4.out" }, 5.1);
+      enter("#t2-step", 5.28, { scale: 0.76 }, { scale: 1, duration: 0.46, ease: "back.out(1.3)" });
+      tl.to("#t2-browser .browser-shot", { scale: 1.035, duration: 3.7, ease: "none" }, 5.0);
+
+      coverTransition("#teaser-scene-2", "#teaser-scene-3", "#teaser-transition-2", 8.69);
+      enter("#t3-grid", 9.05, { opacity: 0 }, { opacity: 1, duration: 0.46, ease: "sine.out" });
+      enter("#t3-eyebrow", 9.12, { x: 75 }, { x: 0, duration: 0.34, ease: "power4.out" });
+      enter("#t3-title", 9.22, { y: 70 }, { y: 0, duration: 0.5, ease: "expo.out" });
+      enter("#t3-garage", 9.46, { x: -130, rotationY: 8 }, { x: 0, rotationY: 0, duration: 0.58, ease: "circ.out" });
+      enter("#t3-scrap", 9.58, { x: 130, rotationY: -8 }, { x: 0, rotationY: 0, duration: 0.58, ease: "back.out(1.08)" });
+      tl.to("#t3-green, #t3-red", { strokeDashoffset: 0, stagger: 0.05, duration: 0.9, ease: "power3.out" }, 9.4);
+      tl.to("#t3-garage .browser-shot, #t3-scrap .browser-shot", { y: -18, duration: 3.4, ease: "sine.inOut" }, 10.0);
+
+      coverTransition("#teaser-scene-3", "#teaser-scene-4", "#teaser-transition-3", 13.69);
+      enter("#t4-grid", 14.05, { opacity: 0 }, { opacity: 1, duration: 0.48, ease: "sine.out" });
+      enter("#t4-eyebrow", 14.14, { y: -50 }, { y: 0, duration: 0.34, ease: "circ.out" });
+      enter("#t4-title", 14.24, { x: -110 }, { x: 0, duration: 0.52, ease: "expo.out" });
+      enter("#t4-browser", 14.48, { x: 130, scale: 0.93, rotationY: -8 }, { x: 0, scale: 1, rotationY: 0, duration: 0.6, ease: "power4.out" });
+      enter("#t4-brand", 14.84, { y: 70 }, { y: 0, duration: 0.52, ease: "back.out(1.12)" });
+      enter("#t4-car", 15.0, { x: -150, rotation: -10 }, { x: 0, rotation: 0, duration: 0.52, ease: "power3.out" });
+      tl.to("#t4-browser .browser-shot", { scale: 1.035, duration: 4.3, ease: "none" }, 15.1);
+      tl.to("#teaser-final-wash", { opacity: 1, duration: 0.7, ease: "sine.in" }, 19.3);
+
+      window.__timelines["parking-anything-teaser"] = tl;
+    </script>
+  </body>
+</html>
