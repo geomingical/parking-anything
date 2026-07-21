@@ -190,6 +190,12 @@ body {
   gap: 24px;
 }
 
+#s1-copy,
+#s1-product,
+#s1-car {
+  opacity: 0;
+}
+
 .scene-copy {
   position: relative;
   z-index: 7;

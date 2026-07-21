@@ -71,6 +71,61 @@ if (!cssRuleHas(".future-roadmap .gather-plaza", "opacity:\\s*0")) {
   errors.push("styles.css: Gather plaza must be hidden before its post-120s entrance");
 }
 
+const requiredCssPrimitives = [
+  ".ui-first-layout",
+  ".product-primary",
+  ".scene-copy",
+  ".evidence-label",
+  ".future-source",
+  ".future-roadmap",
+  ".future-disclosure",
+  ".road-sign",
+  ".gather-plaza",
+  ".caption-layer",
+  ".caption-line",
+];
+for (const selector of requiredCssPrimitives) {
+  const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  if (!new RegExp(`${escaped}(?:\\s*,|\\s*\\{)`).test(stylesSource)) {
+    errors.push(`styles.css: missing required UI-first primitive ${selector}`);
+  }
+}
+
+const requiredPalette = {
+  paper: "#f7f7f2",
+  ink: "#171918",
+  "muted-ink": "#5f645f",
+  asphalt: "#4a4d4b",
+  "asphalt-deep": "#303331",
+  safety: "#f2c94c",
+  garage: "#2f7d5c",
+  scrap: "#b84a45",
+  line: "#ffffff",
+};
+for (const [name, value] of Object.entries(requiredPalette)) {
+  if (!new RegExp(`--${name}:\\s*${value}`, "i").test(stylesSource)) {
+    errors.push(`styles.css: palette variable --${name} must remain ${value}`);
+  }
+}
+
+if (!cssRuleHas("#s1-copy,\n#s1-product,\n#s1-car", "opacity:\\s*0")) {
+  errors.push("styles.css: opening copy, product, and car must be hidden at frame zero");
+}
+if (!cssRuleHas(".caption-layer", "bottom:\\s*24px") || !cssRuleHas(".caption-layer", "z-index:\\s*90")) {
+  errors.push("styles.css: caption layer must retain its 24px safe-area offset and z-index 90");
+}
+if (!/\.caption-layer\s*\{[^}]*width:\s*min\(1380px,\s*calc\(100%\s*-\s*160px\)\)/s.test(stylesSource)) {
+  errors.push("styles.css: caption layer must retain its bounded 160px horizontal safe area");
+}
+
+const disclosureRules = [...stylesSource.matchAll(/([^{}]*\.future-disclosure[^{}]*)\{([^}]*)\}/gs)];
+if (!disclosureRules.length) errors.push("styles.css: Future disclosure styling is missing");
+for (const [, , body] of disclosureRules) {
+  if (/(?:opacity\s*:\s*0(?:\D|$)|display\s*:\s*none|visibility\s*:\s*hidden)/i.test(body)) {
+    errors.push("styles.css: Future disclosure cannot be hidden by CSS");
+  }
+}
+
 const inspectorScreenshot = resolve(projectDir, "capture/screenshots/planned-inspector.png");
 try {
   const { data } = await sharp(inspectorScreenshot)
@@ -209,8 +264,63 @@ for (const composition of compositions) {
     };
     requireVehicleTween({ target: "#s3-car-tool", time: 38.4, x: 645, y: 360, duration: 3 });
     requireVehicleTween({ target: "#s3-car-idea", time: 38.4, x: -645, y: 360, duration: 3 });
-    requireVehicleTween({ target: "#s5-car-green", time: 61.1, x: -440, y: -490, duration: 3.4 });
-    requireVehicleTween({ target: "#s5-car-red", time: 61.1, x: 440, y: -490, duration: 3.4 });
+
+    const s5Geometry = {
+      green: {
+        path: "M960 980 V710 C960 570 690 570 430 430 V180",
+        origin: { x: 930, y: 999 },
+        checkpoints: [
+          { x: 960, y: 710, duration: 1.2 },
+          { x: 793, y: 570, duration: 1.2 },
+          { x: 430, y: 430, duration: 1.3 },
+          { x: 430, y: 330, duration: 0.7 },
+        ],
+      },
+      red: {
+        path: "M960 980 V710 C960 570 1230 570 1490 430 V180",
+        origin: { x: 990, y: 999 },
+        checkpoints: [
+          { x: 960, y: 710, duration: 1.2 },
+          { x: 1127, y: 570, duration: 1.2 },
+          { x: 1490, y: 430, duration: 1.3 },
+          { x: 1490, y: 330, duration: 0.7 },
+        ],
+      },
+    };
+    for (const [branch, geometry] of Object.entries(s5Geometry)) {
+      const route = document.querySelector(`#s5-route-${branch}`);
+      if (route?.getAttribute("d") !== geometry.path) {
+        errors.push(`${composition.file}: S5 ${branch} route geometry changed without matching choreography`);
+      }
+
+      const car = document.querySelector(`#s5-car-${branch}`);
+      const expectedHorizontalAnchor = branch === "green" ? "left: 865px" : "right: 865px";
+      if (!car?.getAttribute("style")?.includes(expectedHorizontalAnchor)) {
+        errors.push(`${composition.file}: S5 ${branch} car must begin beside the shared route origin`);
+      }
+
+      const variableName = `s5${branch[0].toUpperCase()}${branch.slice(1)}RouteKeyframes`;
+      const declaration = source.match(new RegExp(`const\\s+${variableName}\\s*=\\s*(\\[[\\s\\S]*?\\]);`));
+      let keyframes;
+      try {
+        keyframes = JSON.parse(declaration?.[1]);
+      } catch {
+        keyframes = undefined;
+      }
+      const expectedKeyframes = geometry.checkpoints.map((checkpoint) => ({
+        x: checkpoint.x - geometry.origin.x,
+        y: checkpoint.y - geometry.origin.y,
+        duration: checkpoint.duration,
+      }));
+      const actualGeometry = keyframes?.map(({ x, y, duration }) => ({ x, y, duration }));
+      if (JSON.stringify(actualGeometry) !== JSON.stringify(expectedKeyframes)) {
+        errors.push(`${composition.file}: S5 ${branch} keyframes must follow vertical, curve, terminal, and capture route checkpoints`);
+      }
+      const tweenContract = new RegExp(`tl\\.to\\(\\s*["']#s5-car-${branch}["']\\s*,\\s*\\{\\s*keyframes:\\s*${variableName}\\s*\\}\\s*,\\s*61\\.1\\s*\\)`);
+      if (!tweenContract.test(source)) {
+        errors.push(`${composition.file}: S5 ${branch} car must use ${variableName} at 61.1s`);
+      }
+    }
 
     const future = document.querySelector("#scene-8");
     if (!future?.classList.contains("future-scene")) {
