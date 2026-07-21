@@ -4,7 +4,7 @@
 
 **Goal:** Build a verified 120-second Build Week product film and a 20-second teaser from the Parking Anything v0.5 website.
 
-**Architecture:** Keep capture evidence, design reference, narrative documents, media, and compositions in `video/parking-anything-build-week`. The main and teaser files are standalone HyperFrames compositions that share local CSS, image assets, narration, and deterministic GSAP motion patterns.
+**Architecture:** Keep main-film capture evidence, design reference, narrative documents, media, and composition in `video/parking-anything-build-week`; keep the teaser as a self-contained sibling project in `video/parking-anything-teaser`. Both standalone HyperFrames compositions use the same deterministic GSAP motion patterns and first-party visual language without cross-project asset traversal.
 
 **Tech Stack:** HyperFrames HTML, GSAP 3.14.2, local PNG product captures, HyperFrames TTS/transcription, Playwright capture, FFmpeg-backed HyperFrames rendering.
 
@@ -18,10 +18,10 @@
 - Create: `video/parking-anything-build-week/capture/extracted/asset-descriptions.md`
 - Create: `video/parking-anything-build-week/DESIGN.md`
 
-- [ ] Capture the 1920×1080 local hero and copy verified v0.5 state screenshots.
-- [ ] Record exact palette, typography, visible product copy, and animation names.
-- [ ] Verify every color in `DESIGN.md` matches `tokens.json` and every visual component exists in a capture.
-- [ ] Commit with `git commit -m "docs: define Build Week video identity"`.
+- [x] Capture the 1920×1080 local hero and copy verified v0.5 state screenshots.
+- [x] Record exact palette, typography, visible product copy, and animation names.
+- [x] Verify every color in `DESIGN.md` matches `tokens.json` and every visual component exists in a capture.
+- [x] Commit with `git commit -m "docs: define Build Week video identity"`.
 
 ### Task 2: Narration and timed storyboard
 
@@ -29,10 +29,10 @@
 - Create: `video/parking-anything-build-week/SCRIPT.md`
 - Create: `video/parking-anything-build-week/STORYBOARD.md`
 
-- [ ] Write an American-English narration of 255–285 words covering the pain, Tool capture, Idea capture, bounded Test Drive, evidence gates, Manager Patrol, local ownership, and closing thesis.
-- [ ] Assign eight contiguous beats totaling exactly 120 seconds and four teaser beats totaling exactly 20 seconds.
-- [ ] Audit every narrated claim against the v0.5 README and design spec.
-- [ ] Commit with `git commit -m "docs: script Parking Anything product story"`.
+- [x] Write an American-English narration of 255–285 words covering the pain, Tool capture, Idea capture, bounded Test Drive, evidence gates, Manager Patrol, local ownership, and closing thesis.
+- [x] Assign eight contiguous beats totaling exactly 120 seconds and four teaser beats totaling exactly 20 seconds.
+- [x] Audit every narrated claim against the v0.5 README and design spec.
+- [x] Commit with `git commit -m "docs: script Parking Anything product story"`.
 
 ### Task 3: Voiceover and timestamps
 
@@ -41,10 +41,10 @@
 - Create: `video/parking-anything-build-week/narration.wav`
 - Create: `video/parking-anything-build-week/transcript.json`
 
-- [ ] Generate narration with `npx hyperframes tts narration.txt --voice af_nova --output narration.wav`.
-- [ ] Transcribe with `npx hyperframes transcribe narration.wav`.
-- [ ] Replace planned beat boundaries in `STORYBOARD.md` with word-level timestamps while retaining exactly 120 seconds.
-- [ ] Commit with `git commit -m "feat: add timed Build Week narration"`.
+- [x] Generate narration with the documented macOS Samantha fallback at 140 wpm after the remote TTS path was unavailable.
+- [x] Transcribe with `npx hyperframes transcribe narration.wav --language en --model small.en`.
+- [x] Replace planned beat boundaries in `STORYBOARD.md` with word-level timestamps while retaining exactly 120 seconds.
+- [x] Commit with `git commit -m "feat: add timed Build Week narration"`.
 
 ### Task 4: Main composition
 
@@ -52,30 +52,30 @@
 - Create: `video/parking-anything-build-week/index.html`
 - Create: `video/parking-anything-build-week/styles.css`
 
-- [ ] Build the complete static hero frame for each beat before adding motion.
-- [ ] Register one paused GSAP timeline under `window.__timelines["parking-anything-main"]`.
-- [ ] Add deterministic entrances and road-line transitions without pre-transition exit tweens.
-- [ ] Add muted product video only if captured later; keep narration as a separate audio clip.
-- [ ] Verify the root composition is 1920×1080 and exactly 120 seconds.
-- [ ] Commit with `git commit -m "feat: build Parking Anything main film"`.
+- [x] Build the complete static hero frame for each beat before adding motion.
+- [x] Register one paused GSAP timeline under `window.__timelines["parking-anything-main"]`.
+- [x] Add deterministic entrances and road-line transitions without pre-transition exit tweens.
+- [x] Keep narration as a separate audio clip; no muted product video was needed.
+- [x] Verify the root composition is 1920×1080 and exactly 120 seconds.
+- [x] Commit with `git commit -m "feat: build Parking Anything main film"`.
 
 ### Task 5: Teaser composition
 
 **Files:**
-- Create: `video/parking-anything-build-week/teaser.html`
+- Create: `video/parking-anything-teaser/index.html`
 
-- [ ] Reuse the hook, unified Parkable, lifecycle, Patrol, and brand-close visual language.
-- [ ] Register a separate paused GSAP timeline under `window.__timelines["parking-anything-teaser"]`.
-- [ ] Verify the composition is 1920×1080 and exactly 20 seconds.
-- [ ] Commit with `git commit -m "feat: add Parking Anything teaser"`.
+- [x] Reuse the hook, unified Parkable, lifecycle, Patrol, and brand-close visual language.
+- [x] Register a separate paused GSAP timeline under `window.__timelines["parking-anything-teaser"]`.
+- [x] Verify the composition is 1920×1080 and exactly 20 seconds.
+- [x] Commit with `git commit -m "feat: add Parking Anything teaser"`.
 
 ### Task 6: Validation and handoff
 
 **Files:**
 - Modify only files reported by validation.
 
-- [ ] Run `npx hyperframes lint` and expect zero errors.
-- [ ] Run `npx hyperframes validate` and expect zero errors.
-- [ ] Run `npx hyperframes inspect --samples 24` and review all warnings.
-- [ ] Launch `npx hyperframes preview --port 3027` and hand off `http://localhost:3027/#project/parking-anything-build-week`.
-- [ ] Do not render MP4 until the user explicitly approves the Studio preview.
+- [x] Run `npx hyperframes lint` and confirm zero errors for both projects.
+- [x] Run deprecated `npx hyperframes validate`, then the current `npx hyperframes check`; both projects pass the current check.
+- [x] Run `npx hyperframes inspect --samples 24` on both projects and review all info diagnostics.
+- [x] Launch the main Studio at `http://localhost:3027` and the teaser Studio at `http://localhost:3026`.
+- [x] Do not render MP4 until the user explicitly approves the Studio preview.

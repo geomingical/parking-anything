@@ -12,7 +12,7 @@ Then make a deliberate call. Evidence earns a place in the Garage. A clear reaso
 
 When the lot starts going stale, Manager Patrol reviews up to three active Parkables that need attention. It keeps observed facts separate from G P T five point six recommendations, and it never changes status automatically. Review the car, plan the missing test, or take the next action yourself.
 
-The current product is intentionally bounded: one user, one browser-local collection, no login, and no fake collaboration layer. Model calls are constrained, provenance stays visible, and deterministic product rules remain in control.
+Codex built and tested this bounded product: one user, one browser-local collection, no login, and no fake collaboration layer. Inside it, G P T five point six advises; deterministic rules and visible provenance stay in control.
 
 Parking Anything isn't another place to save everything. It's a place to decide what deserves your time.
 

@@ -1,7 +1,8 @@
 # Parking Anything — Build Week Storyboard
 
 **Format:** 1920×1080, 30 fps, landscape
-**Audio:** HyperFrames TTS voiceover + restrained mechanical underscore + sparse interface SFX
+**Studio audio:** HyperFrames-aligned voiceover only; synchronized English captions remain visible with sound off
+**Post-approval export audio:** restrained mechanical underscore + sparse interface SFX, added only after a licensed/local source is approved
 **VO direction:** American female voice, calm and decisive, product-builder register; conversational contractions, visible pauses after short thesis lines, never breathless
 **Style basis:** `DESIGN.md`
 **Main duration:** 120 seconds
@@ -13,7 +14,7 @@ The film behaves like a clean municipal wayfinding system coming alive. Paper-wh
 
 Transitions are physical: a road stripe draws across the frame, a parking gate closes, or a browser frame drives past camera. The outgoing beat remains fully visible until the transition layer covers it; there are no pre-transition exit fades. Every new beat enters with distinct movement. The final beat alone may fade to ink.
 
-Underscore: low, warm mechanical pulse at roughly 92 BPM, soft rubber-and-asphalt texture, and a restrained sustained pad. It rises at the first Test Drive, drops underneath the responsible-AI statement, and resolves with one clean parking-meter chime. Interface clicks and a quiet ignition accent reinforce actions without becoming literal car advertising.
+Export-pass sound design: low, warm mechanical pulse at roughly 92 BPM, soft rubber-and-asphalt texture, and a restrained sustained pad. It rises at the first Test Drive, drops underneath the responsible-AI statement, and resolves with one clean parking-meter chime. Interface clicks and a quiet ignition accent reinforce actions without becoming literal car advertising. These elements are intentionally absent from the Studio source until the user approves the visual cut and a licensed/local audio source.
 
 ## Asset Audit
 
@@ -34,7 +35,7 @@ All six captured product states and all three vehicle assets appear. The full pr
 
 ## Main Film
 
-### BEAT 1 — THE BACKLOG BECOMES A LOT (0.00–19.12s)
+### BEAT 1 — THE BACKLOG BECOMES A LOT (0.00–19.28s)
 
 **VO:** “Saving a new tool feels productive. So does writing down a good idea. But weeks later, the links are still untouched, the ideas are still vague, and collecting has quietly replaced deciding. Parking Anything turns that backlog into a decision system. Stop collecting. Start test-driving.”
 
@@ -56,7 +57,7 @@ All six captured product states and all three vehicle assets appear. The full pr
 
 **SFX:** Paper-ticket ticks, soft accumulation clicks, then one low ignition pulse on “Start test-driving.”
 
-### BEAT 2 — PARK A TOOL (19.12–35.26s)
+### BEAT 2 — PARK A TOOL (19.28–35.92s)
 
 **VO:** “Paste a public tool link, and GPT-5.6 analyzes what it appears to do, proposes a usefulness hypothesis, estimates the trial effort, and gives you one concrete first task. The model prepares the ticket. It doesn't own the decision.”
 
@@ -78,7 +79,7 @@ All six captured product states and all three vehicle assets appear. The full pr
 
 **SFX:** Key taps, one confirmation clack, quiet servo glide.
 
-### BEAT 3 — ONE LOT, TWO INPUTS (35.26–49.28s)
+### BEAT 3 — ONE LOT, TWO INPUTS (35.92–48.72s)
 
 **VO:** “Ideas enter the same lot. Capture the thought in seconds, then add an effort tier and a first test task when you're ready. Tools and ideas become Parkables: different inputs, one shared lifecycle.”
 
@@ -100,7 +101,7 @@ All six captured product states and all three vehicle assets appear. The full pr
 
 **SFX:** Two indicator clicks from opposite stereo sides, resolving into one centered lock sound.
 
-### BEAT 4 — BOUNDED TEST DRIVE (49.28–59.05s)
+### BEAT 4 — BOUNDED TEST DRIVE (48.72–58.56s)
 
 **VO:** “Every Parkable begins in the Parking Lot. Start a bounded Test Drive. Record what happened, attach a result, and turn curiosity into evidence.”
 
@@ -122,7 +123,7 @@ All six captured product states and all three vehicle assets appear. The full pr
 
 **SFX:** Short ignition, low rolling texture, parking brake click, receipt tear.
 
-### BEAT 5 — EVIDENCE OR EXIT (59.05–74.34s)
+### BEAT 5 — EVIDENCE OR EXIT (58.56–72.32s)
 
 **VO:** “Then make a deliberate call. Evidence earns a place in the Garage. A clear reason sends the item to the Scrapyard. Nothing disappears just because an algorithm said so, and nothing reaches the Garage without proof.”
 
@@ -144,7 +145,7 @@ All six captured product states and all three vehicle assets appear. The full pr
 
 **SFX:** Two distinct gate lifts, pen stroke on the reason, warm chime for Garage, grounded metal click for Scrapyard.
 
-### BEAT 6 — MANAGER PATROL (74.34–93.05s)
+### BEAT 6 — MANAGER PATROL (72.32–91.77s)
 
 **VO:** “When the lot starts going stale, Manager Patrol reviews up to three active Parkables that need attention. It keeps observed facts separate from GPT-5.6 recommendations, and it never changes status automatically. Review the car, plan the missing test, or take the next action yourself.”
 
@@ -166,13 +167,13 @@ All six captured product states and all three vehicle assets appear. The full pr
 
 **SFX:** Soft scan pulse, two dry label clicks, deliberate half-second music drop on “never changes status automatically”.
 
-### BEAT 7 — INTENTIONALLY BOUNDED (93.05–106.65s)
+### BEAT 7 — CODEX BUILD · GPT-5.6 RUNTIME (91.77–108.16s)
 
-**VO:** “The current product is intentionally bounded: one user, one browser-local collection, no login, and no fake collaboration layer. Model calls are constrained, provenance stays visible, and deterministic product rules remain in control.”
+**VO:** “Codex built and tested this bounded product: one user, one browser-local collection, no login, and no fake collaboration layer. Inside it, GPT-5.6 advises; deterministic rules and visible provenance stay in control.”
 
-**Concept:** Constraints become confidence. Four honest boundaries arrive like road signs while the product continues to operate behind them.
+**Concept:** Build evidence and runtime responsibility share one frame. Codex's implementation/test role is explicit; GPT-5.6 remains advisory inside a bounded running product.
 
-**Visual:** BG is paper white with a slow dark grid drift. MG contains a softened crop of the product surface and a parked weekend-project car. FG has four large signs—“ONE USER”, “BROWSER-LOCAL”, “NO LOGIN”, “NO FAKE COLLABORATION”—plus smaller green provenance and deterministic-rules stamps. The disabled Future control appears briefly, visibly disabled.
+**Visual:** BG is paper white with a slow dark grid drift. MG contains a softened crop of the running product and a parked weekend-project car. FG names “CODEX BUILT IT · GPT-5.6 ADVISES INSIDE IT”, shows a build-log proof stamp for 23 test files / 213 tests, and retains four honest boundary signs—“ONE USER”, “BROWSER-LOCAL”, “NO LOGIN”, “NO FAKE COLLABORATION”.
 
 **Mood:** Engineering candor; sharp, minimal, self-assured.
 
@@ -180,7 +181,7 @@ All six captured product states and all three vehicle assets appear. The full pr
 
 **Techniques:** Per-word kinetic typography; SVG signpost assembly; CSS 3D layered product crop; deterministic grid drift.
 
-**Choreography:** Four signs STAMP into a strict two-by-two field with different directional entrances. The car GLIDES behind them and remains parked. Provenance and rules labels DRAW as green inspection stamps. The disabled Future control SLIDES past without activation.
+**Choreography:** The Codex/runtime boundary ENTERS first. Four signs STAMP into a strict two-by-two field with different directional entrances. The car GLIDES behind them and remains parked. Build-log, provenance, and rules labels DRAW as inspection stamps. The disabled Future control SLIDES past without activation.
 
 **Transition:** The four sign backs FLIP to asphalt and tile the screen; their seams become the opening parking grid of Beat 8.
 
@@ -188,7 +189,7 @@ All six captured product states and all three vehicle assets appear. The full pr
 
 **SFX:** Four muted sign impacts, inspection stamp, steady pulse returning.
 
-### BEAT 8 — DECIDE WHAT DESERVES YOUR TIME (106.65–120.00s; VO ends 118.12s)
+### BEAT 8 — DECIDE WHAT DESERVES YOUR TIME (108.16–120.00s; final word ends 118.84s)
 
 **VO:** “Parking Anything isn't another place to save everything. It's a place to decide what deserves your time. Park it. Test-drive it. Keep the evidence—or make the exit.”
 
@@ -212,19 +213,19 @@ All six captured product states and all three vehicle assets appear. The full pr
 
 ## Teaser Cut
 
-### TEASER 1 — SAVED IT. FORGOT IT. (0:00–0:04)
+### TEASER 1 — SAVED IT. FORGOT IT. (0.00–3.68s)
 
-Use Beat 1's crowded grid, ticket cascade, quick-spin car, and per-word typography. An opaque yellow gate transition covers the scene at 3.6 seconds.
+Use Beat 1's crowded grid, ticket cascade, quick-spin car, and per-word typography. The expanded hook names the growing digital backlog; an opaque yellow gate covers the scene at 3.37 seconds.
 
-### TEASER 2 — ONE BOUNDED TEST (0:04–0:09)
+### TEASER 2 — ONE BOUNDED TEST (3.68–7.50s)
 
-Merge Beats 3 and 4: Tool and Idea routes join, one car accelerates into Test Driving, and “ONE BOUNDED TEST” draws along the lane. A white road stripe covers the frame at 8.6 seconds.
+Merge Beats 3 and 4: Tool and Idea routes join, one car accelerates into Test Driving, and “ONE BOUNDED TEST” draws along the lane. A white road stripe covers the frame at 7.19 seconds.
 
-### TEASER 3 — GARAGE OR SCRAPYARD (0:09–0:14)
+### TEASER 3 — GARAGE OR SCRAPYARD (7.50–12.13s)
 
-Use Beat 5's green/red fork, evidence receipt, written reason, and two destination frames. Gate arms close over the fully visible fork at 13.6 seconds.
+Use Beat 5's green/red fork, evidence receipt, written reason, and two destination frames. Gate arms close over the fully visible fork at 11.82 seconds.
 
-### TEASER 4 — AI ADVISES. YOU DECIDE. (0:14–0:20)
+### TEASER 4 — AI ADVISES. YOU DECIDE. (12.13–20.00s; final word ends 18.26s)
 
 Use the separated Patrol labels for two seconds, then return to the wordmark, quick-spin car, and “Stop collecting. Start test-driving.” Final fade begins only after a 2.2-second readable hold.
 
@@ -233,7 +234,7 @@ Use the separated Patrol labels for two seconds, then return to the wordmark, qu
 ```text
 video/parking-anything-build-week/
 ├── index.html
-├── teaser.html
+├── ../parking-anything-teaser/index.html
 ├── styles.css
 ├── DESIGN.md
 ├── SCRIPT.md

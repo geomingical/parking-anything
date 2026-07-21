@@ -10,6 +10,7 @@ export default defineConfig([
     "coverage/**",
     "playwright-report/**",
     "test-results/**",
+    "video/**/vendor/**",
     "next-env.d.ts",
   ]),
 ]);

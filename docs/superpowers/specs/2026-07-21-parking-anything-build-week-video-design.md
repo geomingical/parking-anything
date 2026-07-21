@@ -28,14 +28,14 @@ The story begins with the cost of collecting tools and ideas without acting on t
 ## Deliverables
 
 - `video/parking-anything-build-week/index.html`: 120-second main composition.
-- `video/parking-anything-build-week/teaser.html`: 20-second teaser composition.
+- `video/parking-anything-teaser/index.html`: separate 20-second teaser composition.
 - `DESIGN.md`, `SCRIPT.md`, and `STORYBOARD.md` as production sources.
 - Narration audio and word-level transcript when HyperFrames CLI execution is approved.
 - Zero-error HyperFrames lint and validation, layout inspection, and a Studio URL before any MP4 render.
 
 ## Visual and Audio Direction
 
-Use the product's paper, asphalt, safety-yellow, garage-green, and scrapyard-red palette. Sound should be restrained: low mechanical pulse, soft indicator clicks, one ignition-like transition into Test Drive, and no trailer-boom clichés. The default narration is concise American English for Build Week judges; captions carry the same English copy.
+Use the product's paper, asphalt, safety-yellow, garage-green, and scrapyard-red palette. The Studio source is narration-only so visual review is not coupled to an unapproved music license; a restrained low mechanical pulse, soft indicator clicks, and one ignition-like transition are reserved for the post-approval export pass. The default narration is concise American English for Build Week judges; synchronized captions carry the same English copy.
 
 ## Acceptance Criteria
 
@@ -43,4 +43,5 @@ Use the product's paper, asphalt, safety-yellow, garage-green, and scrapyard-red
 - Every scene has an entrance and every scene transition is explicit.
 - Product screenshots remain legible at 1920×1080.
 - The film names the problem, demonstrates the unified lifecycle, proves the AI boundary, and ends with a clear product thesis.
+- The film explicitly distinguishes Codex's build/test role from GPT-5.6's advisory runtime role and shows build-log evidence.
 - Both versions reuse the same design system and assets without contradicting each other.

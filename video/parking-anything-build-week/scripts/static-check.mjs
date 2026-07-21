@@ -6,13 +6,15 @@ const projectDir = resolve(new URL("..", import.meta.url).pathname);
 
 const compositions = [
   { file: "index.html", id: "parking-anything-main", duration: "120", scenes: 8 },
-  { file: "teaser.html", id: "parking-anything-teaser", duration: "20", scenes: 4 },
+  { file: "../parking-anything-teaser/index.html", id: "parking-anything-teaser", duration: "20", scenes: 4 },
 ];
 
 const errors = [];
 
 for (const composition of compositions) {
-  const source = await readFile(resolve(projectDir, composition.file), "utf8");
+  const compositionPath = resolve(projectDir, composition.file);
+  const compositionDir = resolve(compositionPath, "..");
+  const source = await readFile(compositionPath, "utf8");
   const dom = new JSDOM(source);
   const document = dom.window.document;
   const roots = [...document.querySelectorAll("[data-composition-id]")];
@@ -39,17 +41,33 @@ for (const composition of compositions) {
     }
   }
 
-  for (const image of document.querySelectorAll("img")) {
-    const src = image.getAttribute("src");
-    if (!src || src.startsWith("data:") || /^https?:/.test(src)) {
-      errors.push(`${composition.file}: image must reference a local captured asset`);
+  for (const asset of document.querySelectorAll("img[src], audio[src], script[src], link[href]")) {
+    const attribute = asset.hasAttribute("href") ? "href" : "src";
+    const reference = asset.getAttribute(attribute);
+    if (!reference || reference.startsWith("data:") || /^https?:/.test(reference)) {
+      errors.push(`${composition.file}: ${asset.tagName.toLowerCase()} must reference a local asset`);
       continue;
     }
     try {
-      await access(resolve(projectDir, src));
+      await access(resolve(compositionDir, reference));
     } catch {
-      errors.push(`${composition.file}: missing image ${src}`);
+      errors.push(`${composition.file}: missing local asset ${reference}`);
     }
+  }
+
+  const captionPath = resolve(compositionDir, "captions.json");
+  try {
+    const captions = JSON.parse(await readFile(captionPath, "utf8"));
+    if (!captions.length) errors.push(`${composition.file}: captions.json must contain cues`);
+    captions.forEach((cue, index) => {
+      if (typeof cue.text !== "string" || !cue.text.trim()) errors.push(`${composition.file}: caption ${index} has no text`);
+      if (!(cue.start >= 0 && cue.end > cue.start && cue.end <= Number(composition.duration))) {
+        errors.push(`${composition.file}: caption ${index} has invalid timing`);
+      }
+      if (index > 0 && cue.start < captions[index - 1].end) errors.push(`${composition.file}: caption ${index} overlaps the previous cue`);
+    });
+  } catch {
+    errors.push(`${composition.file}: missing or invalid captions.json`);
   }
 
   const bannedPatterns = [

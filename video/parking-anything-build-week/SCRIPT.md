@@ -16,7 +16,7 @@ Then make a deliberate call. Evidence earns a place in the Garage. A clear reaso
 
 When the lot starts going stale, Manager Patrol reviews up to three active Parkables that need attention. It keeps observed facts separate from GPT-5.6 recommendations, and it never changes status automatically. Review the car, plan the missing test, or take the next action yourself.
 
-The current product is intentionally bounded: one user, one browser-local collection, no login, and no fake collaboration layer. Model calls are constrained, provenance stays visible, and deterministic product rules remain in control.
+Codex built and tested this bounded product: one user, one browser-local collection, no login, and no fake collaboration layer. Inside it, GPT-5.6 advises; deterministic rules and visible provenance stay in control.
 
 Parking Anything isn't another place to save everything. It's a place to decide what deserves your time.
 
@@ -26,10 +26,10 @@ Park it. Test-drive it. Keep the evidence—or make the exit.
 
 Saved it. Forgot it.
 
-Parking Anything turns tools and ideas into bounded Test Drives.
+Your digital backlog grew again.
 
-Garage what earns its place. Scrap what doesn't.
+Parking Anything turns tools and ideas into one bounded Test Drive.
 
-GPT-5.6 can recommend the next move. You still make the decision.
+Garage what earns its place. Scrap what doesn't—with a reason.
 
-Stop collecting. Start test-driving.
+GPT-5.6 recommends the next move. You still decide. Stop collecting. Start test-driving.

@@ -1,0 +1,17 @@
+{
+  "timingSource": "HyperFrames whisper small.en word-level transcription of teaser-narration.wav",
+  "provisional": false,
+  "engine": "whisper",
+  "model": "small.en",
+  "voice": "Samantha",
+  "wordsPerMinute": 160,
+  "wordCount": 45,
+  "audioDurationSeconds": 18.335042,
+  "lastWordEndSeconds": 18.26,
+  "beatBoundaries": [
+    { "start": 0, "end": 3.68 },
+    { "start": 3.68, "end": 7.5 },
+    { "start": 7.5, "end": 12.13 },
+    { "start": 12.13, "end": 18.26 }
+  ]
+}

@@ -1,303 +1,293 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=1920, initial-scale=1" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1920, initial-scale=1">
     <title>Parking Anything — Build Week Film</title>
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css">
     <script src="vendor/gsap.min.js"></script>
+    <script src="captions.js"></script>
   </head>
   <body>
-    <div
-      id="parking-anything-main"
-      data-composition-id="parking-anything-main"
-      data-width="1920"
-      data-height="1080"
-      data-start="0"
-      data-duration="120"
-    >
-      <audio
-        id="main-narration"
-        src="narration.wav"
-        data-start="0"
-        data-duration="118.120"
-        data-track-index="0"
-        data-volume="1"
-      ></audio>
+    <div data-hf-id="hf-xjbm" id="parking-anything-main" data-composition-id="parking-anything-main" data-width="1920" data-height="1080" data-start="0" data-duration="120">
+      <audio data-hf-id="hf-ttbt" id="main-narration" src="narration.wav" data-start="0" data-duration="118.840" data-track-index="0" data-volume="1"></audio>
 
-      <section id="scene-1" class="scene asphalt" aria-label="The backlog becomes a parking lot">
-        <div id="s1-grid" class="ambient-grid" data-layout-ignore></div>
-        <div id="s1-ghost-layer" data-layout-ignore>
-          <div class="ghost-word" style="left: 70px; top: 70px">SAVED</div>
-          <div class="ghost-word" style="right: 40px; top: 390px">SOMEDAY</div>
-          <div class="ghost-word" style="left: 610px; bottom: 20px">LATER</div>
+      <section data-hf-id="hf-flie" id="scene-1" class="scene asphalt" aria-label="The backlog becomes a parking lot">
+        <div data-hf-id="hf-htwj" id="s1-grid" class="ambient-grid" data-layout-ignore=""></div>
+        <div data-hf-id="hf-p4uy" id="s1-ghost-layer" data-layout-ignore="">
+          <div data-hf-id="hf-j5dy" class="ghost-word" style="left: 70px; top: 70px">SAVED</div>
+          <div data-hf-id="hf-dvno" class="ghost-word" style="right: 40px; top: 390px">SOMEDAY</div>
+          <div data-hf-id="hf-01xu" class="ghost-word" style="left: 610px; bottom: 20px">LATER</div>
         </div>
-        <div id="s1-tickets" class="ticket-grid" data-layout-ignore>
-          <div class="ticket">AI tool <em>49 days</em></div>
-          <div class="ticket">Meeting idea <em>unplanned</em></div>
-          <div class="ticket">Research link <em>saved</em></div>
-          <div class="ticket">Prototype <em>someday</em></div>
-          <div class="ticket">Prompt pattern <em>untested</em></div>
-          <div class="ticket">Workflow note <em>later</em></div>
-          <div class="ticket">Model demo <em>saved</em></div>
-          <div class="ticket">Product thought <em>vague</em></div>
-          <div class="ticket">Reference <em>unopened</em></div>
-          <div class="ticket">Experiment <em>waiting</em></div>
-          <div class="ticket">Tool stack <em>parked</em></div>
-          <div class="ticket">Decision <em>deferred</em></div>
+        <div data-hf-id="hf-0t0y" id="s1-tickets" class="ticket-grid" data-layout-ignore="">
+          <div data-hf-id="hf-r3bs" class="ticket">AI tool <em data-hf-id="hf-vf23">49 days</em></div>
+          <div data-hf-id="hf-j8n0" class="ticket">Meeting idea <em data-hf-id="hf-f9fi">unplanned</em></div>
+          <div data-hf-id="hf-1v9j" class="ticket">Research link <em data-hf-id="hf-ib6a">saved</em></div>
+          <div data-hf-id="hf-w5ea" class="ticket">Prototype <em data-hf-id="hf-qdlz">someday</em></div>
+          <div data-hf-id="hf-6zsc" class="ticket">Prompt pattern <em data-hf-id="hf-n25p">untested</em></div>
+          <div data-hf-id="hf-8laj" class="ticket">Workflow note <em data-hf-id="hf-8fu3">later</em></div>
+          <div data-hf-id="hf-ydsg" class="ticket">Model demo <em data-hf-id="hf-brrq">saved</em></div>
+          <div data-hf-id="hf-rpk6" class="ticket">Product thought <em data-hf-id="hf-8n0l">vague</em></div>
+          <div data-hf-id="hf-teq9" class="ticket">Reference <em data-hf-id="hf-0j1d">unopened</em></div>
+          <div data-hf-id="hf-bcfr" class="ticket">Experiment <em data-hf-id="hf-3kn6">waiting</em></div>
+          <div data-hf-id="hf-imci" class="ticket">Tool stack <em data-hf-id="hf-y17m">parked</em></div>
+          <div data-hf-id="hf-55oi" class="ticket">Decision <em data-hf-id="hf-wr0w">deferred</em></div>
         </div>
-        <svg class="route-svg" viewBox="0 0 1920 1080" aria-hidden="true">
-          <path id="s1-route" class="route-path" d="M80 930 H420 V760 H850 V590 H1230 V400 H1810" />
+        <svg data-hf-id="hf-t72a" class="route-svg" viewBox="0 0 1920 1080" aria-hidden="true">
+          <path data-hf-id="hf-zo4b" id="s1-route" class="route-path" d="M80 930 H420 V760 H850 V590 H1230 V400 H1810" />
         </svg>
-        <div id="s1-car-a" class="car-wrap" style="left: 210px; top: 740px">
-          <img class="car-img" src="capture/assets/cars/quick-spin.png" alt="" />
+        <div data-hf-id="hf-mz3o" id="s1-car-a" class="car-wrap" style="left: 1020px; top: 820px">
+          <img data-hf-id="hf-exmx" class="car-img" src="capture/assets/cars/quick-spin.png" alt="">
         </div>
-        <div id="s1-car-b" class="car-wrap" style="left: 650px; top: 235px">
-          <img class="car-img" src="capture/assets/cars/focused-session.png" alt="" />
+        <div data-hf-id="hf-q7ll" id="s1-car-b" class="car-wrap" style="left: 650px; top: 235px">
+          <img data-hf-id="hf-2cnv" class="car-img" src="capture/assets/cars/focused-session.png" alt="">
         </div>
-        <div id="s1-car-c" class="car-wrap" style="right: 120px; bottom: 110px">
-          <img class="car-img" src="capture/assets/cars/weekend-project.png" alt="" />
+        <div data-hf-id="hf-xn3x" id="s1-car-c" class="car-wrap" style="right: 120px; bottom: 110px">
+          <img data-hf-id="hf-me20" class="car-img" src="capture/assets/cars/weekend-project.png" alt="">
         </div>
-        <div class="scene-content" style="justify-content: flex-end">
-          <div id="s1-copy" style="max-width: 900px">
-            <p class="eyebrow" style="color: #f2c94c">The backlog is full</p>
-            <h1 class="headline" style="color: #ffffff">Collecting replaced deciding.</h1>
+        <div data-hf-id="hf-tsyz" class="scene-content" style="justify-content: flex-end">
+          <div data-hf-id="hf-xcjz" id="s1-copy" style="max-width: 900px">
+            <p data-hf-id="hf-2y8i" class="eyebrow" style="color: #f2c94c">The backlog is full</p>
+            <h1 data-hf-id="hf-4dzh" class="headline" style="color: #ffffff">Collecting replaced deciding.</h1>
           </div>
-          <div id="s1-product" class="browser-shell" style="position: absolute; right: 100px; top: 150px; width: 780px; height: 610px">
-            <div class="browser-bar"><span>Parking Anything</span><span>v0.5</span></div>
-            <div class="browser-shot-wrap">
-              <img class="browser-shot contain" src="capture/screenshots/scroll-000.png" alt="Parking Anything product interface" />
+          <div data-hf-id="hf-ownw" id="s1-product" class="browser-shell" style="position: absolute; right: 100px; top: 150px; width: 780px; height: 610px">
+            <div data-hf-id="hf-80ig" class="browser-bar"><span data-hf-id="hf-n9o3">Parking Anything</span><span data-hf-id="hf-jzqa">v0.5</span></div>
+            <div data-hf-id="hf-r9ri" class="browser-shot-wrap">
+              <img data-hf-id="hf-ux1u" class="browser-shot contain" src="capture/screenshots/scroll-000.png" alt="Parking Anything product interface">
             </div>
           </div>
-          <div id="s1-thesis" style="display: flex; align-items: center; gap: 20px; color: #ffffff">
-            <span class="wordmark">Parking Anything</span>
-            <span class="stamp">Stop collecting. Start test-driving.</span>
+          <div data-hf-id="hf-h3w9" id="s1-thesis" style="display: flex; align-items: center; gap: 20px; color: #ffffff">
+            <span data-hf-id="hf-9pqw" class="wordmark">Parking Anything</span>
+            <span data-hf-id="hf-q02i" class="stamp">Stop collecting. Start test-driving.</span>
           </div>
         </div>
       </section>
 
-      <section id="scene-2" class="scene paper" aria-label="Park a tool">
-        <div id="s2-grid" class="paper-grid" data-layout-ignore></div>
-        <svg class="route-svg" viewBox="0 0 1920 1080" aria-hidden="true">
-          <path id="s2-route" class="route-path green" d="M90 870 H610 V730 H1030 V610 H1700" />
+      <section data-hf-id="hf-gyb9" id="scene-2" class="scene paper" aria-label="Park a tool">
+        <div data-hf-id="hf-djjg" id="s2-grid" class="paper-grid" data-layout-ignore=""></div>
+        <svg data-hf-id="hf-3lgm" class="route-svg" viewBox="0 0 1920 1080" aria-hidden="true">
+          <path data-hf-id="hf-7c2r" id="s2-route" class="route-path green" d="M90 870 H610 V730 H1030 V610 H1700" />
         </svg>
-        <div class="scene-content">
-          <p id="s2-eyebrow" class="eyebrow">Capture adapter 01 · Tool</p>
-          <h2 id="s2-title" class="headline compact">A link becomes one concrete test.</h2>
-          <div class="split-stage">
-            <div id="s2-browser" class="browser-shell">
-              <div class="browser-bar"><span>Public URL</span><span>Analyze &amp; Park</span></div>
-              <div class="browser-shot-wrap">
-                <img class="browser-shot" src="capture/screenshots/scroll-000.png" alt="Tool capture interface" style="object-position: center top" />
+        <div data-hf-id="hf-cn5c" class="scene-content">
+          <p data-hf-id="hf-w6ss" id="s2-eyebrow" class="eyebrow">Capture adapter 01 · Tool</p>
+          <h2 data-hf-id="hf-q4dw" id="s2-title" class="headline compact">A link becomes one concrete test.</h2>
+          <div data-hf-id="hf-er3l" class="split-stage">
+            <div data-hf-id="hf-ao03" id="s2-browser" class="browser-shell">
+              <div data-hf-id="hf-30mo" class="browser-bar"><span data-hf-id="hf-dje5">Public URL</span><span data-hf-id="hf-eomn">Analyze &amp; Park</span></div>
+              <div data-hf-id="hf-wx82" class="browser-shot-wrap">
+                <img data-hf-id="hf-l582" class="browser-shot" src="capture/screenshots/scroll-000.png" alt="Tool capture interface" style="object-position: center top">
               </div>
             </div>
-            <div id="s2-fields" style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px">
-              <div class="ui-card"><div class="ui-label">What it appears to do</div><div class="ui-value">Readable summary</div></div>
-              <div class="ui-card"><div class="ui-label">Usefulness hypothesis</div><div class="ui-value">A claim to test</div></div>
-              <div class="ui-card"><div class="ui-label">Trial effort</div><div class="ui-value metric">Quick spin</div></div>
-              <div class="ui-card" style="background: #f2c94c"><div class="ui-label" style="color: #171918">First test task</div><div class="ui-value">One bounded next step</div></div>
-              <div class="stamp green" style="grid-column: 1 / -1">Model prepares · user decides</div>
+            <div data-hf-id="hf-afx6" id="s2-fields" style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px">
+              <div data-hf-id="hf-cvd9" class="ui-card"><div data-hf-id="hf-t6qm" class="ui-label">What it appears to do</div><div data-hf-id="hf-bpky" class="ui-value">Readable summary</div></div>
+              <div data-hf-id="hf-mu4h" class="ui-card"><div data-hf-id="hf-fem0" class="ui-label">Usefulness hypothesis</div><div data-hf-id="hf-t89m" class="ui-value">A claim to test</div></div>
+              <div data-hf-id="hf-o11k" class="ui-card"><div data-hf-id="hf-mzdd" class="ui-label">Trial effort</div><div data-hf-id="hf-ywqf" class="ui-value metric">Quick spin</div></div>
+              <div data-hf-id="hf-quyr" class="ui-card" style="background: #f2c94c"><div data-hf-id="hf-tvep" class="ui-label" style="color: #171918">First test task</div><div data-hf-id="hf-j1ja" class="ui-value">One bounded next step</div></div>
+              <div data-hf-id="hf-4izb" class="stamp green" style="grid-column: 1 / -1">Model prepares · user decides</div>
             </div>
           </div>
         </div>
-        <div id="s2-car" class="car-wrap" style="right: 110px; bottom: 35px">
-          <img class="car-img" src="capture/assets/cars/quick-spin.png" alt="" />
+        <div data-hf-id="hf-n6h9" id="s2-car" class="car-wrap" style="right: 110px; bottom: 35px">
+          <img data-hf-id="hf-k3b1" class="car-img" src="capture/assets/cars/quick-spin.png" alt="">
         </div>
       </section>
 
-      <section id="scene-3" class="scene asphalt" aria-label="Tools and ideas share one lot">
-        <div id="s3-grid" class="ambient-grid" data-layout-ignore></div>
-        <svg class="route-svg" viewBox="0 0 1920 1080" aria-hidden="true">
-          <path id="s3-route-a" class="route-path white" d="M130 180 C460 180 520 480 900 540" />
-          <path id="s3-route-b" class="route-path white" d="M1790 180 C1460 180 1400 480 1020 540" />
-          <path id="s3-route-c" class="route-path" d="M960 540 V970" />
+      <section data-hf-id="hf-llac" id="scene-3" class="scene asphalt" aria-label="Tools and ideas share one lot">
+        <div data-hf-id="hf-aysl" id="s3-grid" class="ambient-grid" data-layout-ignore=""></div>
+        <svg data-hf-id="hf-3zrn" class="route-svg" viewBox="0 0 1920 1080" aria-hidden="true">
+          <path data-hf-id="hf-2gqq" id="s3-route-a" class="route-path white" d="M130 180 C460 180 520 480 900 540" />
+          <path data-hf-id="hf-8iqr" id="s3-route-b" class="route-path white" d="M1790 180 C1460 180 1400 480 1020 540" />
+          <path data-hf-id="hf-5zt5" id="s3-route-c" class="route-path" d="M960 540 V970" />
         </svg>
-        <div class="scene-content">
-          <p id="s3-eyebrow" class="eyebrow" style="color: #f2c94c">Different inputs · one lifecycle</p>
-          <h2 id="s3-title" class="headline compact" style="color: #ffffff">Tools and ideas become Parkables.</h2>
-          <div class="split-stage">
-            <div id="s3-tool" class="browser-shell">
-              <div class="browser-bar"><span>Tool</span><span>Parked</span></div>
-              <div class="browser-shot-wrap"><img class="browser-shot" src="capture/screenshots/mixed-lot.png" alt="Mixed Parking Lot with tools and ideas" /></div>
+        <div data-hf-id="hf-o0eg" class="scene-content">
+          <p data-hf-id="hf-oxrw" id="s3-eyebrow" class="eyebrow" style="color: #f2c94c">Different inputs · one lifecycle</p>
+          <h2 data-hf-id="hf-fb6z" id="s3-title" class="headline compact" style="color: #ffffff">Tools and ideas become Parkables.</h2>
+          <div data-hf-id="hf-w52d" class="split-stage">
+            <div data-hf-id="hf-2gh4" id="s3-tool" class="browser-shell">
+              <div data-hf-id="hf-1tpl" class="browser-bar"><span data-hf-id="hf-c8n7">Tool</span><span data-hf-id="hf-u4vw">Parked</span></div>
+              <div data-hf-id="hf-xbj3" class="browser-shot-wrap"><img data-hf-id="hf-vcy7" class="browser-shot" src="capture/screenshots/mixed-lot.png" alt="Mixed Parking Lot with tools and ideas"></div>
             </div>
-            <div id="s3-idea" class="browser-shell">
-              <div class="browser-bar"><span>Idea</span><span>Planning</span></div>
-              <div class="browser-shot-wrap"><img class="browser-shot inspector" src="capture/screenshots/planned-inspector.png" alt="Idea planning inspector" /></div>
+            <div data-hf-id="hf-6n6j" id="s3-idea" class="browser-shell">
+              <div data-hf-id="hf-280m" class="browser-bar"><span data-hf-id="hf-197q">Idea</span><span data-hf-id="hf-du4o">Planning</span></div>
+              <div data-hf-id="hf-xpu4" class="browser-shot-wrap"><img data-hf-id="hf-7sds" class="browser-shot inspector" src="capture/screenshots/planned-inspector.png" alt="Idea planning inspector"></div>
             </div>
           </div>
-          <div id="s3-destination" class="stamp" style="align-self: center">Parkable · shared route</div>
+          <div data-hf-id="hf-lgy4" id="s3-destination" class="stamp" style="align-self: center">Parkable · shared route</div>
         </div>
-        <div id="s3-car-tool" class="car-wrap" style="left: 185px; top: 245px; width: 150px; height: 150px">
-          <img class="car-img" src="capture/assets/cars/quick-spin.png" alt="" />
+        <div data-hf-id="hf-vrad" id="s3-car-tool" class="car-wrap" style="left: 185px; top: 350px; width: 150px; height: 150px">
+          <img data-hf-id="hf-la84" class="car-img" src="capture/assets/cars/quick-spin.png" alt="">
         </div>
-        <div id="s3-car-idea" class="car-wrap" style="right: 185px; top: 245px; width: 150px; height: 150px">
-          <img class="car-img" src="capture/assets/cars/weekend-project.png" alt="" />
+        <div data-hf-id="hf-vrzl" id="s3-car-idea" class="car-wrap" style="right: 185px; top: 350px; width: 150px; height: 150px">
+          <img data-hf-id="hf-1bxc" class="car-img" src="capture/assets/cars/weekend-project.png" alt="">
         </div>
       </section>
 
-      <section id="scene-4" class="scene paper" aria-label="Bounded Test Drive">
-        <div id="s4-grid" class="paper-grid" data-layout-ignore></div>
-        <svg class="route-svg" viewBox="0 0 1920 1080" aria-hidden="true">
-          <path id="s4-route" class="route-path" d="M120 760 H520 V610 H1150 V760 H1780" />
+      <section data-hf-id="hf-tm4r" id="scene-4" class="scene paper" aria-label="Bounded Test Drive">
+        <div data-hf-id="hf-k68q" id="s4-grid" class="paper-grid" data-layout-ignore=""></div>
+        <svg data-hf-id="hf-4e2o" class="route-svg" viewBox="0 0 1920 1080" aria-hidden="true">
+          <path data-hf-id="hf-me1i" id="s4-route" class="route-path" d="M120 760 H520 V610 H1150 V760 H1780" />
         </svg>
-        <div class="scene-content">
-          <p id="s4-eyebrow" class="eyebrow">Lifecycle 01 → 02</p>
-          <h2 id="s4-title" class="headline compact">Curiosity becomes evidence.</h2>
-          <div id="s4-life" class="lifecycle">
-            <div class="lifecycle-step">Parking Lot</div>
-            <div class="lifecycle-step active">Test Driving</div>
-            <div class="lifecycle-step">Garage</div>
-            <div class="lifecycle-step">Scrapyard</div>
+        <div data-hf-id="hf-mthd" class="scene-content">
+          <p data-hf-id="hf-l92q" id="s4-eyebrow" class="eyebrow">Lifecycle 01 → 02</p>
+          <h2 data-hf-id="hf-gl4g" id="s4-title" class="headline compact">Curiosity becomes evidence.</h2>
+          <div data-hf-id="hf-plzm" id="s4-life" class="lifecycle">
+            <div data-hf-id="hf-stim" class="lifecycle-step">Parking Lot</div>
+            <div data-hf-id="hf-m1ok" class="lifecycle-step active">Test Driving</div>
+            <div data-hf-id="hf-iija" class="lifecycle-step">Garage</div>
+            <div data-hf-id="hf-8y1c" class="lifecycle-step">Scrapyard</div>
           </div>
-          <div class="split-stage" style="grid-template-columns: 1.35fr 0.65fr">
-            <div id="s4-browser" class="browser-shell">
-              <div class="browser-bar"><span>Idea ticket</span><span>Bounded trial</span></div>
-              <div class="browser-shot-wrap"><img class="browser-shot inspector" src="capture/screenshots/planned-inspector.png" alt="Planning and evidence fields" /></div>
+          <div data-hf-id="hf-u7ug" class="split-stage" style="grid-template-columns: 1.35fr 0.65fr">
+            <div data-hf-id="hf-wz5t" id="s4-browser" class="browser-shell">
+              <div data-hf-id="hf-113j" class="browser-bar"><span data-hf-id="hf-5wh2">Idea ticket</span><span data-hf-id="hf-ro5q">Bounded trial</span></div>
+              <div data-hf-id="hf-y455" class="browser-shot-wrap"><img data-hf-id="hf-bput" class="browser-shot inspector" src="capture/screenshots/planned-inspector.png" alt="Planning and evidence fields"></div>
             </div>
-            <div id="s4-cards" style="display: flex; flex-direction: column; gap: 18px">
-              <div class="ui-card"><div class="ui-label">Effort tier</div><div class="ui-value">Focused session</div></div>
-              <div class="ui-card" style="background: #f2c94c"><div class="ui-label" style="color: #171918">First task</div><div class="ui-value">One clear experiment</div></div>
-              <div class="ui-card"><div class="ui-label">Evidence</div><div class="ui-value">Notes + result URL</div></div>
+            <div data-hf-id="hf-kbmj" id="s4-cards" style="display: flex; flex-direction: column; gap: 18px">
+              <div data-hf-id="hf-nmqj" class="ui-card"><div data-hf-id="hf-xauj" class="ui-label">Effort tier</div><div data-hf-id="hf-oycz" class="ui-value">Focused session</div></div>
+              <div data-hf-id="hf-d03n" class="ui-card" style="background: #f2c94c"><div data-hf-id="hf-f19p" class="ui-label" style="color: #171918">First task</div><div data-hf-id="hf-pf1i" class="ui-value">One clear experiment</div></div>
+              <div data-hf-id="hf-ln7e" class="ui-card"><div data-hf-id="hf-igoa" class="ui-label">Evidence</div><div data-hf-id="hf-9tia" class="ui-value">Notes + result URL</div></div>
             </div>
           </div>
         </div>
-        <div id="s4-car" class="car-wrap" style="left: 160px; bottom: 78px">
-          <img class="car-img" src="capture/assets/cars/focused-session.png" alt="" />
+        <div data-hf-id="hf-msxi" id="s4-car" class="car-wrap" style="left: 160px; bottom: 78px">
+          <img data-hf-id="hf-co9n" class="car-img" src="capture/assets/cars/focused-session.png" alt="">
         </div>
       </section>
 
-      <section id="scene-5" class="scene asphalt" aria-label="Evidence or exit">
-        <div id="s5-grid" class="ambient-grid" data-layout-ignore></div>
-        <svg class="route-svg" viewBox="0 0 1920 1080" aria-hidden="true">
-          <path id="s5-route-green" class="route-path green" d="M960 980 V710 C960 570 690 570 430 430 V180" />
-          <path id="s5-route-red" class="route-path red" d="M960 980 V710 C960 570 1230 570 1490 430 V180" />
+      <section data-hf-id="hf-ud7q" id="scene-5" class="scene asphalt" aria-label="Evidence or exit">
+        <div data-hf-id="hf-jp9r" id="s5-grid" class="ambient-grid" data-layout-ignore=""></div>
+        <svg data-hf-id="hf-1lxh" class="route-svg" viewBox="0 0 1920 1080" aria-hidden="true">
+          <path data-hf-id="hf-9oay" id="s5-route-green" class="route-path green" d="M960 980 V710 C960 570 690 570 430 430 V180" />
+          <path data-hf-id="hf-tyz6" id="s5-route-red" class="route-path red" d="M960 980 V710 C960 570 1230 570 1490 430 V180" />
         </svg>
-        <div class="scene-content">
-          <p id="s5-eyebrow" class="eyebrow" style="color: #f2c94c">Two deliberate destinations</p>
-          <h2 id="s5-title" class="headline compact" style="color: #ffffff">Evidence earns a place. A reason makes the exit.</h2>
-          <div class="split-stage">
-            <div id="s5-garage" class="decision-column">
-              <div class="decision-card green">
-                <h3>Garage</h3>
-                <p>Notes or a valid result unlock evidence-backed adoption.</p>
+        <div data-hf-id="hf-n7se" class="scene-content">
+          <p data-hf-id="hf-11g9" id="s5-eyebrow" class="eyebrow" style="color: #f2c94c">Two deliberate destinations</p>
+          <h2 data-hf-id="hf-u18w" id="s5-title" class="headline compact" style="color: #ffffff">Evidence earns a place. A reason makes the exit.</h2>
+          <div data-hf-id="hf-xbzg" class="split-stage">
+            <div data-hf-id="hf-r5zn" id="s5-garage" class="decision-column">
+              <div data-hf-id="hf-7l4w" class="decision-card green">
+                <h3 data-hf-id="hf-qvch">Garage</h3>
+                <p data-hf-id="hf-tlzn">Notes or a valid result unlock evidence-backed adoption.</p>
               </div>
-              <div class="browser-shell" style="flex: 1">
-                <div class="browser-bar"><span>Terminal history</span><span>Garaged</span></div>
-                <div class="browser-shot-wrap"><img class="browser-shot" src="capture/screenshots/garage.png" alt="Garage view" /></div>
+              <div data-hf-id="hf-8gel" class="browser-shell" style="flex: 1">
+                <div data-hf-id="hf-1fek" class="browser-bar"><span data-hf-id="hf-gaoh">Terminal history</span><span data-hf-id="hf-2kfg">Garaged</span></div>
+                <div data-hf-id="hf-yig6" class="browser-shot-wrap"><img data-hf-id="hf-jnk7" class="browser-shot" src="capture/screenshots/garage.png" alt="Garage view"></div>
               </div>
             </div>
-            <div id="s5-scrap" class="decision-column">
-              <div class="decision-card red">
-                <h3>Scrapyard</h3>
-                <p>A final decision reason turns a negative result into useful closure.</p>
+            <div data-hf-id="hf-sruz" id="s5-scrap" class="decision-column">
+              <div data-hf-id="hf-ypgg" class="decision-card red">
+                <h3 data-hf-id="hf-fl51">Scrapyard</h3>
+                <p data-hf-id="hf-ciaw">A final decision reason turns a negative result into useful closure.</p>
               </div>
-              <div class="browser-shell" style="flex: 1">
-                <div class="browser-bar"><span>Terminal history</span><span>Scrapped</span></div>
-                <div class="browser-shot-wrap"><img class="browser-shot" src="capture/screenshots/scrapyard.png" alt="Scrapyard view" /></div>
+              <div data-hf-id="hf-3z29" class="browser-shell" style="flex: 1">
+                <div data-hf-id="hf-08hh" class="browser-bar"><span data-hf-id="hf-0ex1">Terminal history</span><span data-hf-id="hf-cfwz">Scrapped</span></div>
+                <div data-hf-id="hf-ywr7" class="browser-shot-wrap"><img data-hf-id="hf-ukt3" class="browser-shot" src="capture/screenshots/scrapyard.png" alt="Scrapyard view"></div>
               </div>
             </div>
           </div>
         </div>
-        <div id="s5-car-green" class="car-wrap" style="left: 820px; bottom: 16px; width: 130px; height: 130px">
-          <img class="car-img" src="capture/assets/cars/quick-spin.png" alt="" />
+        <div data-hf-id="hf-7rbb" id="s5-car-green" class="car-wrap" style="left: 820px; bottom: 16px; width: 130px; height: 130px">
+          <img data-hf-id="hf-kvx3" class="car-img" src="capture/assets/cars/quick-spin.png" alt="">
         </div>
-        <div id="s5-car-red" class="car-wrap" style="right: 820px; bottom: 16px; width: 130px; height: 130px">
-          <img class="car-img" src="capture/assets/cars/weekend-project.png" alt="" />
+        <div data-hf-id="hf-e8s6" id="s5-car-red" class="car-wrap" style="right: 820px; bottom: 16px; width: 130px; height: 130px">
+          <img data-hf-id="hf-0509" class="car-img" src="capture/assets/cars/weekend-project.png" alt="">
         </div>
       </section>
 
-      <section id="scene-6" class="scene paper" aria-label="Manager Patrol separates facts and recommendations">
-        <div id="s6-grid" class="paper-grid" data-layout-ignore></div>
-        <div class="scene-content">
-          <p id="s6-eyebrow" class="eyebrow">Decision support · no automatic changes</p>
-          <h2 id="s6-title" class="headline compact">Observed fact. GPT-5.6 recommendation. Your action.</h2>
-          <div class="split-stage" style="grid-template-columns: 1.1fr 0.9fr">
-            <div id="s6-browser" class="browser-shell">
-              <div class="browser-bar"><span>Manager Patrol</span><span>Up to 3 Parkables</span></div>
-              <div class="browser-shot-wrap"><img class="browser-shot patrol" src="capture/screenshots/mixed-patrol.png" alt="Manager Patrol results" /></div>
+      <section data-hf-id="hf-xko1" id="scene-6" class="scene paper" aria-label="Manager Patrol separates facts and recommendations">
+        <div data-hf-id="hf-d27k" id="s6-grid" class="paper-grid" data-layout-ignore=""></div>
+        <div data-hf-id="hf-m0vb" class="scene-content">
+          <p data-hf-id="hf-qwrw" id="s6-eyebrow" class="eyebrow">Decision support · no automatic changes</p>
+          <h2 data-hf-id="hf-7c6n" id="s6-title" class="headline compact">Observed fact. GPT-5.6 recommendation. Your action.</h2>
+          <div data-hf-id="hf-xdof" class="split-stage" style="grid-template-columns: 1.1fr 0.9fr">
+            <div data-hf-id="hf-ftvz" id="s6-browser" class="browser-shell">
+              <div data-hf-id="hf-0msi" class="browser-bar"><span data-hf-id="hf-e2cm">Manager Patrol</span><span data-hf-id="hf-9931">Up to 3 Parkables</span></div>
+              <div data-hf-id="hf-zb28" class="browser-shot-wrap"><img data-hf-id="hf-nioh" class="browser-shot patrol" src="capture/screenshots/mixed-patrol.png" alt="Manager Patrol results"></div>
             </div>
-            <div style="display: flex; flex-direction: column; gap: 24px">
-              <div id="s6-columns" class="patrol-columns">
-                <div class="ui-card"><div class="ui-label">Observed Fact</div><div class="ui-value">Deterministic staleness and activity</div></div>
-                <div class="patrol-rule"></div>
-                <div class="ui-card"><div class="ui-label" style="color: #2f7d5c">GPT-5.6 Recommendation</div><div class="ui-value">Advisory next-step rationale</div></div>
+            <div data-hf-id="hf-6j7t" style="display: flex; flex-direction: column; gap: 24px">
+              <div data-hf-id="hf-w587" id="s6-columns" class="patrol-columns">
+                <div data-hf-id="hf-l8wd" class="ui-card"><div data-hf-id="hf-shvz" class="ui-label">Observed Fact</div><div data-hf-id="hf-jiug" class="ui-value">Deterministic staleness and activity</div></div>
+                <div data-hf-id="hf-kkrx" class="patrol-rule"></div>
+                <div data-hf-id="hf-mftg" class="ui-card"><div data-hf-id="hf-b33c" class="ui-label" style="color: #2f7d5c">GPT-5.6 Recommendation</div><div data-hf-id="hf-cbx6" class="ui-value">Advisory next-step rationale</div></div>
               </div>
-              <div id="s6-actions" class="action-row">
-                <div class="action-chip">Review this car</div>
-                <div class="action-chip">Plan Test Drive</div>
-                <div class="action-chip">Start Test Drive</div>
+              <div data-hf-id="hf-7qae" id="s6-actions" class="action-row">
+                <div data-hf-id="hf-ikhp" class="action-chip">Review this car</div>
+                <div data-hf-id="hf-oxpy" class="action-chip">Plan Test Drive</div>
+                <div data-hf-id="hf-93ut" class="action-chip">Start Test Drive</div>
               </div>
-              <div id="s6-boundary" class="stamp green">Never changes status automatically</div>
+              <div data-hf-id="hf-92ge" id="s6-boundary" class="stamp green">Never changes status automatically</div>
             </div>
           </div>
         </div>
-        <div id="s6-car" class="car-wrap" style="right: 60px; bottom: 35px">
-          <img class="car-img" src="capture/assets/cars/focused-session.png" alt="" />
+        <div data-hf-id="hf-5nrv" id="s6-car" class="car-wrap" style="right: 60px; bottom: 35px">
+          <img data-hf-id="hf-c9ym" class="car-img" src="capture/assets/cars/focused-session.png" alt="">
         </div>
       </section>
 
-      <section id="scene-7" class="scene paper" aria-label="Intentionally bounded product scope">
-        <div id="s7-grid" class="paper-grid" data-layout-ignore></div>
-        <div id="s7-product" class="browser-shell" style="position: absolute; right: 70px; top: 130px; width: 760px; height: 760px; opacity: 0.42">
-          <div class="browser-bar"><span>Current product</span><span>Honest scope</span></div>
-          <div class="browser-shot-wrap"><img class="browser-shot" src="capture/screenshots/scroll-000.png" alt="Parking Anything current product" /></div>
+      <section data-hf-id="hf-kzmn" id="scene-7" class="scene paper" aria-label="Intentionally bounded product scope">
+        <div data-hf-id="hf-wf7n" id="s7-grid" class="paper-grid" data-layout-ignore=""></div>
+        <div data-hf-id="hf-dv9o" id="s7-product" class="browser-shell" style="position: absolute; right: 70px; top: 130px; width: 760px; height: 760px; opacity: 0.42">
+          <div data-hf-id="hf-zfvf" class="browser-bar"><span data-hf-id="hf-841l">Current product</span><span data-hf-id="hf-uyem">Honest scope</span></div>
+          <div data-hf-id="hf-pahp" class="browser-shot-wrap"><img data-hf-id="hf-y0lc" class="browser-shot" src="capture/screenshots/scroll-000.png" alt="Parking Anything current product"></div>
         </div>
-        <div class="scene-content">
-          <p id="s7-eyebrow" class="eyebrow">Constraints are confidence</p>
-          <h2 id="s7-title" class="headline compact" style="max-width: 1000px">Intentionally bounded. Deterministically controlled.</h2>
-          <div id="s7-signs" class="sign-grid">
-            <div class="boundary-sign"><span>One user</span><b>01</b></div>
-            <div class="boundary-sign"><span>Browser-local</span><b>LOCAL</b></div>
-            <div class="boundary-sign"><span>No login</span><b>0 AUTH</b></div>
-            <div class="boundary-sign"><span>No fake collaboration</span><b>HONEST</b></div>
+        <div data-hf-id="hf-mf6c" class="scene-content">
+          <p data-hf-id="hf-0ut4" id="s7-eyebrow" class="eyebrow">Build evidence · runtime boundary</p>
+          <h2 data-hf-id="hf-mo7m" id="s7-title" class="headline compact" style="max-width: 1080px">Codex built it. GPT-5.6 advises inside it.</h2>
+          <div data-hf-id="hf-jvdl" id="s7-signs" class="sign-grid">
+            <div data-hf-id="hf-14sg" class="boundary-sign"><span data-hf-id="hf-gg7y">One user</span><b data-hf-id="hf-27a2">01</b></div>
+            <div data-hf-id="hf-xg8o" class="boundary-sign"><span data-hf-id="hf-fd2x">Browser-local</span><b data-hf-id="hf-x11k">LOCAL</b></div>
+            <div data-hf-id="hf-w9bl" class="boundary-sign"><span data-hf-id="hf-nzrb">No login</span><b data-hf-id="hf-z5p3">0 AUTH</b></div>
+            <div data-hf-id="hf-wnmm" class="boundary-sign"><span data-hf-id="hf-1xmy">No fake collaboration</span><b data-hf-id="hf-ric2">HONEST</b></div>
           </div>
-          <div id="s7-stamps" style="display: flex; gap: 18px">
-            <span class="stamp green">Visible provenance</span>
-            <span class="stamp">Deterministic rules</span>
-            <span class="stamp" style="background: #ffffff; color: #5f645f">Gather · Future · Disabled</span>
+          <div data-hf-id="hf-mw4p" id="s7-stamps" style="display: flex; gap: 18px; flex-wrap: wrap; max-width: 1220px">
+            <span data-hf-id="hf-mix6" class="stamp" style="background: #171918; color: #ffffff">Build log · 23 files / 213 tests</span>
+            <span data-hf-id="hf-9h3i" class="stamp green">Visible provenance</span>
+            <span data-hf-id="hf-88k7" class="stamp">Deterministic rules</span>
+            <span data-hf-id="hf-hhcq" class="stamp" style="background: #ffffff; color: #5f645f">Gather · Future · Disabled</span>
           </div>
         </div>
-        <div id="s7-car" class="car-wrap" style="right: 260px; bottom: 52px">
-          <img class="car-img" src="capture/assets/cars/weekend-project.png" alt="" />
+        <div data-hf-id="hf-426h" id="s7-car" class="car-wrap" style="right: 260px; bottom: 52px">
+          <img data-hf-id="hf-0jba" class="car-img" src="capture/assets/cars/weekend-project.png" alt="">
         </div>
       </section>
 
-      <section id="scene-8" class="scene asphalt" aria-label="Parking Anything closing thesis">
-        <div id="s8-grid" class="ambient-grid" data-layout-ignore></div>
-        <svg class="route-svg" viewBox="0 0 1920 1080" aria-hidden="true">
-          <path id="s8-route" class="route-path" d="M100 900 H380 V740 H720 V570 H1080 V390 H1770" />
+      <section data-hf-id="hf-k7dy" id="scene-8" class="scene asphalt" aria-label="Parking Anything closing thesis">
+        <div data-hf-id="hf-us8o" id="s8-grid" class="ambient-grid" data-layout-ignore=""></div>
+        <svg data-hf-id="hf-208i" class="route-svg" viewBox="0 0 1920 1080" aria-hidden="true">
+          <path data-hf-id="hf-zr47" id="s8-route" class="route-path" d="M100 900 H380 V740 H720 V570 H1080 V390 H1770" />
         </svg>
-        <div class="scene-content" style="justify-content: center">
-          <div id="s8-product" class="browser-shell" style="position: absolute; right: 100px; top: 100px; width: 810px; height: 700px">
-            <div class="browser-bar"><span>Parking Anything</span><span>Unified Parking Lot 01</span></div>
-            <div class="browser-shot-wrap"><img class="browser-shot contain" src="capture/screenshots/scroll-000.png" alt="Parking Anything full product" /></div>
+        <div data-hf-id="hf-kyeh" class="scene-content" style="justify-content: center">
+          <div data-hf-id="hf-e236" id="s8-product" class="browser-shell" style="position: absolute; right: 100px; top: 100px; width: 810px; height: 700px">
+            <div data-hf-id="hf-zu6g" class="browser-bar"><span data-hf-id="hf-0mqb">Parking Anything</span><span data-hf-id="hf-cwc5">Unified Parking Lot 01</span></div>
+            <div data-hf-id="hf-posq" class="browser-shot-wrap"><img data-hf-id="hf-ub06" class="browser-shot contain" src="capture/screenshots/scroll-000.png" alt="Parking Anything full product"></div>
           </div>
-          <div id="s8-copy" style="max-width: 900px; color: #ffffff">
-            <p class="eyebrow" style="color: #f2c94c">Decide what deserves your time</p>
-            <h2 class="headline">Parking Anything</h2>
-            <p class="body-copy" style="margin-top: 22px; max-width: 820px">Park it. Test-drive it. Keep the evidence—or make the exit.</p>
+          <div data-hf-id="hf-tnyh" id="s8-copy" style="max-width: 900px; color: #ffffff">
+            <p data-hf-id="hf-3z08" class="eyebrow" style="color: #f2c94c">Decide what deserves your time</p>
+            <h2 data-hf-id="hf-5hw1" class="headline">Parking Anything</h2>
+            <p data-hf-id="hf-ih8v" class="body-copy" style="margin-top: 22px; max-width: 820px">Park it. Test-drive it. Keep the evidence—or make the exit.</p>
           </div>
-          <div id="s8-steps" style="display: flex; gap: 14px; margin-top: 28px">
-            <span class="stamp">Park</span>
-            <span class="stamp">Test Drive</span>
-            <span class="stamp green">Evidence</span>
-            <span class="stamp red">Decide</span>
+          <div data-hf-id="hf-5f2y" id="s8-steps" style="display: flex; gap: 14px; margin-top: 28px">
+            <span data-hf-id="hf-qfzm" class="stamp">Park</span>
+            <span data-hf-id="hf-zdhe" class="stamp">Test Drive</span>
+            <span data-hf-id="hf-91w2" class="stamp green">Evidence</span>
+            <span data-hf-id="hf-8lob" class="stamp red">Decide</span>
           </div>
-          <div id="s8-thesis" class="stamp" style="margin-top: 20px; font-size: 28px">Stop collecting. Start test-driving.</div>
+          <div data-hf-id="hf-n9z7" id="s8-thesis" class="stamp" style="margin-top: 20px; font-size: 28px">Stop collecting. Start test-driving.</div>
         </div>
-        <div id="s8-car" class="car-wrap" style="left: 120px; bottom: 64px">
-          <img class="car-img" src="capture/assets/cars/quick-spin.png" alt="" />
+        <div data-hf-id="hf-lgtx" id="s8-car" class="car-wrap" style="left: 120px; bottom: 64px">
+          <img data-hf-id="hf-m2u6" class="car-img" src="capture/assets/cars/quick-spin.png" alt="">
         </div>
       </section>
 
-      <div id="transition-1" class="transition-cover yellow" data-layout-ignore></div>
-      <div id="transition-2" class="transition-cover ink" data-layout-ignore></div>
-      <div id="transition-3" class="transition-cover paper" data-layout-ignore></div>
-      <div id="transition-4" class="transition-cover split" data-layout-ignore></div>
-      <div id="transition-5" class="transition-cover ink" data-layout-ignore></div>
-      <div id="transition-6" class="transition-cover paper" data-layout-ignore></div>
-      <div id="transition-7" class="transition-cover yellow" data-layout-ignore></div>
-      <div id="final-wash" class="final-wash" data-layout-ignore></div>
+      <div data-hf-id="hf-hhlo" id="main-caption-layer" class="caption-layer" aria-label="English captions" data-layout-allow-overlap="" data-layout-allow-occlusion=""></div>
+
+      <div data-hf-id="hf-p6xh" id="transition-1" class="transition-cover yellow" data-layout-ignore=""></div>
+      <div data-hf-id="hf-ix9s" id="transition-2" class="transition-cover ink" data-layout-ignore=""></div>
+      <div data-hf-id="hf-a0av" id="transition-3" class="transition-cover paper" data-layout-ignore=""></div>
+      <div data-hf-id="hf-gyhq" id="transition-4" class="transition-cover split" data-layout-ignore=""></div>
+      <div data-hf-id="hf-ez5r" id="transition-5" class="transition-cover ink" data-layout-ignore=""></div>
+      <div data-hf-id="hf-io6q" id="transition-6" class="transition-cover paper" data-layout-ignore=""></div>
+      <div data-hf-id="hf-9p5f" id="transition-7" class="transition-cover yellow" data-layout-ignore=""></div>
+      <div data-hf-id="hf-cj2r" id="final-wash" class="final-wash" data-layout-ignore=""></div>
     </div>
 
     <script>
@@ -325,6 +315,16 @@
         tl.set(oldScene, { opacity: 0 }, time + 0.41);
       }
 
+      const captionLayer = document.querySelector("#main-caption-layer");
+      (window.__captionCues || []).forEach((cue) => {
+        const line = document.createElement("p");
+        line.className = "caption-line";
+        line.textContent = cue.text;
+        captionLayer.append(line);
+        tl.set(line, { opacity: 1 }, cue.start);
+        tl.set(line, { opacity: 0 }, cue.end);
+      });
+
       enter("#s1-grid", 0.18, { opacity: 0 }, { opacity: 1, duration: 0.9, ease: "sine.out" });
       enter("#s1-tickets .ticket", 0.32, { y: 80, scale: 0.96 }, { y: 0, scale: 1, stagger: 0.035, duration: 0.68, ease: "expo.out" });
       enter("#s1-ghost-layer .ghost-word", 0.46, { x: 70 }, { x: 0, stagger: 0.12, duration: 1.2, ease: "sine.out" });
@@ -340,91 +340,91 @@
       tl.to("#s1-product .browser-shot", { scale: 1.035, duration: 15.7, ease: "none" }, 3.1);
       tl.to("#s1-car-a .car-img", { y: -6, yoyo: true, repeat: 7, duration: 1.05, ease: "sine.inOut" }, 2.0);
 
-      coverTransition("#scene-1", "#scene-2", "#transition-1", 18.71);
-      enter("#s2-grid", 19.22, { opacity: 0 }, { opacity: 1, duration: 0.7, ease: "sine.out" });
-      enter("#s2-eyebrow", 19.34, { x: -70 }, { x: 0, duration: 0.48, ease: "power3.out" });
-      enter("#s2-title", 19.52, { y: 64 }, { y: 0, duration: 0.72, ease: "expo.out" });
-      enter("#s2-browser", 19.84, { x: -130, scale: 0.94, rotationY: 8 }, { x: 0, scale: 1, rotationY: 0, duration: 0.85, ease: "power4.out" });
-      enter("#s2-fields .ui-card", 20.08, { x: 90, y: 20 }, { x: 0, y: 0, stagger: 0.09, duration: 0.64, ease: "back.out(1.12)" });
-      enter("#s2-fields .stamp", 20.62, { scale: 0.82 }, { scale: 1, duration: 0.5, ease: "circ.out" });
-      enter("#s2-car", 21.0, { x: 210, rotation: 12 }, { x: 0, rotation: 0, duration: 0.72, ease: "power3.out" });
-      tl.to("#s2-route", { strokeDashoffset: 0, duration: 1.6, ease: "power2.out" }, 20.0);
-      tl.to("#s2-browser .browser-shot", { scale: 1.04, duration: 14.4, ease: "none" }, 20.4);
-      tl.to("#s2-car .car-img", { rotation: 2, yoyo: true, repeat: 10, duration: 0.65, ease: "sine.inOut" }, 21.8);
+      coverTransition("#scene-1", "#scene-2", "#transition-1", 18.87);
+      enter("#s2-grid", 19.38, { opacity: 0 }, { opacity: 1, duration: 0.7, ease: "sine.out" });
+      enter("#s2-eyebrow", 19.5, { x: -70 }, { x: 0, duration: 0.48, ease: "power3.out" });
+      enter("#s2-title", 19.68, { y: 64 }, { y: 0, duration: 0.72, ease: "expo.out" });
+      enter("#s2-browser", 20.0, { x: -130, scale: 0.94, rotationY: 8 }, { x: 0, scale: 1, rotationY: 0, duration: 0.85, ease: "power4.out" });
+      enter("#s2-fields .ui-card", 20.24, { x: 90, y: 20 }, { x: 0, y: 0, stagger: 0.09, duration: 0.64, ease: "back.out(1.12)" });
+      enter("#s2-fields .stamp", 20.78, { scale: 0.82 }, { scale: 1, duration: 0.5, ease: "circ.out" });
+      enter("#s2-car", 21.16, { x: 210, rotation: 12 }, { x: 0, rotation: 0, duration: 0.72, ease: "power3.out" });
+      tl.to("#s2-route", { strokeDashoffset: 0, duration: 1.6, ease: "power2.out" }, 20.16);
+      tl.to("#s2-browser .browser-shot", { scale: 1.04, duration: 14.4, ease: "none" }, 20.56);
+      tl.to("#s2-car .car-img", { rotation: 2, yoyo: true, repeat: 10, duration: 0.65, ease: "sine.inOut" }, 21.96);
 
-      coverTransition("#scene-2", "#scene-3", "#transition-2", 34.85);
-      enter("#s3-grid", 35.36, { opacity: 0 }, { opacity: 1, duration: 0.7, ease: "sine.out" });
-      enter("#s3-eyebrow", 35.48, { y: -55 }, { y: 0, duration: 0.45, ease: "circ.out" });
-      enter("#s3-title", 35.66, { x: -100 }, { x: 0, duration: 0.7, ease: "expo.out" });
-      enter("#s3-tool", 35.94, { x: -150, rotationY: 10, scale: 0.94 }, { x: 0, rotationY: 0, scale: 1, duration: 0.82, ease: "power4.out" });
-      enter("#s3-idea", 36.08, { x: 150, rotationY: -10, scale: 0.94 }, { x: 0, rotationY: 0, scale: 1, duration: 0.82, ease: "back.out(1.08)" });
-      enter("#s3-car-tool", 36.4, { x: -180, y: -80, rotation: -15 }, { x: 0, y: 0, rotation: 0, duration: 0.8, ease: "power3.out" });
-      enter("#s3-car-idea", 36.52, { x: 180, y: -80, rotation: 15 }, { x: 0, y: 0, rotation: 0, duration: 0.8, ease: "circ.out" });
-      tl.to("#s3-route-a, #s3-route-b", { strokeDashoffset: 0, duration: 1.6, stagger: 0.08, ease: "power3.out" }, 35.9);
-      tl.to("#s3-route-c", { strokeDashoffset: 0, duration: 1.1, ease: "power4.out" }, 37.05);
-      enter("#s3-destination", 37.34, { scale: 0.72 }, { scale: 1, duration: 0.52, ease: "back.out(1.35)" });
-      tl.to("#s3-tool .browser-shot", { scale: 1.035, duration: 11.2, ease: "none" }, 36.8);
-      tl.to("#s3-idea .browser-shot", { y: -22, duration: 10.8, ease: "sine.inOut" }, 37.0);
+      coverTransition("#scene-2", "#scene-3", "#transition-2", 35.51);
+      enter("#s3-grid", 36.06, { opacity: 0 }, { opacity: 1, duration: 0.7, ease: "sine.out" });
+      enter("#s3-eyebrow", 36.18, { y: -55 }, { y: 0, duration: 0.45, ease: "circ.out" });
+      enter("#s3-title", 36.36, { x: -100 }, { x: 0, duration: 0.7, ease: "expo.out" });
+      enter("#s3-tool", 36.64, { x: -150, rotationY: 10, scale: 0.94 }, { x: 0, rotationY: 0, scale: 1, duration: 0.82, ease: "power4.out" });
+      enter("#s3-idea", 36.78, { x: 150, rotationY: -10, scale: 0.94 }, { x: 0, rotationY: 0, scale: 1, duration: 0.82, ease: "back.out(1.08)" });
+      enter("#s3-car-tool", 37.1, { x: -180, y: -80, rotation: -15 }, { x: 0, y: 0, rotation: 0, duration: 0.8, ease: "power3.out" });
+      enter("#s3-car-idea", 37.22, { x: 180, y: -80, rotation: 15 }, { x: 0, y: 0, rotation: 0, duration: 0.8, ease: "circ.out" });
+      tl.to("#s3-route-a, #s3-route-b", { strokeDashoffset: 0, duration: 1.6, stagger: 0.08, ease: "power3.out" }, 36.6);
+      tl.to("#s3-route-c", { strokeDashoffset: 0, duration: 1.1, ease: "power4.out" }, 37.75);
+      enter("#s3-destination", 38.04, { scale: 0.72 }, { scale: 1, duration: 0.52, ease: "back.out(1.35)" });
+      tl.to("#s3-tool .browser-shot", { scale: 1.035, duration: 10.8, ease: "none" }, 37.5);
+      tl.to("#s3-idea .browser-shot", { y: -22, duration: 10.4, ease: "sine.inOut" }, 37.7);
 
-      coverTransition("#scene-3", "#scene-4", "#transition-3", 48.87);
-      enter("#s4-grid", 49.38, { opacity: 0 }, { opacity: 1, duration: 0.66, ease: "sine.out" });
-      enter("#s4-eyebrow", 49.48, { x: 85 }, { x: 0, duration: 0.42, ease: "power4.out" });
-      enter("#s4-title", 49.62, { y: 60 }, { y: 0, duration: 0.64, ease: "expo.out" });
-      enter("#s4-life .lifecycle-step", 49.86, { y: 55 }, { y: 0, stagger: 0.07, duration: 0.45, ease: "back.out(1.1)" });
-      enter("#s4-browser", 50.16, { x: -120, scale: 0.94 }, { x: 0, scale: 1, duration: 0.7, ease: "power3.out" });
-      enter("#s4-cards .ui-card", 50.34, { x: 100 }, { x: 0, stagger: 0.11, duration: 0.48, ease: "circ.out" });
-      enter("#s4-car", 50.7, { x: -180, rotation: -8 }, { x: 0, rotation: 0, duration: 0.62, ease: "power4.out" });
-      tl.to("#s4-route", { strokeDashoffset: 0, duration: 1.45, ease: "power3.out" }, 50.0);
-      tl.to("#s4-car", { x: 560, y: -150, duration: 3.0, ease: "power2.inOut" }, 51.5);
-      tl.to("#s4-browser .browser-shot", { scale: 1.04, duration: 7.7, ease: "none" }, 50.9);
+      coverTransition("#scene-3", "#scene-4", "#transition-3", 48.31);
+      enter("#s4-grid", 48.84, { opacity: 0 }, { opacity: 1, duration: 0.66, ease: "sine.out" });
+      enter("#s4-eyebrow", 48.94, { x: 85 }, { x: 0, duration: 0.42, ease: "power4.out" });
+      enter("#s4-title", 49.08, { y: 60 }, { y: 0, duration: 0.64, ease: "expo.out" });
+      enter("#s4-life .lifecycle-step", 49.32, { y: 55 }, { y: 0, stagger: 0.07, duration: 0.45, ease: "back.out(1.1)" });
+      enter("#s4-browser", 49.62, { x: -120, scale: 0.94 }, { x: 0, scale: 1, duration: 0.7, ease: "power3.out" });
+      enter("#s4-cards .ui-card", 49.8, { x: 100 }, { x: 0, stagger: 0.11, duration: 0.48, ease: "circ.out" });
+      enter("#s4-car", 50.16, { x: -180, rotation: -8 }, { x: 0, rotation: 0, duration: 0.62, ease: "power4.out" });
+      tl.to("#s4-route", { strokeDashoffset: 0, duration: 1.45, ease: "power3.out" }, 49.46);
+      tl.to("#s4-car", { x: 560, y: -150, duration: 3.0, ease: "power2.inOut" }, 50.96);
+      tl.to("#s4-browser .browser-shot", { scale: 1.04, duration: 7.7, ease: "none" }, 50.36);
 
-      coverTransition("#scene-4", "#scene-5", "#transition-4", 58.64);
-      enter("#s5-grid", 59.15, { opacity: 0 }, { opacity: 1, duration: 0.68, ease: "sine.out" });
-      enter("#s5-eyebrow", 59.28, { y: -70 }, { y: 0, duration: 0.42, ease: "power3.out" });
-      enter("#s5-title", 59.44, { scale: 0.92 }, { scale: 1, duration: 0.68, ease: "expo.out" });
-      enter("#s5-garage", 59.78, { x: -160, rotationY: 8 }, { x: 0, rotationY: 0, duration: 0.8, ease: "circ.out" });
-      enter("#s5-scrap", 59.92, { x: 160, rotationY: -8 }, { x: 0, rotationY: 0, duration: 0.8, ease: "back.out(1.08)" });
-      enter("#s5-car-green", 60.28, { y: -120, rotation: -9 }, { y: 0, rotation: 0, duration: 0.62, ease: "power4.out" });
-      enter("#s5-car-red", 60.4, { y: -120, rotation: 9 }, { y: 0, rotation: 0, duration: 0.62, ease: "power3.out" });
-      tl.to("#s5-route-green, #s5-route-red", { strokeDashoffset: 0, duration: 1.7, stagger: 0.08, ease: "power2.out" }, 59.6);
-      tl.to("#s5-garage .browser-shot", { y: -28, duration: 12.6, ease: "sine.inOut" }, 60.8);
-      tl.to("#s5-scrap .browser-shot", { y: -28, duration: 12.4, ease: "sine.inOut" }, 61.0);
+      coverTransition("#scene-4", "#scene-5", "#transition-4", 58.15);
+      enter("#s5-grid", 58.7, { opacity: 0 }, { opacity: 1, duration: 0.68, ease: "sine.out" });
+      enter("#s5-eyebrow", 58.83, { y: -70 }, { y: 0, duration: 0.42, ease: "power3.out" });
+      enter("#s5-title", 58.99, { scale: 0.92 }, { scale: 1, duration: 0.68, ease: "expo.out" });
+      enter("#s5-garage", 59.33, { x: -160, rotationY: 8 }, { x: 0, rotationY: 0, duration: 0.8, ease: "circ.out" });
+      enter("#s5-scrap", 59.47, { x: 160, rotationY: -8 }, { x: 0, rotationY: 0, duration: 0.8, ease: "back.out(1.08)" });
+      enter("#s5-car-green", 59.83, { y: -120, rotation: -9 }, { y: 0, rotation: 0, duration: 0.62, ease: "power4.out" });
+      enter("#s5-car-red", 59.95, { y: -120, rotation: 9 }, { y: 0, rotation: 0, duration: 0.62, ease: "power3.out" });
+      tl.to("#s5-route-green, #s5-route-red", { strokeDashoffset: 0, duration: 1.7, stagger: 0.08, ease: "power2.out" }, 59.15);
+      tl.to("#s5-garage .browser-shot", { y: -28, duration: 10.9, ease: "sine.inOut" }, 60.35);
+      tl.to("#s5-scrap .browser-shot", { y: -28, duration: 10.7, ease: "sine.inOut" }, 60.55);
 
-      coverTransition("#scene-5", "#scene-6", "#transition-5", 73.93);
-      enter("#s6-grid", 74.44, { opacity: 0 }, { opacity: 1, duration: 0.66, ease: "sine.out" });
-      enter("#s6-eyebrow", 74.56, { x: -85 }, { x: 0, duration: 0.46, ease: "power3.out" });
-      enter("#s6-title", 74.72, { y: 65 }, { y: 0, duration: 0.7, ease: "expo.out" });
-      enter("#s6-browser", 75.02, { x: -130, rotationY: 8, scale: 0.94 }, { x: 0, rotationY: 0, scale: 1, duration: 0.82, ease: "power4.out" });
-      enter("#s6-columns .ui-card:first-child", 75.3, { x: -90 }, { x: 0, duration: 0.56, ease: "circ.out" });
-      enter("#s6-columns .ui-card:last-child", 75.42, { x: 90 }, { x: 0, duration: 0.56, ease: "back.out(1.08)" });
-      tl.fromTo("#s6-columns .patrol-rule", { scaleY: 0 }, { scaleY: 1, duration: 0.62, ease: "power3.out", immediateRender: false }, 75.58);
-      enter("#s6-actions .action-chip", 75.86, { y: 55 }, { y: 0, stagger: 0.09, duration: 0.48, ease: "power4.out" });
-      enter("#s6-boundary", 76.28, { scale: 0.78 }, { scale: 1, duration: 0.5, ease: "back.out(1.2)" });
-      enter("#s6-car", 76.52, { x: 160, rotation: 12 }, { x: 0, rotation: 0, duration: 0.68, ease: "circ.out" });
-      tl.to("#s6-browser .browser-shot", { scale: 1.045, duration: 16.7, ease: "none" }, 75.9);
-      tl.to("#s6-car .car-img", { y: -7, yoyo: true, repeat: 10, duration: 0.76, ease: "sine.inOut" }, 77.3);
+      coverTransition("#scene-5", "#scene-6", "#transition-5", 71.91);
+      enter("#s6-grid", 72.42, { opacity: 0 }, { opacity: 1, duration: 0.66, ease: "sine.out" });
+      enter("#s6-eyebrow", 72.54, { x: -85 }, { x: 0, duration: 0.46, ease: "power3.out" });
+      enter("#s6-title", 72.7, { y: 65 }, { y: 0, duration: 0.7, ease: "expo.out" });
+      enter("#s6-browser", 73.0, { x: -130, rotationY: 8, scale: 0.94 }, { x: 0, rotationY: 0, scale: 1, duration: 0.82, ease: "power4.out" });
+      enter("#s6-columns .ui-card:first-child", 73.28, { x: -90 }, { x: 0, duration: 0.56, ease: "circ.out" });
+      enter("#s6-columns .ui-card:last-child", 73.4, { x: 90 }, { x: 0, duration: 0.56, ease: "back.out(1.08)" });
+      tl.fromTo("#s6-columns .patrol-rule", { scaleY: 0 }, { scaleY: 1, duration: 0.62, ease: "power3.out", immediateRender: false }, 73.56);
+      enter("#s6-actions .action-chip", 73.84, { y: 55 }, { y: 0, stagger: 0.09, duration: 0.48, ease: "power4.out" });
+      enter("#s6-boundary", 74.26, { scale: 0.78 }, { scale: 1, duration: 0.5, ease: "back.out(1.2)" });
+      enter("#s6-car", 74.5, { x: 160, rotation: 12 }, { x: 0, rotation: 0, duration: 0.68, ease: "circ.out" });
+      tl.to("#s6-browser .browser-shot", { scale: 1.045, duration: 17.0, ease: "none" }, 73.88);
+      tl.to("#s6-car .car-img", { y: -7, yoyo: true, repeat: 10, duration: 0.76, ease: "sine.inOut" }, 75.28);
 
-      coverTransition("#scene-6", "#scene-7", "#transition-6", 92.64);
-      enter("#s7-grid", 93.15, { opacity: 0 }, { opacity: 1, duration: 0.62, ease: "sine.out" });
-      enter("#s7-product", 93.28, { x: 150, scale: 0.93, rotationY: -9 }, { x: 0, scale: 1, rotationY: 0, duration: 0.78, ease: "power4.out" });
-      enter("#s7-eyebrow", 93.38, { y: -55 }, { y: 0, duration: 0.44, ease: "circ.out" });
-      enter("#s7-title", 93.52, { x: -100 }, { x: 0, duration: 0.7, ease: "expo.out" });
-      enter("#s7-signs .boundary-sign", 93.92, { y: 85, scale: 0.95 }, { y: 0, scale: 1, stagger: 0.1, duration: 0.6, ease: "back.out(1.12)" });
-      enter("#s7-stamps .stamp", 94.56, { x: -65 }, { x: 0, stagger: 0.08, duration: 0.46, ease: "power3.out" });
-      enter("#s7-car", 94.9, { x: 180, rotation: 14 }, { x: 0, rotation: 0, duration: 0.66, ease: "power4.out" });
-      tl.to("#s7-product .browser-shot", { y: -34, duration: 11.4, ease: "sine.inOut" }, 94.5);
-      tl.to("#s7-grid", { backgroundPosition: "210px 170px", duration: 12.5, ease: "none" }, 93.3);
+      coverTransition("#scene-6", "#scene-7", "#transition-6", 91.36);
+      enter("#s7-grid", 91.91, { opacity: 0 }, { opacity: 1, duration: 0.62, ease: "sine.out" });
+      enter("#s7-product", 92.04, { x: 150, scale: 0.93, rotationY: -9 }, { x: 0, scale: 1, rotationY: 0, duration: 0.78, ease: "power4.out" });
+      enter("#s7-eyebrow", 92.14, { y: -55 }, { y: 0, duration: 0.44, ease: "circ.out" });
+      enter("#s7-title", 92.28, { x: -100 }, { x: 0, duration: 0.7, ease: "expo.out" });
+      enter("#s7-signs .boundary-sign", 92.68, { y: 85, scale: 0.95 }, { y: 0, scale: 1, stagger: 0.1, duration: 0.6, ease: "back.out(1.12)" });
+      enter("#s7-stamps .stamp", 93.32, { x: -65 }, { x: 0, stagger: 0.08, duration: 0.46, ease: "power3.out" });
+      enter("#s7-car", 93.66, { x: 180, rotation: 14 }, { x: 0, rotation: 0, duration: 0.66, ease: "power4.out" });
+      tl.to("#s7-product .browser-shot", { y: -34, duration: 13.2, ease: "sine.inOut" }, 93.26);
+      tl.to("#s7-grid", { backgroundPosition: "210px 170px", duration: 14.6, ease: "none" }, 92.06);
 
-      coverTransition("#scene-7", "#scene-8", "#transition-7", 106.24);
-      enter("#s8-grid", 106.75, { opacity: 0 }, { opacity: 1, duration: 0.68, ease: "sine.out" });
-      enter("#s8-copy", 106.9, { x: -110 }, { x: 0, duration: 0.72, ease: "expo.out" });
-      enter("#s8-product", 107.12, { x: 130, scale: 0.91, rotationY: -8 }, { x: 0, scale: 1, rotationY: 0, duration: 0.86, ease: "power4.out" });
-      enter("#s8-steps .stamp", 107.54, { y: 70 }, { y: 0, stagger: 0.1, duration: 0.5, ease: "back.out(1.18)" });
-      enter("#s8-thesis", 108.12, { scale: 0.78 }, { scale: 1, duration: 0.56, ease: "circ.out" });
-      enter("#s8-car", 108.3, { x: -180, rotation: -9 }, { x: 0, rotation: 0, duration: 0.68, ease: "power3.out" });
-      tl.to("#s8-route", { strokeDashoffset: 0, duration: 2.0, ease: "power3.out" }, 107.0);
-      tl.to("#s8-car", { x: 1120, y: -510, duration: 6.2, ease: "power2.inOut" }, 109.0);
-      tl.to("#s8-product .browser-shot", { scale: 1.035, duration: 10.8, ease: "none" }, 107.8);
+      coverTransition("#scene-7", "#scene-8", "#transition-7", 107.75);
+      enter("#s8-grid", 108.26, { opacity: 0 }, { opacity: 1, duration: 0.68, ease: "sine.out" });
+      enter("#s8-copy", 108.41, { x: -110 }, { x: 0, duration: 0.72, ease: "expo.out" });
+      enter("#s8-product", 108.63, { x: 130, scale: 0.91, rotationY: -8 }, { x: 0, scale: 1, rotationY: 0, duration: 0.86, ease: "power4.out" });
+      enter("#s8-steps .stamp", 109.05, { y: 70 }, { y: 0, stagger: 0.1, duration: 0.5, ease: "back.out(1.18)" });
+      enter("#s8-thesis", 109.63, { scale: 0.78 }, { scale: 1, duration: 0.56, ease: "circ.out" });
+      enter("#s8-car", 109.81, { x: -180, rotation: -9 }, { x: 0, rotation: 0, duration: 0.68, ease: "power3.out" });
+      tl.to("#s8-route", { strokeDashoffset: 0, duration: 2.0, ease: "power3.out" }, 108.51);
+      tl.to("#s8-car", { x: 1120, y: -510, duration: 3.4, ease: "power2.inOut" }, 115.0);
+      tl.to("#s8-product .browser-shot", { scale: 1.035, duration: 9.6, ease: "none" }, 109.31);
       tl.to("#final-wash", { opacity: 1, duration: 0.72, ease: "sine.in" }, 119.25);
 
       window.__timelines["parking-anything-main"] = tl;

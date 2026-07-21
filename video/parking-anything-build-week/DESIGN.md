@@ -18,7 +18,8 @@ Parking Anything uses a light paper canvas, blunt black typography, and a bird's
 
 ## Typography
 
-- **Primary Sans**: Arial, Helvetica, sans-serif. Use weights 700 and 900 for headlines and decisive labels; 400 for narration support.
+- **Product source sans**: Arial, Helvetica, sans-serif.
+- **HyperFrames render sans**: Inter, the renderer's deterministic cross-platform target for Arial/Helvetica system-font aliases. Use weights 700 and 900 for headlines and decisive labels; 400 for narration support.
 - **Hero Scale**: 112–156px at 1920×1080, tightly tracked between `-0.04em` and `-0.02em`.
 - **Section Scale**: 64–88px, weight 900.
 - **Body Scale**: 28–36px, line-height 1.25–1.45.

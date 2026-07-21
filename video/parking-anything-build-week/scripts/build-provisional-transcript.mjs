@@ -7,14 +7,14 @@ const narration = await readFile(resolve(projectDir, "narration.txt"), "utf8");
 const paragraphs = narration.trim().split(/\n\s*\n/);
 
 const beats = [
-  { paragraphCount: 2, start: 0, end: 19.12 },
-  { paragraphCount: 1, start: 19.12, end: 35.26 },
-  { paragraphCount: 1, start: 35.26, end: 49.28 },
-  { paragraphCount: 1, start: 49.28, end: 59.05 },
-  { paragraphCount: 1, start: 59.05, end: 74.34 },
-  { paragraphCount: 1, start: 74.34, end: 93.05 },
-  { paragraphCount: 1, start: 93.05, end: 106.65 },
-  { paragraphCount: 2, start: 106.65, end: 118.12 },
+  { paragraphCount: 2, start: 0, end: 19.28 },
+  { paragraphCount: 1, start: 19.28, end: 35.92 },
+  { paragraphCount: 1, start: 35.92, end: 48.72 },
+  { paragraphCount: 1, start: 48.72, end: 58.56 },
+  { paragraphCount: 1, start: 58.56, end: 72.32 },
+  { paragraphCount: 1, start: 72.32, end: 91.77 },
+  { paragraphCount: 1, start: 91.77, end: 108.16 },
+  { paragraphCount: 2, start: 108.16, end: 118.84 },
 ];
 
 let paragraphIndex = 0;

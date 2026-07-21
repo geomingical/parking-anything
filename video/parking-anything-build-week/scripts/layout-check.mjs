@@ -1,8 +1,8 @@
 import { chromium } from "playwright";
 
 const captures = [
-  { file: "index.html", timeline: "parking-anything-main", times: [4, 23, 39, 53, 64, 80, 98, 113] },
-  { file: "teaser.html", timeline: "parking-anything-teaser", times: [1.5, 6, 11, 16.5] },
+  { file: "parking-anything-build-week/index.html", timeline: "parking-anything-main", times: [4, 23, 39, 53, 64, 80, 98, 113] },
+  { file: "parking-anything-teaser/index.html", timeline: "parking-anything-teaser", times: [1.5, 6, 11, 16.5] },
 ];
 
 const browser = await chromium.launch({ headless: true });
@@ -14,7 +14,7 @@ page.on("console", (message) => {
 page.on("pageerror", (error) => errors.push(`page error: ${error.message}`));
 
 for (const capture of captures) {
-  await page.goto(`http://127.0.0.1:3028/${capture.file}`, { waitUntil: "networkidle" });
+  await page.goto(`http://127.0.0.1:3028/${capture.file}`, { waitUntil: "load" });
   await page.waitForFunction((timeline) => Boolean(window.__timelines?.[timeline]), capture.timeline);
 
   const brokenImages = await page.locator("img").evaluateAll((images) =>
@@ -23,10 +23,9 @@ for (const capture of captures) {
   brokenImages.forEach((src) => errors.push(`${capture.file}: broken image ${src}`));
 
   for (const time of capture.times) {
-    await page.evaluate(
-      ({ timeline, time }) => window.__timelines[timeline].pause().time(time, false),
-      { timeline: capture.timeline, time },
-    );
+    await page.evaluate(({ timeline, time }) => {
+      window.__timelines[timeline].pause().time(time, false);
+    }, { timeline: capture.timeline, time });
 
     const issues = await page.evaluate(() => {
       const selectors = [
@@ -42,21 +41,32 @@ for (const capture of captures) {
         ".wordmark",
         ".browser-bar",
         ".lifecycle-step",
+        ".caption-line",
       ].join(",");
 
+      const isEffectivelyVisible = (element) => {
+        let current = element;
+        while (current) {
+          const style = getComputedStyle(current);
+          if (style.display === "none" || style.visibility === "hidden" || Number(style.opacity) <= 0.05) return false;
+          current = current.parentElement;
+        }
+        const rect = element.getBoundingClientRect();
+        return rect.width > 0 && rect.height > 0;
+      };
+
       return [...document.querySelectorAll(selectors)]
-        .filter((element) => {
-          const style = getComputedStyle(element);
-          const rect = element.getBoundingClientRect();
-          return style.display !== "none" && style.visibility !== "hidden" && Number(style.opacity) > 0.05 && rect.width > 0 && rect.height > 0;
-        })
+        .filter(isEffectivelyVisible)
         .flatMap((element) => {
+          const style = getComputedStyle(element);
           const rect = element.getBoundingClientRect();
           const findings = [];
           if (rect.left < -2 || rect.top < -2 || rect.right > 1922 || rect.bottom > 1082) {
             findings.push(`${element.id || element.className || element.tagName}: outside canvas (${Math.round(rect.left)},${Math.round(rect.top)},${Math.round(rect.right)},${Math.round(rect.bottom)})`);
           }
-          if (element.scrollWidth > element.clientWidth + 2 || element.scrollHeight > element.clientHeight + 2) {
+          const clipsX = ["auto", "clip", "hidden", "scroll"].includes(style.overflowX);
+          const clipsY = ["auto", "clip", "hidden", "scroll"].includes(style.overflowY);
+          if ((clipsX && element.scrollWidth > element.clientWidth + 2) || (clipsY && element.scrollHeight > element.clientHeight + 2)) {
             findings.push(`${element.id || element.className || element.tagName}: content overflow`);
           }
           return findings;

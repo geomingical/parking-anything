@@ -12,6 +12,7 @@ coverage/
 # Test and browser artifacts
 playwright-report/
 test-results/
+.waveform-cache/
 
 # Local implementation workspaces and generated brainstorming output
 /.worktrees/
