@@ -99,16 +99,11 @@ body {
 
 .headline {
   margin: 0;
-  max-width: 1500px;
-  font-size: 116px;
+  max-width: 1120px;
+  font-size: 68px;
   font-weight: 900;
-  letter-spacing: -0.045em;
-  line-height: 0.92;
-}
-
-.headline.compact {
-  font-size: 88px;
-  line-height: 0.98;
+  letter-spacing: -0.04em;
+  line-height: 0.96;
 }
 
 .body-copy {
@@ -187,6 +182,133 @@ body {
 
 .browser-shot.inspector {
   object-position: 77% 52%;
+}
+
+.ui-first-layout {
+  justify-content: flex-start;
+  padding: 68px 92px 116px;
+  gap: 24px;
+}
+
+.scene-copy {
+  position: relative;
+  z-index: 7;
+  display: flex;
+  min-height: 112px;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 42px;
+}
+
+.asphalt .scene-copy {
+  color: #ffffff;
+}
+
+.evidence-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+.evidence-label {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  padding: 0 16px;
+  border: 3px solid #171918;
+  background: #f2c94c;
+  color: #171918;
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.evidence-label.green {
+  border-color: #2f7d5c;
+  background: #2f7d5c;
+  color: #ffffff;
+}
+
+.evidence-label.red {
+  border-color: #b84a45;
+  background: #b84a45;
+  color: #ffffff;
+}
+
+.product-primary {
+  position: relative;
+  z-index: 4;
+  width: 72%;
+  min-height: 0;
+  flex: 1;
+  align-self: flex-start;
+}
+
+.product-primary.align-right {
+  align-self: flex-end;
+}
+
+.product-frame {
+  width: 100%;
+  height: 100%;
+}
+
+.comparison-primary {
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 34px;
+}
+
+.capture-top .browser-shot {
+  object-position: center top;
+}
+
+.terminal-frame {
+  min-height: 0;
+}
+
+.garage-frame {
+  border-top: 14px solid #2f7d5c;
+}
+
+.scrapyard-frame {
+  border-top: 14px solid #b84a45;
+}
+
+.patrol-frame {
+  position: relative;
+}
+
+.patrol-scan {
+  position: absolute;
+  top: 48px;
+  bottom: 0;
+  left: 0;
+  z-index: 3;
+  width: 18%;
+  border-right: 5px solid #f2c94c;
+  background: rgba(242, 201, 76, 0.18);
+  pointer-events: none;
+}
+
+.closing-layout .scene-copy {
+  min-height: 126px;
+}
+
+.closing-layout .body-copy {
+  max-width: 780px;
+  color: #ffffff;
+  font-size: 26px;
+}
+
+.closing-product {
+  width: 76%;
+  align-self: flex-end;
 }
 
 .wordmark {
@@ -276,17 +398,6 @@ body {
   will-change: transform;
 }
 
-.ghost-word {
-  position: absolute;
-  z-index: 1;
-  color: rgba(255, 255, 255, 0.07);
-  font-size: 180px;
-  font-weight: 900;
-  letter-spacing: -0.05em;
-  line-height: 1;
-  white-space: nowrap;
-}
-
 .ticket-grid {
   position: absolute;
   inset: 120px 100px;
@@ -369,33 +480,6 @@ body {
   background: #f2c94c;
 }
 
-.sign-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 26px;
-  max-width: 1180px;
-}
-
-.boundary-sign {
-  display: flex;
-  min-height: 150px;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  border: 4px solid #171918;
-  background: #ffffff;
-  padding: 28px 34px;
-  font-size: 38px;
-  font-weight: 900;
-  letter-spacing: -0.02em;
-}
-
-.boundary-sign b {
-  color: #2f7d5c;
-  font-size: 22px;
-  letter-spacing: 0.14em;
-}
-
 .decision-column {
   display: flex;
   flex-direction: column;
@@ -466,6 +550,290 @@ body {
   color: #171918;
   font-size: 20px;
   font-weight: 900;
+}
+
+.future-scene {
+  background-color: #303331;
+}
+
+.future-grid {
+  position: relative;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  padding: 62px 92px 118px;
+  gap: 24px;
+  background-color: #303331;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.14) 2px, rgba(255, 255, 255, 0) 2px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.14) 2px, rgba(255, 255, 255, 0) 2px);
+  background-size: 160px 140px;
+}
+
+.future-disclosure {
+  position: absolute;
+  top: 56px;
+  right: 92px;
+  z-index: 9;
+  display: flex;
+  min-height: 54px;
+  align-items: center;
+  padding: 0 20px;
+  border: 3px solid #171918;
+  background: #f2c94c;
+  color: #171918;
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+}
+
+.future-header {
+  position: relative;
+  z-index: 4;
+  width: 1320px;
+}
+
+.future-header .eyebrow {
+  color: #f2c94c;
+}
+
+.future-title {
+  max-width: 1300px;
+  margin: 14px 0 0;
+  color: #ffffff;
+  font-size: 74px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 0.98;
+}
+
+.future-bays {
+  position: relative;
+  z-index: 4;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 22px;
+}
+
+.future-bay {
+  display: flex;
+  min-height: 142px;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 22px 24px;
+  border: 4px solid #ffffff;
+  background: rgba(48, 51, 49, 0.92);
+  box-shadow: 10px 10px 0 rgba(242, 201, 76, 0.28);
+  color: #ffffff;
+  font-size: 29px;
+  font-weight: 900;
+  letter-spacing: 0.10em;
+}
+
+.future-network {
+  position: relative;
+  z-index: 4;
+  min-height: 350px;
+  flex: 1;
+}
+
+.future-routes {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.future-route {
+  fill: none;
+  stroke: #f2c94c;
+  stroke-width: 10;
+  stroke-linecap: square;
+  stroke-dasharray: 1400;
+  stroke-dashoffset: 1400;
+}
+
+.personal-lot,
+.gather-plaza {
+  position: absolute;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 4px solid #ffffff;
+  color: #ffffff;
+  font-weight: 900;
+}
+
+.personal-lot {
+  width: 154px;
+  height: 154px;
+  border-radius: 50%;
+  background: #4a4d4b;
+  font-size: 18px;
+  letter-spacing: 0.10em;
+  text-align: center;
+}
+
+.personal-lot:nth-of-type(1) {
+  left: 128px;
+  top: 98px;
+}
+
+.personal-lot:nth-of-type(2) {
+  left: 408px;
+  top: 213px;
+}
+
+.personal-lot:nth-of-type(3) {
+  right: 128px;
+  top: 98px;
+}
+
+.gather-plaza {
+  left: calc(50% - 172px);
+  top: 72px;
+  width: 344px;
+  height: 218px;
+  flex-direction: column;
+  gap: 12px;
+  border-color: #f2c94c;
+  border-radius: 50%;
+  background: #f2c94c;
+  box-shadow: 0 0 0 12px #303331, 0 0 0 16px #ffffff;
+  color: #171918;
+  font-size: 48px;
+  letter-spacing: 0.08em;
+}
+
+.gather-plaza span {
+  font-size: 16px;
+  letter-spacing: 0.14em;
+}
+
+.future-car {
+  position: absolute;
+  z-index: 5;
+  width: 116px;
+  height: 116px;
+  will-change: transform, opacity;
+}
+
+.future-car img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.future-car-a {
+  left: 690px;
+  top: 88px;
+}
+
+.future-car-b {
+  left: 810px;
+  top: 232px;
+}
+
+.future-car-c {
+  right: 692px;
+  top: 88px;
+}
+
+.future-source,
+.future-roadmap {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  width: 100%;
+  height: 100%;
+  padding: 82px 92px 118px;
+  transform-origin: center center;
+}
+
+.future-source {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.future-source-frame {
+  width: 72%;
+  height: 82%;
+}
+
+.future-roadmap {
+  overflow: hidden;
+  background-color: #303331;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.14) 2px, rgba(255, 255, 255, 0) 2px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.14) 2px, rgba(255, 255, 255, 0) 2px);
+  background-size: 180px 150px;
+  opacity: 0;
+  transform: scale(1.08);
+}
+
+.future-roadmap .route-svg {
+  z-index: 1;
+}
+
+.road-signs {
+  position: absolute;
+  top: 92px;
+  left: 94px;
+  right: 420px;
+  z-index: 5;
+  display: flex;
+  gap: 18px;
+}
+
+.road-sign {
+  display: flex;
+  min-height: 50px;
+  align-items: center;
+  padding: 0 16px;
+  border: 3px solid #ffffff;
+  background: #303331;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+}
+
+.future-roadmap .gather-plaza {
+  left: 790px;
+  top: 390px;
+  z-index: 5;
+  width: 340px;
+  height: 250px;
+}
+
+.future-roadmap .future-car {
+  z-index: 6;
+  width: 122px;
+  height: 122px;
+  opacity: 0;
+}
+
+.future-roadmap .future-car-a {
+  left: 720px;
+  top: 565px;
+}
+
+.future-roadmap .future-car-b {
+  left: 850px;
+  top: 650px;
+}
+
+.future-roadmap .future-car-c {
+  right: 700px;
+  top: 560px;
 }
 
 .transition-cover {

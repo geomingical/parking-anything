@@ -6,7 +6,7 @@ import sharp from "sharp";
 const projectDir = resolve(new URL("..", import.meta.url).pathname);
 
 const compositions = [
-  { file: "index.html", id: "parking-anything-main", duration: "120", scenes: 8 },
+  { file: "index.html", id: "parking-anything-main", duration: "150", scenes: 9 },
   { file: "../parking-anything-teaser/index.html", id: "parking-anything-teaser", duration: "20", scenes: 4 },
 ];
 
@@ -64,6 +64,122 @@ for (const composition of compositions) {
     }
   }
 
+  if (composition.id === "parking-anything-main") {
+    const narration = document.querySelector("#main-narration");
+    if (narration?.dataset.duration !== "149.2445") {
+      errors.push(`${composition.file}: narration duration must match measured audio length 149.2445`);
+    }
+
+    const shippedSceneMatrix = [
+      { id: "scene-1", headline: "Saved it. Forgot it.", evidence: [], screenshot: "capture/screenshots/scroll-000.png", minWidth: "62" },
+      { id: "scene-2", headline: "Paste. Analyze. Test.", evidence: ["GPT-5.6 prepares the ticket"], screenshot: "capture/screenshots/scroll-000.png" },
+      { id: "scene-3", headline: "Different inputs. One lifecycle.", evidence: ["TOOL", "IDEA"], screenshots: ["capture/screenshots/mixed-lot.png", "capture/screenshots/planned-inspector.png"] },
+      { id: "scene-4", headline: "Run one bounded test.", evidence: ["PLAN", "EVIDENCE"], screenshot: "capture/screenshots/planned-inspector.png", minWidth: "58" },
+      { id: "scene-5", headline: "Evidence decides the destination.", evidence: ["GARAGE", "SCRAPYARD"], screenshots: ["capture/screenshots/garage.png", "capture/screenshots/scrapyard.png"] },
+      { id: "scene-6", headline: "Facts and advice stay separate.", evidence: ["OBSERVED", "GPT-5.6"], screenshot: "capture/screenshots/mixed-patrol.png", minWidth: "62" },
+      { id: "scene-7", headline: "Built by Codex. Advised by GPT-5.6.", evidence: ["23 FILES · 213 TESTS", "BROWSER-LOCAL"], screenshot: "capture/screenshots/scroll-000.png", minWidth: "58" },
+    ];
+
+    for (const expected of shippedSceneMatrix) {
+      const scene = document.querySelector(`#${expected.id}`);
+      const primaries = scene?.querySelectorAll('[data-visual-role="product-primary"]') || [];
+      if (primaries.length !== 1) {
+        errors.push(`${composition.file}: ${expected.id} must contain exactly one product-primary visual`);
+        continue;
+      }
+
+      const primary = primaries[0];
+      if (!primary.classList.contains("product-primary") || !primary.querySelector(".browser-shell.product-frame")) {
+        errors.push(`${composition.file}: ${expected.id} product-primary must wrap one browser-shell product-frame`);
+      }
+      if (expected.minWidth && primary.dataset.canvasMinWidth !== expected.minWidth) {
+        errors.push(`${composition.file}: ${expected.id} product-primary must declare ${expected.minWidth}% minimum canvas width`);
+      }
+
+      const headline = scene?.querySelector(".headline")?.textContent.trim();
+      if (headline !== expected.headline) errors.push(`${composition.file}: ${expected.id} headline mismatch`);
+
+      const evidence = [...(scene?.querySelectorAll('[data-visual-role="evidence-label"]') || [])].map((label) => label.textContent.trim());
+      if (JSON.stringify(evidence) !== JSON.stringify(expected.evidence)) {
+        errors.push(`${composition.file}: ${expected.id} evidence labels must be ${expected.evidence.join(" | ") || "absent"}`);
+      }
+
+      const screenshotSources = [...primary.querySelectorAll("img")].map((image) => image.getAttribute("src"));
+      const expectedSources = expected.screenshots || [expected.screenshot];
+      if (JSON.stringify(screenshotSources) !== JSON.stringify(expectedSources)) {
+        errors.push(`${composition.file}: ${expected.id} product evidence sources mismatch`);
+      }
+    }
+
+    for (const scene of scenes) {
+      if (scene.querySelectorAll(".headline").length > 1) errors.push(`${composition.file}: ${scene.id} has more than one headline`);
+      if (scene.querySelectorAll('[data-visual-role="evidence-label"]').length > 2) errors.push(`${composition.file}: ${scene.id} has more than two evidence labels`);
+      if (scene.querySelectorAll(".stamp").length > 2) errors.push(`${composition.file}: ${scene.id} has more than two stamps`);
+    }
+
+    for (const selector of [".sign-grid", ".boundary-sign", ".ghost-word"]) {
+      if (document.querySelector(selector)) errors.push(`${composition.file}: forbidden text-wall structure ${selector}`);
+    }
+
+    for (const movingElement of document.querySelectorAll(".car-wrap, .future-car, .route-svg")) {
+      const purpose = movingElement.getAttribute("data-motion-purpose")?.trim();
+      if (!purpose || purpose.length < 8) {
+        errors.push(`${composition.file}: ${movingElement.id || movingElement.className} requires a meaningful data-motion-purpose`);
+      }
+    }
+
+    const future = document.querySelector("#scene-8");
+    if (!future?.classList.contains("future-scene")) {
+      errors.push(`${composition.file}: missing Future scene 8`);
+    }
+    const futureSource = future?.querySelectorAll('[data-visual-role="future-source"]') || [];
+    const futureRoadmap = future?.querySelectorAll('[data-visual-role="future-roadmap"]') || [];
+    if (futureSource.length !== 1) errors.push(`${composition.file}: Future must contain exactly one current-UI source state`);
+    if (futureRoadmap.length !== 1) errors.push(`${composition.file}: Future must contain exactly one roadmap state`);
+    if (futureSource[0]?.querySelector("img")?.getAttribute("src") !== "capture/screenshots/scroll-000.png") {
+      errors.push(`${composition.file}: Future source must use the real scroll-000 product capture`);
+    }
+    if (future?.querySelector(".future-disclosure")?.textContent.trim() !== "FUTURE · NOT YET BUILT") {
+      errors.push(`${composition.file}: Future disclosure must be exact and persistent`);
+    }
+    for (const label of ["TRIP", "BOOK", "GEAR", "SIDE PROJECT", "GATHER"]) {
+      if (!future?.textContent.includes(label)) errors.push(`${composition.file}: Future scene missing ${label}`);
+    }
+    if (future?.querySelectorAll(".road-sign").length !== 4) errors.push(`${composition.file}: Future roadmap must have four road signs`);
+    if (future?.querySelectorAll(".gather-plaza").length !== 1) errors.push(`${composition.file}: Future roadmap must have one Gather plaza`);
+    if (future?.querySelectorAll(".future-car").length !== 3) errors.push(`${composition.file}: Future roadmap must converge three local cars`);
+    if (future?.querySelector("button, input, select, textarea, a[href]")) {
+      errors.push(`${composition.file}: Future scene must remain noninteractive`);
+    }
+    const futureSourceId = futureSource[0]?.id;
+    if ((futureSourceId && source.includes(`enter("#${futureSourceId}"`)) || source.includes('enter("#s8-disclosure"')) {
+      errors.push(`${composition.file}: Future disclosure must be visible from the scene's first frame`);
+    }
+
+    const expectedTransitionStarts = ["18.75", "35.23", "47.87", "57.59", "71.17", "90.71", "107.07", "138.43"];
+    const transitionStarts = [...source.matchAll(/coverTransition\([^;]+?,\s*(\d+(?:\.\d+)?)\);/g)].map((match) => match[1]);
+    if (JSON.stringify(transitionStarts) !== JSON.stringify(expectedTransitionStarts)) {
+      errors.push(`${composition.file}: transition start times changed`);
+    }
+    for (const timingContract of [
+      'tl.to("#s8-source .browser-shot", { scale: 1.04, duration: 9.02',
+      'tl.to("#s8-source", { opacity: 0, scale: 0.92, duration: 3.5',
+      'tl.to("#s8-roadmap", { opacity: 1, scale: 1, duration: 3.5',
+      'tl.to("#s9-car", { x: 1120, y: -510, duration: 3.4, ease: "power2.inOut" }, 145.68)',
+      'tl.to("#final-wash", { opacity: 1, duration: 0.5, ease: "sine.in" }, 149.5)',
+    ]) {
+      if (!source.includes(timingContract)) errors.push(`${composition.file}: missing exact choreography contract ${timingContract}`);
+    }
+
+    const closing = document.querySelector("#scene-9");
+    if (closing?.getAttribute("aria-label") !== "Parking Anything closing thesis") {
+      errors.push(`${composition.file}: scene 9 closing thesis label mismatch`);
+    }
+    if (closing?.querySelector(".product-primary img")?.getAttribute("src") !== "capture/screenshots/scroll-000.png") {
+      errors.push(`${composition.file}: scene 9 must close on the real scroll-000 product capture`);
+    }
+  }
+
   for (const asset of document.querySelectorAll("img[src], audio[src], script[src], link[href]")) {
     const attribute = asset.hasAttribute("href") ? "href" : "src";
     const reference = asset.getAttribute(attribute);
@@ -113,5 +229,5 @@ if (errors.length) {
   console.error(errors.join("\n"));
   process.exitCode = 1;
 } else {
-  console.log("Static composition checks passed for 120-second main film and 20-second teaser.");
+  console.log("Static composition checks passed for 150-second main film and 20-second teaser.");
 }
