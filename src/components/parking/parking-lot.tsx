@@ -13,16 +13,18 @@ export function ParkingLot({ items, onSelect, now = new Date() }: ParkingLotProp
     <section aria-label="Parking lot" className="parking-surface min-h-[24rem] p-4 sm:p-6">
       {items.length > 0 ? (
         <div className="parking-grid">
-          {items.map((item) => {
+          {items.map((item, index) => {
             const active = item.status === "parked" || item.status === "test_driving";
             const age = activityAge(item.lastActivityAt, now);
-            return <CarSprite key={item.id} item={item} onSelect={onSelect} daysSinceActivity={age.daysSinceActivity} needsReview={active && age.needsReview} />;
+            return <CarSprite key={item.id} item={item} onSelect={onSelect} enterIndex={index} daysSinceActivity={age.daysSinceActivity} needsReview={active && age.needsReview} />;
           })}
         </div>
       ) : (
-        <p className="m-0 px-2 py-12 text-center text-sm font-bold text-white">
-          No cars are waiting in this zone.
-        </p>
+        <div className="empty-stall reveal">
+          <p className="m-0 px-4 text-center text-sm font-bold text-white/80">
+            No cars are waiting in this zone.
+          </p>
+        </div>
       )}
     </section>
   );

@@ -102,7 +102,7 @@ export function IdeaCaptureForm({ onPark, onParked }: IdeaCaptureFormProps) {
         {errors.ideaText ? <p id="idea-text-error" className="mt-1 text-sm font-bold text-[var(--scrap)]">{errors.ideaText}</p> : null}
       </div>
       {errors.form ? <p role="alert" className="text-sm font-bold text-[var(--scrap)]">{errors.form}</p> : null}
-      <button type="submit" className="h-12 justify-self-start bg-[var(--safety)] px-6 text-sm font-black uppercase tracking-[0.08em]">
+      <button type="submit" className="pressable h-12 justify-self-start bg-[var(--safety)] px-6 text-sm font-black uppercase tracking-[0.08em]">
         Park Idea
       </button>
     </form>

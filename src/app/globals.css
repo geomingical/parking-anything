@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 :root {
+  /* Surface and ink */
   --paper: #f7f7f2;
   --ink: #171918;
   --muted-ink: #5f645f;
@@ -10,6 +11,22 @@
   --garage: #2f7d5c;
   --scrap: #b84a45;
   --line: #ffffff;
+
+  /* Motion curves. The built-in CSS easings are too weak to read as intentional. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* Durations. Every UI animation stays under 300ms; exits stay faster than enters. */
+  --press: 140ms;
+  --pop: 180ms;
+  --enter: 260ms;
+  --drawer: 300ms;
+  --exit: 200ms;
+
+  /* Hard-edged elevation, to match the industrial language of the lot. */
+  --lift-1: 3px 3px 0 rgba(23, 25, 24, 0.14);
+  --lift-2: 8px 8px 0 rgba(23, 25, 24, 0.16);
 }
 
 * {
@@ -25,20 +42,53 @@ body {
   margin: 0;
   background: var(--paper);
   color: var(--ink);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
   letter-spacing: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 button,
-input {
+input,
+select,
+textarea {
   font: inherit;
 }
 
-button:focus-visible,
-input:focus-visible,
-a:focus-visible {
-  outline: 3px solid var(--safety);
-  outline-offset: 3px;
+/* Tracking is size-specific: large text reads too loose, small caps read too tight. */
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+/* Press feedback. Any pressable element must confirm it heard the user. */
+.pressable {
+  --press-scale: 0.97;
+  transition:
+    transform var(--press) var(--ease-out),
+    background-color var(--press) ease,
+    border-color var(--press) ease,
+    color var(--press) ease,
+    box-shadow var(--press) ease;
+}
+
+.pressable:active:not(:disabled) {
+  transform: scale(var(--press-scale));
+}
+
+/* Wide bars (tabs, full-width rows) need a smaller ratio to travel the same distance. */
+.press-subtle {
+  --press-scale: 0.985;
+}
+
+/* Colour-only transition for elements that shift tint but are never pressed themselves. */
+.tint {
+  transition:
+    background-color var(--press) ease,
+    border-color var(--press) ease,
+    color var(--press) ease;
 }
 
 .parking-surface {
@@ -54,58 +104,207 @@ a:focus-visible {
   background-size:
     10rem 100%,
     100% 3.5rem;
+  /* Inset light falloff so the lot reads as a lit surface, not a flat swatch. */
+  box-shadow:
+    inset 0 14px 30px -20px rgba(0, 0, 0, 0.95),
+    inset 0 -14px 30px -20px rgba(0, 0, 0, 0.8);
 }
 
+/*
+ * auto-fill, not auto-fit: auto-fit collapses the empty tracks, which stretched a
+ * lone car across the whole lot instead of leaving it parked in one stall.
+ */
 .parking-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
   grid-auto-rows: 12.5rem;
   gap: 1rem;
 }
 
+.empty-stall {
+  display: grid;
+  place-items: center;
+  min-height: 12.5rem;
+  border: 2px dashed rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* A parked car is a physical card: a top highlight edge, and it lifts on hover. */
+.car-card {
+  --press-scale: 0.985;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  transition:
+    transform var(--press) var(--ease-out),
+    background-color var(--pop) ease,
+    border-color var(--pop) ease,
+    box-shadow var(--pop) ease;
+}
+
+.car-card:active {
+  transform: scale(var(--press-scale));
+}
+
+.car-art {
+  transition: transform 240ms var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .car-card:hover {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.22),
+      0 12px 24px -14px rgba(0, 0, 0, 0.9);
+  }
+
+  .car-card:hover .car-art {
+    transform: translateY(-0.3rem) scale(1.04);
+  }
+}
+
+/*
+ * Group entrances. `backwards` fill only — a forwards fill would out-rank the
+ * `:active` transform for the life of the element.
+ */
 .car-enter {
-  animation: car-enter 420ms ease-out both;
+  animation: car-enter var(--enter) var(--ease-out) backwards;
+  animation-delay: var(--enter-delay, 0ms);
 }
 
-.car-zone-change {
-  animation: car-zone-change 360ms ease-out both;
-}
-
-.car-towed {
-  animation: car-towed 420ms ease-in both;
+.reveal {
+  animation: reveal var(--enter) var(--ease-out) backwards;
+  animation-delay: var(--enter-delay, 0ms);
 }
 
 @keyframes car-enter {
   from {
     opacity: 0;
-    transform: translateY(1rem);
+    transform: translateY(0.9rem) scale(0.96);
   }
 }
 
-@keyframes car-zone-change {
-  50% {
-    transform: translateY(-0.35rem);
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
   }
 }
 
-@keyframes car-towed {
+/* Popovers scale from their trigger, never from their own centre. */
+.popover-enter {
+  transform-origin: top right;
+  animation: popover-enter var(--pop) var(--ease-out);
+}
+
+@keyframes popover-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(-0.25rem);
+  }
+}
+
+/* The inspector leaves by the same edge it arrived from. */
+.scrim {
+  animation: fade-in var(--drawer) var(--ease-out);
+  backdrop-filter: blur(2px);
+}
+
+.scrim[data-state="closed"] {
+  animation: fade-out var(--exit) var(--ease-out);
+}
+
+.drawer-panel {
+  animation: drawer-in var(--drawer) var(--ease-drawer);
+}
+
+.drawer-panel[data-state="closed"] {
+  animation: drawer-out var(--exit) var(--ease-out);
+}
+
+@keyframes drawer-in {
+  from {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes drawer-out {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-out {
   to {
     opacity: 0;
-    transform: translateX(2rem);
   }
 }
 
+/* A faster spinner makes an identical wait feel shorter. */
+.spinner {
+  animation: spin 650ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/*
+ * Reduced motion is gentler motion, not none: position changes go, the opacity
+ * changes that explain what happened stay.
+ */
 @media (prefers-reduced-motion: reduce) {
   .car-enter,
-  .car-zone-change,
-  .car-towed {
-    animation: none;
+  .reveal,
+  .popover-enter,
+  .drawer-panel {
+    animation: fade-in 180ms ease both;
   }
+
+  .drawer-panel[data-state="closed"] {
+    animation: fade-out 150ms ease both;
+  }
+
+  .pressable:active:not(:disabled),
+  .car-card:active,
+  .car-card:hover .car-art {
+    transform: none;
+  }
+
+  .spinner {
+    animation-duration: 1.2s;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .scrim {
+    backdrop-filter: none;
+  }
+}
+
+/*
+ * Focus ring, last so it out-ranks component shadows on a specificity tie.
+ * Yellow alone is ~1.7:1 on paper; the ink outline carries light surfaces and
+ * the yellow inner ring carries the dark asphalt.
+ */
+:where(a, button, input, select, textarea, [role="tab"]):focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--safety);
 }
 
 @media (max-width: 640px) {
   .parking-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-auto-rows: 10.5rem;
+  }
+
+  .empty-stall {
+    min-height: 10.5rem;
   }
 }

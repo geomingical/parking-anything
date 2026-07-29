@@ -1,4 +1,5 @@
 import Image from "next/image";
+import type { CSSProperties } from "react";
 
 import type { EffortTier, ParkingItem } from "@/lib/parking/schemas";
 
@@ -15,23 +16,40 @@ const STATUS_LABELS: Record<ParkingItem["status"], string> = {
   scrapped: "Scrapped",
 };
 
+/*
+ * Cars cascade in rather than appearing all at once, but the delay is capped so a
+ * full lot never makes the last row feel like it is waiting on the first.
+ */
+const STAGGER_STEP_MS = 40;
+const STAGGER_MAX_STEPS = 8;
+
 type CarSpriteProps = {
   item: ParkingItem;
   daysSinceActivity: number;
   needsReview: boolean;
+  enterIndex?: number;
   onSelect(id: string, trigger: HTMLButtonElement): void;
 };
 
-export function CarSprite({ item, daysSinceActivity, needsReview, onSelect }: CarSpriteProps) {
+export function CarSprite({
+  item,
+  daysSinceActivity,
+  needsReview,
+  enterIndex = 0,
+  onSelect,
+}: CarSpriteProps) {
   const statusLabel = STATUS_LABELS[item.status];
   const kindLabel = item.kind === "ai_tool" ? "Tool" : "Idea";
+  const enterDelay =
+    Math.min(enterIndex, STAGGER_MAX_STEPS) * STAGGER_STEP_MS;
 
   return (
     <button
       type="button"
       aria-label={`${item.title}, ${statusLabel}`}
       onClick={(event) => onSelect(item.id, event.currentTarget)}
-      className="group flex h-full min-w-0 flex-col items-center justify-between overflow-hidden border border-white/50 bg-[var(--asphalt-deep)]/75 px-3 py-3 text-white transition-colors hover:border-[var(--safety)] hover:bg-[var(--asphalt-deep)]"
+      style={{ "--enter-delay": `${enterDelay}ms` } as CSSProperties}
+      className="car-card car-enter group flex h-full min-w-0 flex-col items-center justify-between overflow-hidden border border-white/50 bg-[var(--asphalt-deep)]/75 px-3 py-3 text-white hover:border-[var(--safety)] hover:bg-[var(--asphalt-deep)]"
     >
       <span className="relative min-h-0 w-full flex-1">
         {item.effortTier ? (
@@ -40,7 +58,7 @@ export function CarSprite({ item, daysSinceActivity, needsReview, onSelect }: Ca
             alt=""
             fill
             sizes="(max-width: 640px) 42vw, 10rem"
-            className="object-contain transition-transform group-hover:-translate-y-1"
+            className="car-art object-contain"
           />
         ) : (
           <span className="flex h-full min-h-24 items-center justify-center border-2 border-dashed border-white/55 bg-white/10 px-2 text-center text-xs font-black uppercase tracking-[0.12em]">

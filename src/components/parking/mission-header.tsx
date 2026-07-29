@@ -38,12 +38,12 @@ export function MissionHeader({
             aria-label="Reset demo data settings"
             aria-expanded={showSettings}
             onClick={() => setShowSettings((visible) => !visible)}
-            className="inline-flex size-11 items-center justify-center border border-black/20 bg-white transition-colors hover:bg-black hover:text-white"
+            className="pressable inline-flex size-11 items-center justify-center border border-black/20 bg-white hover:bg-black hover:text-white"
           >
             <Settings aria-hidden="true" size={18} />
           </button>
           {showSettings ? (
-            <div className="absolute right-0 top-13 z-30 w-72 border-2 border-[var(--ink)] bg-white p-4 shadow-[8px_8px_0_rgba(0,0,0,0.14)]">
+            <div className="popover-enter absolute right-0 top-13 z-30 w-72 border-2 border-[var(--ink)] bg-white p-4 shadow-[var(--lift-2)]">
               <p className="font-black">Reset demo data?</p>
               <p className="mt-1 text-sm leading-5 text-[var(--muted-ink)]">
                 Replace local changes with the exact three seed cars.
@@ -52,7 +52,7 @@ export function MissionHeader({
                 <button
                   type="button"
                   onClick={() => setShowSettings(false)}
-                  className="h-10 border-2 border-[var(--ink)] px-3 text-sm font-bold hover:bg-black hover:text-white"
+                  className="pressable h-10 border-2 border-[var(--ink)] px-3 text-sm font-bold hover:bg-black hover:text-white"
                 >
                   Cancel
                 </button>
@@ -62,7 +62,7 @@ export function MissionHeader({
                     onReset?.();
                     setShowSettings(false);
                   }}
-                  className="h-10 bg-[var(--scrap)] px-3 text-sm font-black text-white hover:bg-black"
+                  className="pressable h-10 bg-[var(--scrap)] px-3 text-sm font-black text-white hover:bg-black"
                 >
                   Reset demo data
                 </button>

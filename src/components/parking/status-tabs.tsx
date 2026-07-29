@@ -32,7 +32,7 @@ export function StatusTabs({ activeStatus, counts, onChange }: StatusTabsProps) 
             aria-label={`${label} ${counts[status]}`}
             aria-selected={selected}
             onClick={() => onChange(status)}
-            className={`flex h-14 items-center justify-between gap-2 border-r border-black/10 px-4 text-left text-sm font-bold last:border-r-0 ${
+            className={`pressable press-subtle flex h-14 items-center justify-between gap-2 border-r border-black/10 px-4 text-left text-sm font-bold last:border-r-0 ${
               selected
                 ? "bg-[var(--asphalt-deep)] text-white"
                 : "bg-white text-[var(--ink)] hover:bg-black/5"
@@ -40,7 +40,7 @@ export function StatusTabs({ activeStatus, counts, onChange }: StatusTabsProps) 
           >
             <span>{label}</span>
             <span
-              className={`inline-flex min-w-7 justify-center px-2 py-1 text-xs ${
+              className={`tint inline-flex min-w-7 justify-center px-2 py-1 text-xs ${
                 selected ? "bg-[var(--safety)] text-black" : "bg-black/10"
               }`}
             >

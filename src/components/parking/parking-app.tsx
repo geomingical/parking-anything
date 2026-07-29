@@ -44,12 +44,20 @@ export function ParkingApp() {
         <MissionHeader />
         <main>
           <div className="mx-auto max-w-7xl px-5 py-6 sm:px-8 sm:py-8">
+            {/* Mirrors the real lot so hydration reads as a fill, not a layout swap. */}
             <section
               aria-busy="true"
               aria-label="Loading parking data"
-              className="min-h-[24rem] border-2 border-[var(--ink)] bg-[var(--asphalt)] p-6 text-sm font-bold text-white"
+              className="overflow-hidden border-2 border-[var(--ink)] bg-white"
             >
-              Loading parking data…
+              <div className="parking-surface min-h-[24rem] p-4 sm:p-6">
+                <p className="m-0 text-sm font-bold text-white">Loading parking data…</p>
+                <div className="parking-grid mt-4" aria-hidden="true">
+                  <div className="empty-stall" />
+                  <div className="empty-stall" />
+                  <div className="empty-stall" />
+                </div>
+              </div>
             </section>
           </div>
         </main>
@@ -105,7 +113,7 @@ export function ParkingApp() {
             type="button"
             disabled
             aria-describedby="gather-future-description"
-            className="h-10 shrink-0 cursor-not-allowed border border-black/20 bg-black/5 px-4 text-sm font-bold text-black/45"
+            className="h-10 shrink-0 cursor-not-allowed border border-dashed border-black/25 bg-transparent px-4 text-sm font-bold text-black/40"
           >
             Gather · Future
           </button>
@@ -116,13 +124,13 @@ export function ParkingApp() {
       </section>
       <main className="mx-auto max-w-7xl px-5 py-6 sm:px-8 sm:py-8">
         {store.storageWarning ? (
-          <p role="status" className="mb-4 border-l-4 border-[var(--safety)] bg-white px-4 py-3 text-sm font-bold">
+          <p role="status" className="reveal mb-4 border-l-4 border-[var(--safety)] bg-white px-4 py-3 text-sm font-bold">
             {store.storageWarning}
           </p>
         ) : null}
 
         {store.needsReset ? (
-          <div className="mb-4 border-2 border-[var(--scrap)] bg-white px-4 py-4">
+          <div className="reveal mb-4 border-2 border-[var(--scrap)] bg-white px-4 py-4">
             <p className="font-black">Stored demo data cannot be read safely.</p>
             <p className="mt-1 text-sm leading-6 text-[var(--muted-ink)]">
               Open the settings control and confirm Reset demo data. Your stored value will not

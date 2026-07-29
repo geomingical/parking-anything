@@ -43,7 +43,7 @@ export function CaptureSwitcher({ activeMode, onChange }: CaptureSwitcherProps) 
               onChange(modes[nextIndex].mode);
               refs.current[nextIndex]?.focus();
             }}
-            className={`h-11 px-5 text-sm font-black ${
+            className={`pressable h-11 px-5 text-sm font-black ${
               activeMode === mode
                 ? "bg-[var(--ink)] text-white"
                 : "border-2 border-[var(--ink)] bg-white hover:bg-black/5"
@@ -57,7 +57,7 @@ export function CaptureSwitcher({ activeMode, onChange }: CaptureSwitcherProps) 
         type="button"
         disabled
         aria-describedby="park-whatever-description"
-        className="mt-2 h-10 cursor-not-allowed border border-black/20 bg-black/5 px-4 text-sm font-bold text-black/45"
+        className="mt-2 h-10 cursor-not-allowed border border-dashed border-black/25 bg-transparent px-4 text-sm font-bold text-black/40"
       >
         Park whatever · Future
       </button>

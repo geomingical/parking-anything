@@ -132,8 +132,8 @@ function ItemInspectorContent({ item, open, onOpenChange, onApplyAction, onUpdat
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-40 bg-black/55" />
-        <Dialog.Content className="fixed inset-y-0 right-0 z-50 h-dvh w-full overflow-y-auto border-l-2 border-[var(--ink)] bg-[var(--paper)] p-5 shadow-[-12px_0_0_rgba(0,0,0,0.12)] sm:max-w-xl sm:p-7">
+        <Dialog.Overlay className="scrim fixed inset-0 z-40 bg-black/55" />
+        <Dialog.Content className="drawer-panel fixed inset-y-0 right-0 z-50 h-dvh w-full overflow-y-auto border-l-2 border-[var(--ink)] bg-[var(--paper)] p-5 shadow-[-12px_0_0_rgba(0,0,0,0.12)] sm:max-w-xl sm:p-7">
           <div className="flex items-start justify-between gap-4 border-b-2 border-[var(--ink)] pb-5">
             <div className="min-w-0">
               <p className="text-xs font-black uppercase tracking-[0.16em] text-[var(--garage)]">
@@ -144,7 +144,7 @@ function ItemInspectorContent({ item, open, onOpenChange, onApplyAction, onUpdat
                 Review the test ticket, record evidence, and make the next deliberate decision.
               </Dialog.Description>
             </div>
-            <Dialog.Close asChild><button type="button" title="Close inspector" aria-label="Close inspector" className="inline-flex size-10 shrink-0 items-center justify-center border border-black/20 bg-white hover:bg-black hover:text-white"><X aria-hidden="true" size={18} /></button></Dialog.Close>
+            <Dialog.Close asChild><button type="button" title="Close inspector" aria-label="Close inspector" className="pressable inline-flex size-10 shrink-0 items-center justify-center border border-black/20 bg-white hover:bg-black hover:text-white"><X aria-hidden="true" size={18} /></button></Dialog.Close>
           </div>
 
           {item.kind === "ai_tool" ? (
@@ -166,7 +166,7 @@ function ItemInspectorContent({ item, open, onOpenChange, onApplyAction, onUpdat
               {!item.effortTier || !item.suggestedTestTask ? <p className="font-bold text-[var(--garage)]">Planning needed</p> : null}
               <div><label htmlFor="idea-effort" className="text-sm font-black">Effort tier</label><select ref={effortRef} autoFocus={autoFocusPlanning && !effortTier} id="idea-effort" value={effortTier} onChange={(event) => setEffortTier(event.target.value as EffortTier | "")} className="mt-1 h-11 w-full border-2 border-[var(--ink)] bg-white px-3"><option value="">Select effort</option>{Object.entries(EFFORT_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></div>
               <div><label htmlFor="idea-test-task" className="text-sm font-black">First test task</label><textarea ref={taskRef} autoFocus={autoFocusPlanning && Boolean(effortTier) && !suggestedTestTask.trim()} id="idea-test-task" value={suggestedTestTask} maxLength={500} rows={3} onChange={(event) => setSuggestedTestTask(event.target.value)} className="mt-1 w-full border-2 border-[var(--ink)] bg-white p-3" /></div>
-              <button type="button" onClick={saveIdea} className="h-11 bg-[var(--safety)] px-4 font-black">Save planning</button>
+              <button type="button" onClick={saveIdea} className="pressable h-11 bg-[var(--safety)] px-4 font-black">Save planning</button>
             </section>
           )}
 
@@ -183,11 +183,11 @@ function ItemInspectorContent({ item, open, onOpenChange, onApplyAction, onUpdat
           {validationMessage ? <p role="alert" className="mt-5 border-l-4 border-[var(--scrap)] bg-red-50 px-4 py-3 text-sm font-bold">{validationMessage}</p> : null}
 
           {showTowConfirmation ? (
-            <section className="mt-5 border-t-4 border-[var(--scrap)] pt-5"><label htmlFor="decision-reason" className="text-sm font-black">Decision reason</label><textarea id="decision-reason" value={decisionReason} maxLength={280} rows={3} onChange={(event) => setDecisionReason(event.target.value)} className="mt-2 w-full border-2 border-[var(--ink)] bg-white p-3" placeholder={`Why does this ${item.kind === "idea" ? "idea" : "tool"} no longer deserve a parking slot?`} /><div className="mt-3 flex gap-2"><button type="button" onClick={() => { setShowTowConfirmation(false); setValidationMessage(null); }} className="h-11 border-2 border-[var(--ink)] bg-white px-4 font-bold">Cancel</button><button type="button" onClick={() => runAction({ type: "tow_away", finalDecisionReason: decisionReason })} className="h-11 bg-[var(--scrap)] px-4 font-black text-white">Confirm Tow Away</button></div></section>
+            <section className="mt-5 border-t-4 border-[var(--scrap)] pt-5"><label htmlFor="decision-reason" className="text-sm font-black">Decision reason</label><textarea id="decision-reason" value={decisionReason} maxLength={280} rows={3} onChange={(event) => setDecisionReason(event.target.value)} className="mt-2 w-full border-2 border-[var(--ink)] bg-white p-3" placeholder={`Why does this ${item.kind === "idea" ? "idea" : "tool"} no longer deserve a parking slot?`} /><div className="mt-3 flex gap-2"><button type="button" onClick={() => { setShowTowConfirmation(false); setValidationMessage(null); }} className="pressable h-11 border-2 border-[var(--ink)] bg-white px-4 font-bold">Cancel</button><button type="button" onClick={() => runAction({ type: "tow_away", finalDecisionReason: decisionReason })} className="pressable h-11 bg-[var(--scrap)] px-4 font-black text-white">Confirm Tow Away</button></div></section>
           ) : !terminal ? (
             <div className="mt-6 flex flex-wrap gap-2 border-t-2 border-[var(--ink)] pt-5">
-              {item.status === "parked" ? <button type="button" onClick={() => runAction({ type: "start_test_drive" })} className="h-11 bg-[var(--garage)] px-4 font-black text-white">Start Test Drive</button> : <><button type="button" onClick={() => runAction({ type: "return_to_lot" })} className="h-11 border-2 border-[var(--ink)] bg-white px-4 font-bold">Return to Parking Lot</button><button type="button" onClick={parkInGarage} className="h-11 bg-[var(--garage)] px-4 font-black text-white">Park in Garage</button></>}
-              <button type="button" onClick={() => { setShowTowConfirmation(true); setValidationMessage(null); }} className="h-11 bg-[var(--scrap)] px-4 font-black text-white">Tow Away</button>
+              {item.status === "parked" ? <button type="button" onClick={() => runAction({ type: "start_test_drive" })} className="pressable h-11 bg-[var(--garage)] px-4 font-black text-white">Start Test Drive</button> : <><button type="button" onClick={() => runAction({ type: "return_to_lot" })} className="pressable h-11 border-2 border-[var(--ink)] bg-white px-4 font-bold">Return to Parking Lot</button><button type="button" onClick={parkInGarage} className="pressable h-11 bg-[var(--garage)] px-4 font-black text-white">Park in Garage</button></>}
+              <button type="button" onClick={() => { setShowTowConfirmation(true); setValidationMessage(null); }} className="pressable h-11 bg-[var(--scrap)] px-4 font-black text-white">Tow Away</button>
             </div>
           ) : null}
         </Dialog.Content>

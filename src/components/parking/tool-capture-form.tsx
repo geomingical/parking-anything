@@ -1,5 +1,6 @@
 "use client";
 
+import { LoaderCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import type { ActionResult } from "@/hooks/use-parking-store";
@@ -93,11 +94,11 @@ export function ToolCaptureForm({ onPark, onParked }: ToolCaptureFormProps) {
       <form className="flex flex-col gap-2 sm:flex-row" onSubmit={(event) => { event.preventDefault(); void analyzeAndPark(); }}>
         <label htmlFor="ai-tool-url" className="sr-only">AI tool URL</label>
         <input id="ai-tool-url" type="url" value={url} onChange={(event) => setUrl(event.target.value)} placeholder="https://example.com/ai-tool" disabled={Boolean(analyzingUrl)} className="h-12 min-w-0 flex-1 border-2 border-[var(--ink)] bg-white px-4 text-base disabled:bg-black/5" />
-        <button type="submit" disabled={Boolean(analyzingUrl)} className="h-12 shrink-0 bg-[var(--safety)] px-6 text-sm font-black uppercase tracking-[0.08em] disabled:opacity-50">Analyze &amp; Park</button>
+        <button type="submit" disabled={Boolean(analyzingUrl)} className="pressable inline-flex h-12 shrink-0 items-center justify-center gap-2 bg-[var(--safety)] px-6 text-sm font-black uppercase tracking-[0.08em] disabled:cursor-wait disabled:opacity-50">{analyzingUrl ? <LoaderCircle aria-hidden="true" size={16} className="spinner" /> : null}Analyze &amp; Park</button>
       </form>
-      {analyzingUrl ? <p className="mt-2 text-sm font-bold" aria-live="polite">Analyzing {analyzingUrl}…</p> : null}
-      {analysisError ? <p role="alert" className="mt-3 border-l-4 border-[var(--scrap)] bg-white px-4 py-3 text-sm font-bold">{analysisError}</p> : null}
-      {analysisWarning ? <p role="status" className="mt-3 border-l-4 border-[var(--safety)] bg-white px-4 py-3 text-sm font-bold">{analysisWarning}</p> : null}
+      {analyzingUrl ? <p className="reveal mt-2 text-sm font-bold" aria-live="polite">Analyzing {analyzingUrl}…</p> : null}
+      {analysisError ? <p role="alert" className="reveal mt-3 border-l-4 border-[var(--scrap)] bg-white px-4 py-3 text-sm font-bold">{analysisError}</p> : null}
+      {analysisWarning ? <p role="status" className="reveal mt-3 border-l-4 border-[var(--safety)] bg-white px-4 py-3 text-sm font-bold">{analysisWarning}</p> : null}
     </div>
   );
 }

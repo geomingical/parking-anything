@@ -1,7 +1,7 @@
 "use client";
 
-import { ScanSearch } from "lucide-react";
-import { useRef, useState } from "react";
+import { LoaderCircle, ScanSearch } from "lucide-react";
+import { useRef, useState, type CSSProperties } from "react";
 
 import { observedFact, selectPatrolCandidates } from "@/lib/parking/patrol";
 import {
@@ -136,28 +136,32 @@ export function ManagerPatrol({
           type="button"
           disabled={loading}
           onClick={runPatrol}
-          className="inline-flex h-11 min-w-48 items-center justify-center gap-2 bg-[var(--ink)] px-4 text-sm font-black text-white hover:bg-[var(--garage)] disabled:cursor-wait disabled:opacity-70"
+          className="pressable inline-flex h-11 min-w-48 items-center justify-center gap-2 bg-[var(--ink)] px-4 text-sm font-black text-white hover:bg-[var(--garage)] disabled:cursor-wait disabled:opacity-70"
         >
-          <ScanSearch aria-hidden="true" size={18} />
+          {loading ? (
+            <LoaderCircle aria-hidden="true" size={18} className="spinner" />
+          ) : (
+            <ScanSearch aria-hidden="true" size={18} />
+          )}
           {loading ? "Patrolling…" : "Run Manager Patrol"}
         </button>
       </div>
 
       {allClear ? (
-        <p role="status" className="px-4 py-4 text-sm font-bold">
+        <p role="status" className="reveal px-4 py-4 text-sm font-bold">
           All clear. No active Parkables need attention.
         </p>
       ) : null}
 
       {error ? (
-        <p role="alert" className="border-l-4 border-[var(--scrap)] px-4 py-3 text-sm font-bold">
+        <p role="alert" className="reveal border-l-4 border-[var(--scrap)] px-4 py-3 text-sm font-bold">
           {error}
         </p>
       ) : null}
 
       {recommendations.length > 0 ? (
         <div aria-label="Patrol recommendations">
-          {recommendations.map((recommendation) => {
+          {recommendations.map((recommendation, index) => {
             const candidate = candidatesById.get(recommendation.itemId);
             if (!candidate) return null;
             const currentItem = items.find(({ id }) => id === candidate.id);
@@ -177,7 +181,8 @@ export function ManagerPatrol({
               <article
                 key={recommendation.itemId}
                 aria-label={`Patrol recommendation for ${candidate.title}`}
-                className="grid gap-4 border-t border-black/15 px-4 py-5 first:border-t-0 md:grid-cols-[1fr_1.2fr_auto] md:items-start"
+                style={{ "--enter-delay": `${index * 60}ms` } as CSSProperties}
+                className="reveal grid gap-4 border-t border-black/15 px-4 py-5 first:border-t-0 md:grid-cols-[1fr_1.2fr_auto] md:items-start"
               >
                 <div>
                   <p className="text-xs font-black uppercase tracking-[0.14em] text-[var(--muted-ink)]">
@@ -206,7 +211,7 @@ export function ManagerPatrol({
                           ? onPlanTestDrive(candidate.id)
                           : onStartTestDrive(candidate.id)
                       }
-                      className="mt-3 h-10 bg-[var(--garage)] px-3 text-sm font-black text-white"
+                      className="pressable mt-3 h-10 bg-[var(--garage)] px-3 text-sm font-black text-white"
                     >
                       {commandLabel}
                     </button>
@@ -215,7 +220,7 @@ export function ManagerPatrol({
                 <button
                   type="button"
                   onClick={() => onSelect(candidate.id)}
-                  className="h-10 border-2 border-[var(--ink)] px-3 text-sm font-black hover:bg-black hover:text-white"
+                  className="pressable h-10 border-2 border-[var(--ink)] px-3 text-sm font-black hover:bg-black hover:text-white"
                 >
                   Review this car
                 </button>
