@@ -1,16 +1,29 @@
-import type { ParkingItem } from "@/lib/parking/schemas";
+import type { ParkingItem, ParkingItemStatus } from "@/lib/parking/schemas";
 import { activityAge } from "@/lib/parking/activity";
 import { CarSprite } from "./car-sprite";
+import { PARKING_LOT_PANEL_ID, statusTabId } from "./status-tabs";
 
 type ParkingLotProps = {
   items: ParkingItem[];
   now?: Date;
+  activeStatus?: ParkingItemStatus;
   onSelect(id: string, trigger: HTMLButtonElement): void;
 };
 
-export function ParkingLot({ items, onSelect, now = new Date() }: ParkingLotProps) {
+export function ParkingLot({
+  items,
+  onSelect,
+  activeStatus,
+  now = new Date(),
+}: ParkingLotProps) {
   return (
-    <section aria-label="Parking lot" className="parking-surface min-h-[24rem] p-4 sm:p-6">
+    <section
+      id={PARKING_LOT_PANEL_ID}
+      role="tabpanel"
+      aria-labelledby={activeStatus ? statusTabId(activeStatus) : undefined}
+      aria-label={activeStatus ? undefined : "Parking lot"}
+      className="parking-surface min-h-[24rem] p-4 sm:p-6"
+    >
       {items.length > 0 ? (
         <div className="parking-grid">
           {items.map((item, index) => {

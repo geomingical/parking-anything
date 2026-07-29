@@ -169,6 +169,7 @@ export function ParkingApp() {
           />
           <ParkingLot
             items={filteredItems}
+            activeStatus={activeStatus}
             onSelect={(id, trigger) => {
               itemTrigger.current = trigger;
               store.selectItem(id);
@@ -185,6 +186,9 @@ export function ParkingApp() {
         onOpenChange={(open) => {
           if (!open) {
             store.selectItem(null);
+            // The patrol prompt is handled once; reopening normally must not
+            // keep stealing focus into the planning fields.
+            setPlanningFocusId(null);
             requestAnimationFrame(() => itemTrigger.current?.focus());
           }
         }}

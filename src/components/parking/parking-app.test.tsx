@@ -155,6 +155,47 @@ describe("ParkingApp live analysis", () => {
     });
   });
 
+  it("stops forcing planning focus once the patrol prompt has been handled", async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() =>
+        Promise.resolve(
+          Response.json({
+            recommendations: [
+              {
+                itemId: "client-owned-id",
+                suggestedAction: "start_test_drive",
+                rationale: "Plan one bounded test before this is forgotten.",
+                source: "model",
+              },
+            ],
+          }),
+        ),
+      ),
+    );
+    render(<ParkingApp />);
+
+    await user.click(await screen.findByRole("tab", { name: "Park idea" }));
+    await user.type(screen.getByLabelText("Idea title"), "Decision receipt");
+    await user.type(
+      screen.getByLabelText("Idea"),
+      "Record one decision before the meeting ends.",
+    );
+    await user.click(screen.getByRole("button", { name: "Park Idea" }));
+
+    await user.click(screen.getByRole("button", { name: "Run Manager Patrol" }));
+    await user.click(await screen.findByRole("button", { name: "Plan Test Drive" }));
+    expect(screen.getByLabelText("Effort tier")).toHaveFocus();
+    await user.click(screen.getByRole("button", { name: "Close inspector" }));
+
+    await user.click(
+      await screen.findByRole("button", { name: "Decision receipt, Parked" }),
+    );
+
+    expect(screen.getByLabelText("Effort tier")).not.toHaveFocus();
+  });
+
   it("tows one unplanned Idea directly into the shared Scrapyard", async () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     vi.stubGlobal("fetch", vi.fn());

@@ -229,6 +229,20 @@ test("a present malformed v2 never falls back to valid v1", async ({ page }) => 
     v1: localStorage.getItem("parking-anything:v1"),
     v2: localStorage.getItem("parking-anything:v2"),
   }))).resolves.toEqual({ v1: rawV1, v2: rawV2 });
+
+  // The banner promises the stored value survives until the reset is confirmed,
+  // so a mutation attempted in this state must be refused rather than commit.
+  await page.getByRole("tab", { name: "Park idea" }).click();
+  await page.getByLabel("Idea title").fill("Overwrite probe");
+  await page.getByLabel("Idea", { exact: true }).fill("Attempted while unreadable.");
+  await page.getByRole("button", { name: "Park Idea" }).click();
+  await expect(
+    page.getByText("Stored demo data cannot be read safely.", { exact: false }).last(),
+  ).toBeVisible();
+  await expect(page.evaluate(() => ({
+    v1: localStorage.getItem("parking-anything:v1"),
+    v2: localStorage.getItem("parking-anything:v2"),
+  }))).resolves.toEqual({ v1: rawV1, v2: rawV2 });
   assertNoErrors();
 });
 

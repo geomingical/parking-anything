@@ -117,9 +117,29 @@ function getServerSnapshot(): PersistentSnapshot {
   return SERVER_SNAPSHOT;
 }
 
+/*
+ * Another tab writing the same key must not be silently ignored, or the two tabs
+ * diverge and whichever saves last destroys the other's work. A null key means
+ * storage was cleared wholesale, which also invalidates the cache.
+ */
+function onStorageEvent(event: StorageEvent) {
+  if (event.key !== null && event.key !== STORAGE_KEY) return;
+  cachedFingerprint = SNAPSHOT_UNREAD;
+  cachedSnapshot = null;
+  listeners.forEach((listener) => listener());
+}
+
 function subscribe(listener: () => void): () => void {
   listeners.add(listener);
-  return () => listeners.delete(listener);
+  if (listeners.size === 1 && typeof window !== "undefined") {
+    window.addEventListener("storage", onStorageEvent);
+  }
+  return () => {
+    listeners.delete(listener);
+    if (listeners.size === 0 && typeof window !== "undefined") {
+      window.removeEventListener("storage", onStorageEvent);
+    }
+  };
 }
 
 function publishSnapshot(snapshot: PersistentSnapshot) {
@@ -128,7 +148,11 @@ function publishSnapshot(snapshot: PersistentSnapshot) {
   listeners.forEach((listener) => listener());
 }
 
-function commitItems(items: ParkingItem[]): ActionResult {
+/*
+ * The write path is split so that resetDemo can bypass the guard below. Every
+ * other caller must go through commitItems.
+ */
+function writeItems(items: ParkingItem[]): ActionResult {
   let validItems: ParkingItem[];
   try {
     validItems = ParkingStoreV2Schema.parse({
@@ -155,6 +179,57 @@ function commitItems(items: ParkingItem[]): ActionResult {
   return { ok: true };
 }
 
+/*
+ * While stored data is unreadable the UI promises it will not be overwritten
+ * before the user confirms a reset. Saving anything here would silently destroy
+ * the value they were asked about, so every ordinary mutation is refused.
+ */
+function commitItems(items: ParkingItem[]): ActionResult {
+  if (buildBrowserSnapshot().needsReset) {
+    return {
+      ok: false,
+      message:
+        "Stored demo data cannot be read safely. Confirm Reset demo data before making changes.",
+    };
+  }
+  return writeItems(items);
+}
+
+type ProducedItem =
+  | { ok: true; item: ParkingItem }
+  | { ok: false; message: string };
+
+/*
+ * Every mutation shares the same shape: locate the item, refuse if it is gone,
+ * then commit a copied list with one element replaced.
+ */
+function mutateItem(
+  id: string,
+  produce: (item: ParkingItem) => ProducedItem,
+): ActionResult {
+  const currentItems = buildBrowserSnapshot().items;
+  const index = currentItems.findIndex((item) => item.id === id);
+  if (index === -1) {
+    return { ok: false, message: "This parking item could not be found." };
+  }
+
+  const produced = produce(currentItems[index]);
+  if (!produced.ok) return produced;
+
+  const items = [...currentItems];
+  items[index] = produced.item;
+  return commitItems(items);
+}
+
+function refuseIfTerminal(item: ParkingItem): ProducedItem | null {
+  return item.status === "garaged" || item.status === "scrapped"
+    ? {
+        ok: false,
+        message: "This item has reached a final decision and cannot be edited.",
+      }
+    : null;
+}
+
 export function useParkingStore(): ParkingStoreController {
   const persistent = useSyncExternalStore(
     subscribe,
@@ -171,27 +246,20 @@ export function useParkingStore(): ParkingStoreController {
     id: string,
     action: ParkingAction,
   ): ActionResult {
-    const currentItems = buildBrowserSnapshot().items;
-    const index = currentItems.findIndex((item) => item.id === id);
-    if (index === -1) {
-      return { ok: false, message: "This parking item could not be found." };
-    }
-
-    try {
-      const nextItem = transitionItem(
-        currentItems[index],
-        action,
-        new Date().toISOString(),
-      );
-      const items = [...currentItems];
-      items[index] = nextItem;
-      return commitItems(items);
-    } catch (error) {
-      return {
-        ok: false,
-        message: error instanceof Error ? error.message : "The item could not be moved.",
-      };
-    }
+    return mutateItem(id, (item) => {
+      try {
+        return {
+          ok: true,
+          item: transitionItem(item, action, new Date().toISOString()),
+        };
+      } catch (error) {
+        return {
+          ok: false,
+          message:
+            error instanceof Error ? error.message : "The item could not be moved.",
+        };
+      }
+    });
   }
 
   function updateEvidence(
@@ -199,32 +267,22 @@ export function useParkingStore(): ParkingStoreController {
     notes: string,
     resultUrl: string,
   ): ActionResult {
-    const currentItems = buildBrowserSnapshot().items;
-    const index = currentItems.findIndex((item) => item.id === id);
-    if (index === -1) {
-      return { ok: false, message: "This parking item could not be found." };
-    }
+    return mutateItem(id, (item) => {
+      const terminal = refuseIfTerminal(item);
+      if (terminal) return terminal;
 
-    if (
-      currentItems[index].status === "garaged" ||
-      currentItems[index].status === "scrapped"
-    ) {
+      const now = new Date().toISOString();
       return {
-        ok: false,
-        message: "This item has reached a final decision and cannot be edited.",
+        ok: true,
+        item: {
+          ...item,
+          notes: notes || undefined,
+          resultUrl: resultUrl || undefined,
+          updatedAt: now,
+          lastActivityAt: now,
+        },
       };
-    }
-
-    const now = new Date().toISOString();
-    const items = [...currentItems];
-    items[index] = {
-      ...items[index],
-      notes: notes || undefined,
-      resultUrl: resultUrl || undefined,
-      updatedAt: now,
-      lastActivityAt: now,
-    };
-    return commitItems(items);
+    });
   }
 
   function updateIdea(
@@ -236,40 +294,32 @@ export function useParkingStore(): ParkingStoreController {
       suggestedTestTask?: string;
     },
   ): ActionResult {
-    const currentItems = buildBrowserSnapshot().items;
-    const index = currentItems.findIndex((item) => item.id === id);
-    if (index === -1) {
-      return { ok: false, message: "This parking item could not be found." };
-    }
+    return mutateItem(id, (item) => {
+      if (item.kind !== "idea") {
+        return { ok: false, message: "Only Ideas can use the Idea editor." };
+      }
 
-    const item = currentItems[index];
-    if (item.kind !== "idea") {
-      return { ok: false, message: "Only Ideas can use the Idea editor." };
-    }
+      const terminal = refuseIfTerminal(item);
+      if (terminal) return terminal;
 
-    if (item.status === "garaged" || item.status === "scrapped") {
+      const now = new Date().toISOString();
       return {
-        ok: false,
-        message: "This item has reached a final decision and cannot be edited.",
+        ok: true,
+        item: {
+          ...item,
+          title: input.title,
+          ideaText: input.ideaText,
+          effortTier: input.effortTier,
+          suggestedTestTask: input.suggestedTestTask,
+          updatedAt: now,
+          lastActivityAt: now,
+        },
       };
-    }
-
-    const now = new Date().toISOString();
-    const items = [...currentItems];
-    items[index] = {
-      ...item,
-      title: input.title,
-      ideaText: input.ideaText,
-      effortTier: input.effortTier,
-      suggestedTestTask: input.suggestedTestTask,
-      updatedAt: now,
-      lastActivityAt: now,
-    };
-    return commitItems(items);
+    });
   }
 
   function resetDemo() {
-    commitItems(makeSeedItems());
+    writeItems(makeSeedItems());
     setSelectedId(null);
   }
 

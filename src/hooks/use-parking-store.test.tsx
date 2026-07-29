@@ -317,4 +317,35 @@ describe("useParkingStore", () => {
     expect(result.current.needsReset).toBe(false);
     expect(result.current.items).toEqual(makeSeedItems());
   });
+
+  it("adopts parking data written by another tab", () => {
+    const { result } = renderHook(() => useParkingStore());
+    expect(result.current.items).toEqual(makeSeedItems());
+
+    act(() => {
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({ version: 2, parkingItems: [newIdea] }),
+      );
+      window.dispatchEvent(new StorageEvent("storage", { key: STORAGE_KEY }));
+    });
+
+    expect(result.current.items).toEqual([newIdea]);
+  });
+
+  it("refuses to overwrite unreadable stored data before the reset is confirmed", () => {
+    const malformed = '{"version":2,"parkingItems":"malformed"}';
+    localStorage.setItem(STORAGE_KEY, malformed);
+    const { result } = renderHook(() => useParkingStore());
+    expect(result.current.needsReset).toBe(true);
+    let outcome;
+
+    act(() => {
+      outcome = result.current.addItem(newIdea);
+    });
+
+    expect(outcome).toMatchObject({ ok: false });
+    expect(localStorage.getItem(STORAGE_KEY)).toBe(malformed);
+    expect(result.current.needsReset).toBe(true);
+  });
 });
