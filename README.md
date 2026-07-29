@@ -4,7 +4,7 @@
 
 Parking Anything is a Next.js app that turns saved tools and ideas into testable decisions. Park something worth remembering, plan a first test, take it for a Test Drive, then preserve the result in the Garage or record a deliberate exit in the Scrapyard.
 
-> Release status: the live demo currently serves the stable v0.4 baseline. The v0.5 unified-Parkable release is verified in a protected Preview and awaits explicit production approval.
+> Release status: the live demo serves the verified v0.5 unified-Parkable release. The previous v0.4 production deployment remains recorded as the rollback target.
 
 ![Parking Anything v0.5 mixed parking lot with tools and ideas](docs/qa-screenshots/v0.5-1440x900-mixed-lot.png)
 
