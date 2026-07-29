@@ -53,17 +53,6 @@ export function CaptureSwitcher({ activeMode, onChange }: CaptureSwitcherProps) 
           </button>
         ))}
       </div>
-      <button
-        type="button"
-        disabled
-        aria-describedby="park-whatever-description"
-        className="mt-2 h-10 cursor-not-allowed border border-dashed border-black/25 bg-transparent px-4 text-sm font-bold text-black/40"
-      >
-        Park whatever · Future
-      </button>
-      <span id="park-whatever-description" className="sr-only">
-        Additional parkable object types are planned for a future release.
-      </span>
     </div>
   );
 }

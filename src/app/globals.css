@@ -116,17 +116,30 @@ h3 {
  */
 .parking-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
-  grid-auto-rows: 12.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  grid-auto-rows: 13.5rem;
   gap: 1rem;
 }
 
+/* Placeholder stalls in the hydration skeleton; sized to the grid's rows. */
 .empty-stall {
   display: grid;
   place-items: center;
   min-height: 12.5rem;
   border: 2px dashed rgba(255, 255, 255, 0.4);
   background: rgba(255, 255, 255, 0.04);
+}
+
+/*
+ * The "no cars here" state fills the lot it belongs to. A 12.5rem block inside a
+ * 24rem surface left an unexplained void beneath it.
+ */
+.empty-lot {
+  display: grid;
+  place-items: center;
+  min-height: min(21rem, 55vh);
+  border: 2px dashed rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 /* A parked car is a physical card: a top highlight edge, and it lifts on hover. */

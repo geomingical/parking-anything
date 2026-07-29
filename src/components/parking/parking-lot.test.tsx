@@ -41,7 +41,9 @@ describe("ParkingLot", () => {
       />,
     );
 
-    expect(screen.getByText(/^Idea ·/)).toBeVisible();
+    expect(screen.getByText("Idea")).toBeVisible();
+    // The lot is filtered by status, so the card must not repeat it.
+    expect(screen.queryByText(/Parked/)).not.toBeInTheDocument();
     expect(screen.getByText("Planning needed")).toBeVisible();
     expect(screen.getByText("Needs review · 7 days")).toBeVisible();
     expect(screen.queryByText("Needs review · 1 day")).not.toBeInTheDocument();

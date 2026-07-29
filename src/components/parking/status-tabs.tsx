@@ -4,11 +4,19 @@ import { useRef } from "react";
 
 import type { ParkingItemStatus } from "@/lib/parking/schemas";
 
-const TABS: ReadonlyArray<{ status: ParkingItemStatus; label: string }> = [
-  { status: "parked", label: "Parking Lot" },
-  { status: "test_driving", label: "Test Driving" },
-  { status: "garaged", label: "Garage" },
-  { status: "scrapped", label: "Scrapyard" },
+/*
+ * Garage and Scrapyard are outcomes, not just filters, so they carry their own
+ * semantic colour here. Yellow is reserved for attention states on the cards.
+ */
+const TABS: ReadonlyArray<{
+  status: ParkingItemStatus;
+  label: string;
+  selectedClass: string;
+}> = [
+  { status: "parked", label: "Parking Lot", selectedClass: "bg-[var(--asphalt-deep)] text-white" },
+  { status: "test_driving", label: "Test Driving", selectedClass: "bg-[var(--asphalt-deep)] text-white" },
+  { status: "garaged", label: "Garage", selectedClass: "bg-[var(--garage)] text-white" },
+  { status: "scrapped", label: "Scrapyard", selectedClass: "bg-[var(--scrap)] text-white" },
 ];
 
 /** The lot is one panel whose contents swap, so every tab controls it. */
@@ -59,7 +67,7 @@ export function StatusTabs({ activeStatus, counts, onChange }: StatusTabsProps) 
       aria-label="Parking status filters"
       className="grid grid-cols-2 border-b border-black/15 bg-white sm:grid-cols-4"
     >
-      {TABS.map(({ status, label }, index) => {
+      {TABS.map(({ status, label, selectedClass }, index) => {
         const selected = status === activeStatus;
         return (
           <button
@@ -77,15 +85,13 @@ export function StatusTabs({ activeStatus, counts, onChange }: StatusTabsProps) 
             onKeyDown={(event) => onKeyDown(event, index)}
             onClick={() => onChange(status)}
             className={`pressable press-subtle flex h-14 items-center justify-between gap-2 border-r border-black/10 px-4 text-left text-sm font-bold last:border-r-0 ${
-              selected
-                ? "bg-[var(--asphalt-deep)] text-white"
-                : "bg-white text-[var(--ink)] hover:bg-black/5"
+              selected ? selectedClass : "bg-white text-[var(--ink)] hover:bg-black/5"
             }`}
           >
             <span>{label}</span>
             <span
               className={`tint inline-flex min-w-7 justify-center px-2 py-1 text-xs ${
-                selected ? "bg-[var(--safety)] text-black" : "bg-black/10"
+                selected ? "bg-white/20 text-white" : "bg-black/10"
               }`}
             >
               {counts[status]}

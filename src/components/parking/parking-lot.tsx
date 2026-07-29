@@ -33,7 +33,7 @@ export function ParkingLot({
           })}
         </div>
       ) : (
-        <div className="empty-stall reveal">
+        <div className="empty-lot reveal">
           <p className="m-0 px-4 text-center text-sm font-bold text-white/80">
             No cars are waiting in this zone.
           </p>

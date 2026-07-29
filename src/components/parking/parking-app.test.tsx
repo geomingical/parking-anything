@@ -72,7 +72,7 @@ describe("ParkingApp live analysis", () => {
     ).toBeVisible();
   });
 
-  it("switches capture modes by keyboard and keeps the future mode disabled", async () => {
+  it("switches capture modes by keyboard without writing anything", async () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     vi.stubGlobal("fetch", vi.fn());
     render(<ParkingApp />);
@@ -87,20 +87,17 @@ describe("ParkingApp live analysis", () => {
     expect(ideaTab).toHaveAttribute("aria-selected", "true");
     expect(screen.getByLabelText("Idea title")).toBeVisible();
 
-    const future = screen.getByRole("button", { name: "Park whatever · Future" });
-    expect(future).toBeDisabled();
-    expect(future).toHaveAccessibleDescription(
-      "Additional parkable object types are planned for a future release.",
-    );
-    const gather = screen.getByRole("button", { name: "Gather · Future" });
-    expect(gather).toBeDisabled();
-    expect(gather).toHaveAccessibleDescription(
-      "Collaboration around parked tools and ideas is planned for a future release.",
-    );
-    await user.click(future);
-    await user.click(gather);
     expect(fetch).not.toHaveBeenCalled();
     expect(storedItems()).toHaveLength(3);
+  });
+
+  it("states the roadmap as a note instead of dead controls", async () => {
+    vi.stubGlobal("fetch", vi.fn());
+    render(<ParkingApp />);
+    await screen.findByRole("tab", { name: "Park tool" });
+
+    expect(screen.queryByRole("button", { name: /Future/ })).not.toBeInTheDocument();
+    expect(screen.getByText(/Planned for later releases/)).toBeVisible();
   });
 
   it("keeps one Idea record through planning, Test Drive, evidence, and Garage", async () => {

@@ -556,7 +556,8 @@ test("capture v0.5 unified Parkable visual matrix", async ({ page }, testInfo) =
     await page.getByRole("button", { name: "Reset demo data settings" }).click();
     await page.getByRole("button", { name: "Reset demo data", exact: true }).click();
 
-    await expect(page.getByRole("button", { name: "Gather · Future" })).toBeDisabled();
+    await expect(page.getByRole("button", { name: /Future/ })).toHaveCount(0);
+    await expect(page.getByText(/Planned for later releases/)).toBeVisible();
     await expectNoHorizontalPageScroll(page);
     await captureStableScreenshot(page, shot("future-controls"));
 

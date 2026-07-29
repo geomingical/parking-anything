@@ -16,6 +16,12 @@ const STATUS_LABELS: Record<ParkingItem["status"], string> = {
   scrapped: "Scrapped",
 };
 
+const EFFORT_LABELS: Record<EffortTier, string> = {
+  quick_spin: "Quick spin",
+  focused_session: "Focused session",
+  weekend_project: "Weekend project",
+};
+
 /*
  * Cars cascade in rather than appearing all at once, but the delay is capped so a
  * full lot never makes the last row feel like it is waiting on the first.
@@ -49,7 +55,7 @@ export function CarSprite({
       aria-label={`${item.title}, ${statusLabel}`}
       onClick={(event) => onSelect(item.id, event.currentTarget)}
       style={{ "--enter-delay": `${enterDelay}ms` } as CSSProperties}
-      className="car-card car-enter group flex h-full min-w-0 flex-col items-center justify-between overflow-hidden border border-white/50 bg-[var(--asphalt-deep)]/75 px-3 py-3 text-white hover:border-[var(--safety)] hover:bg-[var(--asphalt-deep)]"
+      className="car-card car-enter group flex h-full min-w-0 flex-col items-center justify-between overflow-hidden border border-white/50 bg-[var(--asphalt-deep)]/75 px-3 py-2 text-white hover:border-[var(--safety)] hover:bg-[var(--asphalt-deep)]"
     >
       <span className="relative min-h-0 w-full flex-1">
         {item.effortTier ? (
@@ -61,19 +67,25 @@ export function CarSprite({
             className="car-art object-contain"
           />
         ) : (
-          <span className="flex h-full min-h-24 items-center justify-center border-2 border-dashed border-white/55 bg-white/10 px-2 text-center text-xs font-black uppercase tracking-[0.12em]">
+          <span className="flex h-full min-h-20 items-center justify-center border-2 border-dashed border-white/55 bg-white/10 px-2 text-center text-xs font-black uppercase tracking-[0.12em]">
             Planning needed
           </span>
         )}
       </span>
-      <span className="mt-1 w-full truncate text-sm font-bold" title={item.title}>
+      {/*
+       * The lot is already filtered by status, so repeating it here would spend
+       * the card's scarcest space on what the selected tab already says. The
+       * title gets two lines instead, and the review warning gets the accent.
+       */}
+      <span className="mt-1 line-clamp-2 w-full text-center text-sm font-bold leading-tight" title={item.title}>
         {item.title}
       </span>
-      <span className="mt-1 text-[0.68rem] font-black uppercase tracking-[0.14em] text-[var(--safety)]">
-        {kindLabel} · {statusLabel}
+      <span className="mt-0.5 w-full truncate text-center text-[0.6rem] font-black uppercase tracking-[0.08em] text-white/60">
+        {kindLabel}
+        {item.effortTier ? ` · ${EFFORT_LABELS[item.effortTier]}` : ""}
       </span>
       {needsReview ? (
-        <span className="mt-1 text-[0.68rem] font-bold text-white">
+        <span className="mt-1 whitespace-nowrap bg-[var(--safety)] px-1.5 py-0.5 text-[0.6rem] font-black uppercase tracking-[0.04em] text-black">
           Needs review · {daysSinceActivity} days
         </span>
       ) : null}
