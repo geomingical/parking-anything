@@ -1,0 +1,10 @@
+# Build inputs only. These directories are production artefacts of the Build Week
+# film and the submission packet — they are never imported by the Next.js build,
+# so uploading them only slows the deploy.
+video
+submission
+docs/qa-screenshots
+e2e
+test-results
+playwright-report
+.worktrees
