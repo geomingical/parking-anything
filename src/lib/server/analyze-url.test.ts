@@ -1,6 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { AnalyzeUrlResultSchema } from "@/lib/parking/schemas";
+import {
+  AnalyzeUrlModelResultSchema,
+  AnalyzeUrlResultSchema,
+} from "@/lib/parking/schemas";
 
 import { analyzeUrl, type AnalyzeResponsesParse } from "./analyze-url";
 import { ModelOutputError } from "./openai-client";
@@ -14,7 +17,13 @@ const validAnalysis = AnalyzeUrlResultSchema.parse({
   usefulnessHypothesis: "It may shorten a repeated review step.",
 });
 
-function completedResponse(parsed: unknown = validAnalysis) {
+const validModelResult = AnalyzeUrlModelResultSchema.parse({
+  ...validAnalysis,
+  suggestedKind: "ai_tool",
+  kindRationale: "An operable API surface, not prose to read.",
+});
+
+function completedResponse(parsed: unknown = validModelResult) {
   return {
     status: "completed",
     output: [
@@ -39,22 +48,29 @@ describe("analyzeUrl", () => {
     }));
 
     await expect(
-      analyzeUrl("https://example.com/tool", {
-        validateUrl: publicValidator,
-        fetchPage,
-        responsesParse,
-        model: "gpt-5.6-test",
-      }),
+      analyzeUrl(
+        { url: "https://example.com/tool" },
+        {
+          validateUrl: publicValidator,
+          fetchPage,
+          responsesParse,
+          model: "gpt-5.6-test",
+        },
+      ),
     ).resolves.toEqual({
       analysis: validAnalysis,
       sourceMode: "fetched",
+      classification: {
+        suggestedKind: "ai_tool",
+        rationale: "An operable API surface, not prose to read.",
+      },
     });
 
     expect(responsesParse).toHaveBeenCalledTimes(1);
     const request = vi.mocked(responsesParse).mock.calls[0][0];
     expect(request).toMatchObject({
       model: "gpt-5.6-test",
-      max_output_tokens: 700,
+      max_output_tokens: 800,
       text: {
         format: {
           type: "json_schema",
@@ -81,17 +97,24 @@ describe("analyzeUrl", () => {
     const responsesParse: AnalyzeResponsesParse = vi.fn(async () => completedResponse());
 
     await expect(
-      analyzeUrl("https://example.com/tool", {
-        validateUrl: publicValidator,
-        fetchPage: vi.fn(async () => {
-          throw new PublicFetchError("page unavailable");
-        }),
-        responsesParse,
-      }),
+      analyzeUrl(
+        { url: "https://example.com/tool" },
+        {
+          validateUrl: publicValidator,
+          fetchPage: vi.fn(async () => {
+            throw new PublicFetchError("page unavailable");
+          }),
+          responsesParse,
+        },
+      ),
     ).resolves.toEqual({
       analysis: validAnalysis,
       sourceMode: "url_only",
       warning: "Page text could not be fetched, so this analysis uses the URL only.",
+      classification: {
+        suggestedKind: "ai_tool",
+        rationale: "An operable API surface, not prose to read.",
+      },
     });
 
     const userInput = vi.mocked(responsesParse).mock.calls[0][0].input?.[1];
@@ -107,13 +130,16 @@ describe("analyzeUrl", () => {
     const responsesParse: AnalyzeResponsesParse = vi.fn();
 
     await expect(
-      analyzeUrl("http://127.0.0.1", {
-        validateUrl: vi.fn(async () => {
-          throw new Error(message);
-        }),
-        fetchPage: vi.fn(),
-        responsesParse,
-      }),
+      analyzeUrl(
+        { url: "http://127.0.0.1" },
+        {
+          validateUrl: vi.fn(async () => {
+            throw new Error(message);
+          }),
+          fetchPage: vi.fn(),
+          responsesParse,
+        },
+      ),
     ).rejects.toThrow(message);
     expect(responsesParse).not.toHaveBeenCalled();
   });
@@ -122,29 +148,107 @@ describe("analyzeUrl", () => {
     const refusal = new ModelOutputError("The model declined this analysis.");
 
     await expect(
-      analyzeUrl("https://example.com/tool", {
-        validateUrl: publicValidator,
-        fetchPage: vi.fn(async () => ({
-          normalizedUrl: "https://example.com/tool",
-          text: "Tool page",
-        })),
-        responsesParse: vi.fn(async () => {
-          throw refusal;
-        }),
-      }),
+      analyzeUrl(
+        { url: "https://example.com/tool" },
+        {
+          validateUrl: publicValidator,
+          fetchPage: vi.fn(async () => ({
+            normalizedUrl: "https://example.com/tool",
+            text: "Tool page",
+          })),
+          responsesParse: vi.fn(async () => {
+            throw refusal;
+          }),
+        },
+      ),
     ).rejects.toBe(refusal);
   });
 
   it("validates parsed output again at the service boundary", async () => {
     await expect(
-      analyzeUrl("https://example.com/tool", {
-        validateUrl: publicValidator,
-        fetchPage: vi.fn(async () => ({
-          normalizedUrl: "https://example.com/tool",
-          text: "Tool page",
-        })),
-        responsesParse: vi.fn(async () => completedResponse({ title: "partial" })),
-      }),
+      analyzeUrl(
+        { url: "https://example.com/tool" },
+        {
+          validateUrl: publicValidator,
+          fetchPage: vi.fn(async () => ({
+            normalizedUrl: "https://example.com/tool",
+            text: "Tool page",
+          })),
+          responsesParse: vi.fn(async () => completedResponse({ title: "partial" })),
+        },
+      ),
     ).rejects.toMatchObject({ name: "ZodError" });
+  });
+
+  it("frames the prompt for the requested kind and returns a classification", async () => {
+    const captured: { system?: string } = {};
+    const response = await analyzeUrl(
+      { url: "https://example.com/article", kind: "read" },
+      {
+        validateUrl: async (value) => value,
+        fetchPage: async () => ({
+          normalizedUrl: "https://example.com/article",
+          text: "A long essay about interface craft.",
+        }),
+        responsesParse: async (request) => {
+          captured.system = String(
+            (request.input as Array<{ role: string; content: string }>)[0].content,
+          );
+          return {
+            output_parsed: {
+              title: "On interface craft",
+              summary: "Argues small details compound.",
+              effortTier: "focused_session",
+              suggestedTestTask: "Pick one detail to apply.",
+              usefulnessHypothesis: "May sharpen the next visual pass.",
+              suggestedKind: "read",
+              kindRationale: "Long-form prose, nothing to operate.",
+            },
+          };
+        },
+      },
+    );
+
+    expect(captured.system).toContain("reading ticket");
+    expect(captured.system).toContain("ai_tool:");
+    expect(captured.system).toContain("read:");
+    expect(response.classification).toEqual({
+      suggestedKind: "read",
+      rationale: "Long-form prose, nothing to operate.",
+    });
+    expect(response.analysis).not.toHaveProperty("suggestedKind");
+    expect(response.analysis).not.toHaveProperty("kindRationale");
+  });
+
+  it("defaults to the tool kind when none is given", async () => {
+    const captured: { system?: string } = {};
+    await analyzeUrl(
+      { url: "https://example.com/tool" },
+      {
+        validateUrl: async (value) => value,
+        fetchPage: async () => ({
+          normalizedUrl: "https://example.com/tool",
+          text: "An API for summarising documents.",
+        }),
+        responsesParse: async (request) => {
+          captured.system = String(
+            (request.input as Array<{ role: string; content: string }>)[0].content,
+          );
+          return {
+            output_parsed: {
+              title: "Summariser API",
+              summary: "Summarises documents.",
+              effortTier: "quick_spin",
+              suggestedTestTask: "Summarise one real document.",
+              usefulnessHypothesis: "May cut a manual review step.",
+              suggestedKind: "ai_tool",
+              kindRationale: "An operable API.",
+            },
+          };
+        },
+      },
+    );
+
+    expect(captured.system).toContain("evaluation ticket");
   });
 });
