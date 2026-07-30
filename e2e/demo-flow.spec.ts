@@ -359,7 +359,7 @@ test("Garage and Tow Away require evidence", async ({ page }) => {
   await page.getByRole("button", { name: "Tow Away" }).click();
   await page.getByRole("button", { name: "Confirm Tow Away" }).click();
   await expect(
-    page.getByText("Record why this tool is leaving before towing it away."),
+    page.getByText("Record why this is leaving before towing it away."),
   ).toBeVisible();
   assertNoErrors();
 });
