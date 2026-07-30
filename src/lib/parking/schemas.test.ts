@@ -6,6 +6,7 @@ const {
   AnalyzeUrlResponseSchema,
   ManagerPatrolResponseSchema,
   ParkingItemSchema,
+  ParkingStoreV2Schema,
   PatrolCandidateSchema,
 } = schemas;
 
@@ -291,6 +292,10 @@ describe("API response schemas", () => {
       },
       sourceMode: "url_only",
       warning: "The public page could not be fetched, so analysis used the URL only.",
+      classification: {
+        suggestedKind: "ai_tool",
+        rationale: "Looks like a hosted tool.",
+      },
     });
 
     expect(response.sourceMode).toBe("url_only");
@@ -324,5 +329,59 @@ describe("API response schemas", () => {
         ],
       }).success,
     ).toBe(false);
+  });
+});
+
+describe("read parking items", () => {
+  const readItem = {
+    id: "read-1",
+    kind: "read" as const,
+    status: "parked" as const,
+    url: "https://example.com/article",
+    title: "On interface craft",
+    summary: "Argues that small details compound into perceived quality.",
+    effortTier: "focused_session" as const,
+    suggestedTestTask: "Decide which single detail to apply to the lot cards.",
+    usefulnessHypothesis: "It may sharpen the next visual pass.",
+    createdAt: "2026-07-30T00:00:00.000Z",
+    updatedAt: "2026-07-30T00:00:00.000Z",
+    lastActivityAt: "2026-07-30T00:00:00.000Z",
+  };
+
+  it("accepts a read item", () => {
+    expect(ParkingItemSchema.parse(readItem).kind).toBe("read");
+  });
+
+  it("rejects an unknown kind", () => {
+    expect(() =>
+      ParkingItemSchema.parse({ ...readItem, kind: "podcast" }),
+    ).toThrow();
+  });
+
+  it("rejects classification fields on a stored item", () => {
+    expect(() =>
+      ParkingItemSchema.parse({ ...readItem, suggestedKind: "ai_tool" }),
+    ).toThrow();
+  });
+
+  it("keeps stored v2 payloads valid without migration", () => {
+    const envelope = { version: 2, parkingItems: [readItem] };
+    expect(ParkingStoreV2Schema.parse(envelope).version).toBe(2);
+  });
+
+  it("carries a classification separate from the stored analysis", () => {
+    const response = AnalyzeUrlResponseSchema.parse({
+      analysis: {
+        title: readItem.title,
+        summary: readItem.summary,
+        effortTier: readItem.effortTier,
+        suggestedTestTask: readItem.suggestedTestTask,
+        usefulnessHypothesis: readItem.usefulnessHypothesis,
+      },
+      sourceMode: "fetched",
+      classification: { suggestedKind: "read", rationale: "Long-form prose." },
+    });
+    expect(response.classification.suggestedKind).toBe("read");
+    expect(response.analysis).not.toHaveProperty("suggestedKind");
   });
 });

@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { LINK_KIND_IDS } from "./link-kinds";
+
 const httpUrl = z
   .string()
   .url()
@@ -49,11 +51,25 @@ export const AnalyzeUrlResultSchema = z
   })
   .strict();
 
+/** What the model returns. Wider than what is stored. */
+export const AnalyzeUrlModelResultSchema = AnalyzeUrlResultSchema.extend({
+  suggestedKind: z.enum(LINK_KIND_IDS),
+  kindRationale: z.string().trim().min(1).max(200),
+}).strict();
+
+export const AnalyzeClassificationSchema = z
+  .object({
+    suggestedKind: z.enum(LINK_KIND_IDS),
+    rationale: z.string().trim().min(1).max(200),
+  })
+  .strict();
+
 export const AnalyzeUrlResponseSchema = z
   .object({
     analysis: AnalyzeUrlResultSchema,
     sourceMode: z.enum(["fetched", "url_only"]),
     warning: z.string().max(280).optional(),
+    classification: AnalyzeClassificationSchema,
   })
   .strict();
 
@@ -70,16 +86,21 @@ const ParkingItemBaseShape = {
   finalDecisionReason: optionalTrimmedText(280),
 };
 
+const LinkParkingItemShape = {
+  ...ParkingItemBaseShape,
+  url: httpUrl,
+  summary: z.string().trim().min(1).max(400),
+  effortTier: EffortTierSchema,
+  suggestedTestTask: z.string().trim().min(1).max(500),
+  usefulnessHypothesis: z.string().trim().min(1).max(400),
+};
+
 export const AiToolParkingItemSchema = z
-  .object({
-    ...ParkingItemBaseShape,
-    kind: z.literal("ai_tool"),
-    url: httpUrl,
-    summary: z.string().trim().min(1).max(400),
-    effortTier: EffortTierSchema,
-    suggestedTestTask: z.string().trim().min(1).max(500),
-    usefulnessHypothesis: z.string().trim().min(1).max(400),
-  })
+  .object({ ...LinkParkingItemShape, kind: z.literal("ai_tool") })
+  .strict();
+
+export const ReadParkingItemSchema = z
+  .object({ ...LinkParkingItemShape, kind: z.literal("read") })
   .strict();
 
 export const IdeaParkingItemSchema = z
@@ -95,6 +116,7 @@ export const IdeaParkingItemSchema = z
 export const ParkingItemSchema = z
   .discriminatedUnion("kind", [
     AiToolParkingItemSchema,
+    ReadParkingItemSchema,
     IdeaParkingItemSchema,
   ])
   .superRefine((item, context) => {
@@ -157,7 +179,7 @@ export const ParkingStoreV2Schema = z
 export const PatrolCandidateSchema = z
   .object({
     id: z.string().min(1).max(100),
-    kind: z.enum(["ai_tool", "idea"]),
+    kind: z.enum([...LINK_KIND_IDS, "idea"]),
     title: z.string().trim().min(1).max(120),
     effortTier: EffortTierSchema.optional(),
     status: z.enum(["parked", "test_driving"]),
@@ -198,10 +220,13 @@ export const ManagerPatrolResponseSchema = z
 export type EffortTier = z.infer<typeof EffortTierSchema>;
 export type ParkingItem = z.infer<typeof ParkingItemSchema>;
 export type AiToolParkingItem = z.infer<typeof AiToolParkingItemSchema>;
+export type ReadParkingItem = z.infer<typeof ReadParkingItemSchema>;
 export type IdeaParkingItem = z.infer<typeof IdeaParkingItemSchema>;
 export type ParkingStoreV2 = z.infer<typeof ParkingStoreV2Schema>;
 export type ParkingItemStatus = z.infer<typeof ParkingItemStatusSchema>;
 export type AnalyzeUrlResult = z.infer<typeof AnalyzeUrlResultSchema>;
+export type AnalyzeUrlModelResult = z.infer<typeof AnalyzeUrlModelResultSchema>;
+export type AnalyzeClassification = z.infer<typeof AnalyzeClassificationSchema>;
 export type AnalyzeUrlResponse = z.infer<typeof AnalyzeUrlResponseSchema>;
 export type PatrolCandidate = z.infer<typeof PatrolCandidateSchema>;
 export type SuggestedAction = z.infer<typeof SuggestedActionSchema>;
