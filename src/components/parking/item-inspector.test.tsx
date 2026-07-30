@@ -222,5 +222,32 @@ describe("ItemInspector", () => {
     expect(screen.getByText("Question this should answer")).toBeVisible();
     expect(screen.getByText("Why it may be worth the time")).toBeVisible();
     expect(screen.getByText("Careful read")).toBeVisible();
+    expect(screen.getByText("Open original read")).toBeVisible();
+  });
+
+  it("uses read-specific wording in the Tow Away confirmation for a read item", async () => {
+    const user = userEvent.setup();
+    const read: ParkingItem = {
+      id: "read-2",
+      kind: "read",
+      status: "parked",
+      url: "https://example.com/article",
+      title: "On interface craft",
+      summary: "Argues small details compound.",
+      effortTier: "focused_session",
+      suggestedTestTask: "Pick one detail to apply.",
+      usefulnessHypothesis: "May sharpen the next visual pass.",
+      createdAt: "2026-07-30T00:00:00.000Z",
+      updatedAt: "2026-07-30T00:00:00.000Z",
+      lastActivityAt: "2026-07-30T00:00:00.000Z",
+    };
+
+    renderInspector(read);
+
+    await user.click(screen.getByRole("button", { name: "Tow Away" }));
+
+    const placeholder = screen.getByLabelText("Decision reason").getAttribute("placeholder");
+    expect(placeholder).toContain("read");
+    expect(placeholder).not.toContain("tool");
   });
 });

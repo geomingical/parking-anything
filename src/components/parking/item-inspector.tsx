@@ -150,20 +150,17 @@ function ItemInspectorContent({ item, open, onOpenChange, onApplyAction, onUpdat
             <Dialog.Close asChild><button type="button" title="Close inspector" aria-label="Close inspector" className="pressable inline-flex size-10 shrink-0 items-center justify-center border border-black/20 bg-white hover:bg-black hover:text-white"><X aria-hidden="true" size={18} /></button></Dialog.Close>
           </div>
 
-          {isLinkItem(item) ? (() => {
-            const labels = LINK_KINDS[item.kind].fieldLabels;
-            return (
+          {isLinkItem(item) ? (
             <>
               <dl className="divide-y divide-black/15 border-b border-black/15">
-                <div className="grid gap-1 py-4 sm:grid-cols-[9rem_1fr] sm:gap-4"><dt className="text-xs font-black uppercase text-[var(--muted-ink)]">Source</dt><dd className="min-w-0"><a href={item.url} target="_blank" rel="noreferrer" className="inline-flex max-w-full items-center gap-2 font-bold underline"><span className="truncate">Open original tool</span><ExternalLink aria-hidden="true" size={16} /></a></dd></div>
+                <div className="grid gap-1 py-4 sm:grid-cols-[9rem_1fr] sm:gap-4"><dt className="text-xs font-black uppercase text-[var(--muted-ink)]">Source</dt><dd className="min-w-0"><a href={item.url} target="_blank" rel="noreferrer" className="inline-flex max-w-full items-center gap-2 font-bold underline"><span className="truncate">Open original {LINK_KINDS[item.kind].noun}</span><ExternalLink aria-hidden="true" size={16} /></a></dd></div>
                 <div className="grid gap-1 py-4 sm:grid-cols-[9rem_1fr] sm:gap-4"><dt className="text-xs font-black uppercase text-[var(--muted-ink)]">Trial effort</dt><dd className="font-bold">{LINK_KINDS[item.kind].effortLabels[item.effortTier]}</dd></div>
               </dl>
-              <section className="py-5"><h2 className="text-xs font-black uppercase text-[var(--muted-ink)]">{labels.summary}</h2><p className="mt-2 leading-7">{item.summary}</p></section>
-              <section className="border-t border-black/15 py-5"><h2 className="text-xs font-black uppercase text-[var(--muted-ink)]">{labels.usefulnessHypothesis}</h2><p className="mt-2 leading-7">{item.usefulnessHypothesis}</p></section>
-              <section className="border-y-2 border-[var(--ink)] bg-[var(--safety)] px-4 py-5"><h2 className="text-xs font-black uppercase">{labels.suggestedTestTask}</h2><p className="mt-2 text-lg font-bold leading-7">{item.suggestedTestTask}</p></section>
+              <section className="py-5"><h2 className="text-xs font-black uppercase text-[var(--muted-ink)]">{LINK_KINDS[item.kind].fieldLabels.summary}</h2><p className="mt-2 leading-7">{item.summary}</p></section>
+              <section className="border-t border-black/15 py-5"><h2 className="text-xs font-black uppercase text-[var(--muted-ink)]">{LINK_KINDS[item.kind].fieldLabels.usefulnessHypothesis}</h2><p className="mt-2 leading-7">{item.usefulnessHypothesis}</p></section>
+              <section className="border-y-2 border-[var(--ink)] bg-[var(--safety)] px-4 py-5"><h2 className="text-xs font-black uppercase">{LINK_KINDS[item.kind].fieldLabels.suggestedTestTask}</h2><p className="mt-2 text-lg font-bold leading-7">{item.suggestedTestTask}</p></section>
             </>
-            );
-          })() : terminal ? (
+          ) : terminal ? (
             <section className="space-y-4 py-5"><div><h2 className="text-xs font-black uppercase text-[var(--muted-ink)]">Idea</h2><p className="mt-2 whitespace-pre-wrap leading-7">{item.ideaText}</p></div>{item.effortTier && item.suggestedTestTask ? <div><p className="font-bold">{displayFor(item.kind).effortLabels[item.effortTier]}</p><p className="mt-1">{item.suggestedTestTask}</p></div> : <p className="font-bold">Planning needed</p>}</section>
           ) : (
             <section className="space-y-4 py-5" aria-label="Idea planning">
@@ -189,7 +186,7 @@ function ItemInspectorContent({ item, open, onOpenChange, onApplyAction, onUpdat
           {validationMessage ? <p role="alert" className="mt-5 border-l-4 border-[var(--scrap)] bg-red-50 px-4 py-3 text-sm font-bold">{validationMessage}</p> : null}
 
           {showTowConfirmation ? (
-            <section className="mt-5 border-t-4 border-[var(--scrap)] pt-5"><label htmlFor="decision-reason" className="text-sm font-black">Decision reason</label><textarea id="decision-reason" value={decisionReason} maxLength={280} rows={3} onChange={(event) => setDecisionReason(event.target.value)} className="mt-2 w-full border-2 border-[var(--ink)] bg-white p-3" placeholder={`Why does this ${item.kind === "idea" ? "idea" : "tool"} no longer deserve a parking slot?`} /><div className="mt-3 flex gap-2"><button type="button" onClick={() => { setShowTowConfirmation(false); setValidationMessage(null); }} className="pressable h-11 border-2 border-[var(--ink)] bg-white px-4 font-bold">Cancel</button><button type="button" onClick={() => runAction({ type: "tow_away", finalDecisionReason: decisionReason })} className="pressable h-11 bg-[var(--scrap)] px-4 font-black text-white">Confirm Tow Away</button></div></section>
+            <section className="mt-5 border-t-4 border-[var(--scrap)] pt-5"><label htmlFor="decision-reason" className="text-sm font-black">Decision reason</label><textarea id="decision-reason" value={decisionReason} maxLength={280} rows={3} onChange={(event) => setDecisionReason(event.target.value)} className="mt-2 w-full border-2 border-[var(--ink)] bg-white p-3" placeholder={`Why does this ${displayFor(item.kind).noun} no longer deserve a parking slot?`} /><div className="mt-3 flex gap-2"><button type="button" onClick={() => { setShowTowConfirmation(false); setValidationMessage(null); }} className="pressable h-11 border-2 border-[var(--ink)] bg-white px-4 font-bold">Cancel</button><button type="button" onClick={() => runAction({ type: "tow_away", finalDecisionReason: decisionReason })} className="pressable h-11 bg-[var(--scrap)] px-4 font-black text-white">Confirm Tow Away</button></div></section>
           ) : !terminal ? (
             <div className="mt-6 flex flex-wrap gap-2 border-t-2 border-[var(--ink)] pt-5">
               {item.status === "parked" ? <button type="button" onClick={() => runAction({ type: "start_test_drive" })} className="pressable h-11 bg-[var(--garage)] px-4 font-black text-white">Start Test Drive</button> : <><button type="button" onClick={() => runAction({ type: "return_to_lot" })} className="pressable h-11 border-2 border-[var(--ink)] bg-white px-4 font-bold">Return to Parking Lot</button><button type="button" onClick={parkInGarage} className="pressable h-11 bg-[var(--garage)] px-4 font-black text-white">Park in Garage</button></>}
