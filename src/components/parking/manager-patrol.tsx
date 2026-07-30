@@ -129,7 +129,7 @@ export function ManagerPatrol({
             Manager Patrol
           </h2>
           <p className="mt-1 text-sm text-[var(--muted-ink)]">
-            Review the stalest active tools and ideas without automatic changes.
+            Review the stalest active items without automatic changes.
           </p>
         </div>
         <button

@@ -26,7 +26,7 @@ export function MissionHeader({
             Stop collecting. Start test-driving.
           </p>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--muted-ink)] sm:text-base">
-            Turn saved tools and ideas into concrete trials, evidenced adoption, or a
+            Turn anything you saved into concrete trials, evidenced adoption, or a
             deliberate exit.
           </p>
         </div>

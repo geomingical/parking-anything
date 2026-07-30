@@ -5,7 +5,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Parking Anything",
-  description: "Turn saved AI tools into testable decisions.",
+  description: "Turn saved tools, reads, and ideas into testable decisions.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {

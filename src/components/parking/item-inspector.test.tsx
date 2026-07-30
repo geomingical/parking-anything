@@ -55,7 +55,7 @@ describe("ItemInspector", () => {
     const user = userEvent.setup();
     const onApplyAction = vi.fn().mockReturnValue({
       ok: false,
-      message: "Record why this tool is leaving before towing it away.",
+      message: "Record why this is leaving before towing it away.",
     });
     renderInspector(makeSeedItems()[0], onApplyAction);
 
@@ -63,7 +63,7 @@ describe("ItemInspector", () => {
     await user.click(screen.getByRole("button", { name: "Confirm Tow Away" }));
 
     expect(
-      screen.getByText("Record why this tool is leaving before towing it away."),
+      screen.getByText("Record why this is leaving before towing it away."),
     ).toBeVisible();
     expect(screen.getByLabelText("Decision reason")).toHaveValue("");
   });

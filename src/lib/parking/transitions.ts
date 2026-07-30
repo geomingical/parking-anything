@@ -11,7 +11,7 @@ const INVALID_ACTION_MESSAGE = "This action is not available for the item's curr
 const GARAGE_EVIDENCE_MESSAGE =
   "Add a note or result link before parking in the Garage.";
 const TOW_REASON_MESSAGE =
-  "Record why this tool is leaving before towing it away.";
+  "Record why this is leaving before towing it away.";
 const IDEA_PLANNING_MESSAGE =
   "Add an effort tier and first test task before starting a Test Drive.";
 

@@ -174,7 +174,7 @@ describe("transitionItem", () => {
           { type: "tow_away", finalDecisionReason: "   " },
           NOW,
         ),
-      ).toThrow("Record why this tool is leaving before towing it away.");
+      ).toThrow("Record why this is leaving before towing it away.");
     },
   );
 
@@ -210,5 +210,23 @@ describe("transitionItem", () => {
     expect(() =>
       transitionItem(invalidInput, { type: "start_test_drive" }, NOW),
     ).toThrow();
+  });
+
+  it("asks for a tow reason without naming the item a tool", () => {
+    const idea = {
+      id: "idea-tow",
+      kind: "idea" as const,
+      status: "parked" as const,
+      title: "Unbounded idea",
+      ideaText: "Not ready to test.",
+      createdAt: "2026-07-30T00:00:00.000Z",
+      updatedAt: "2026-07-30T00:00:00.000Z",
+      lastActivityAt: "2026-07-30T00:00:00.000Z",
+    };
+
+    expect(() =>
+      transitionItem(idea, { type: "tow_away", finalDecisionReason: "" },
+        "2026-07-30T01:00:00.000Z"),
+    ).toThrow("Record why this is leaving before towing it away.");
   });
 });
