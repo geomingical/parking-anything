@@ -1,7 +1,7 @@
 # Park Read — design
 
 Date: 2026-07-30
-Status: approved, not yet implemented
+Status: approved after cross-model review (Codex), not yet implemented
 
 ## Problem
 
@@ -146,7 +146,11 @@ rule are preserved verbatim.
 ### UI
 
 - **`CaptureSwitcher`** — tabs generated from `LINK_KIND_IDS` plus the `idea` mode,
-  so a new registry entry adds a tab with no component edit.
+  so a new registry entry adds a tab with no component edit. The mode type must change
+  from `"tool" | "idea"` to `CaptureMode = LinkKindId | "idea"`, and `ParkingApp`'s
+  branch from `captureMode === "tool"` to `captureMode === "idea" ? IdeaCaptureForm :
+  <LinkCaptureForm kind={captureMode} />`. Without this both link modes fall through to
+  the Idea form. The switcher's `grid-cols-2` also has to accommodate three tabs.
 - **`ToolCaptureForm` → `LinkCaptureForm`** — takes a `kind` prop; placeholder, button
   label and the parked item's `kind` come from the registry. Generalised rather than
   copy-pasted per kind.
@@ -154,18 +158,38 @@ rule are preserved verbatim.
   `classification.suggestedKind !== requestedKind`, render a `role="status"` block in
   the existing warning style: the model's rationale, plus a
   "Re-park as ⟨label⟩" button. Never blocks the park. It renders inside
-  `LinkCaptureForm`, in the same slot as the existing `analysisWarning`, and clears
-  on the next submit or once a re-park succeeds.
+  `LinkCaptureForm` and clears on the next submit or once a re-park succeeds.
+
+  The form currently clears `url` on success and keeps only a warning *string*, which
+  is not enough to re-park. It must hold structured state
+  `pendingAdvisory: { itemId, url, requestedKind, classification }`.
+
+  The url-only fetch warning and the mis-park advisory can occur **together**, so they
+  need separate slots rather than one shared warning line. That combination is an
+  explicit test case.
 
   If the re-park's own analysis disagrees again — a documentation site legitimately
   reads as both — the advisory simply shows again for the new suggestion. There is no
   loop risk because every step requires a deliberate click, but the UI must not assume
   one correction ends the conversation.
 - **Re-park** — re-runs `/api/analyze-url` with `suggestedKind`, then replaces the item
-  **in place** via a new store method `reparkItem(id, nextFields)` built on the
-  existing `mutateItem` helper, preserving `id`, `createdAt` and `status`. No
-  duplicate, no lost history. Like every other mutation it routes through
-  `commitItems`, so it inherits the `needsReset` refusal.
+  **in place** via a new store method `reparkItem(id, { kind, analysis })`, which
+  preserves identity and lifecycle fields. `mutateItem` alone cannot enforce this — it
+  accepts any replacement item and no schema can prove `id` survived — so `reparkItem`
+  takes an exact analysis DTO and reconstructs the item *inside* the store:
+
+  - preserved: `id`, `createdAt`, `status`, `testStartedAt`, `notes`, `resultUrl`
+  - replaced: `kind`, `title`, `summary`, `effortTier`, `suggestedTestTask`,
+    `usefulnessHypothesis`
+  - set to now: `updatedAt`, `lastActivityAt`
+  - refused: terminal items (`garaged`/`scrapped`), consistent with every other edit
+
+  Like every other mutation it routes through `commitItems`, so it inherits the
+  `needsReset` refusal.
+
+  It preserves identity, **not** history: storage holds only current items, so the
+  previous kind and ticket text are discarded. Keeping a re-park audit trail would
+  reopen the storage-version decision and is a non-goal.
 - **`CarSprite`** — a left accent band coloured from `LINK_KINDS[kind].accentVar`;
   meta line uses the registry label and effort wording.
 - **`ItemInspector`** — replaces `item.kind === "ai_tool"` branching with a registry
@@ -173,6 +197,21 @@ rule are preserved verbatim.
   branch is unchanged.
 - **`observedFact()`** — currently hardcodes "This tool has been parked…"; takes the
   noun from the registry.
+
+#### Copy audit
+
+Kind-dependent prose exists in more places than the card. Rule: use the registry noun
+only where the kind genuinely matters; make **shared lifecycle copy neutral** rather
+than threading the registry through every module.
+
+| Site | Today | Action |
+| --- | --- | --- |
+| `transitions.ts` `TOW_REASON_MESSAGE` | "Record why this **tool** is leaving…" | Make neutral. This is a **pre-existing bug** — it already calls an Idea a tool. |
+| `manager-patrol.ts` `SYSTEM` | "…mixed list of AI tools and Ideas" | Describe the kinds from the registry so a new kind is not invisible to the model. |
+| `manager-patrol.tsx` blurb | "the stalest active tools and ideas" | Make neutral ("active items"). |
+| `mission-header.tsx` | "Turn saved tools and ideas into…" | Make neutral. |
+| `layout.tsx` metadata | "Turn saved AI tools into testable decisions." | Make neutral; it predates Ideas too. |
+| `observedFact()` | "This tool has been…" | Registry noun — the kind matters here. |
 - **Status tabs and the lot** — unchanged. A Read moves through the same four zones.
 
 ### Kind accents — `src/app/globals.css`
@@ -206,6 +245,11 @@ Each written failing first, per the repo's TDD rule.
 7. Patrol accepts a `read` candidate and `observedFact()` calls it a read.
 8. `analyze-url` sends the selected kind to the API and defaults to `ai_tool` when
    the field is absent.
+9. A url-only fetch warning and a mis-park advisory render together, in separate slots.
+10. `reparkItem` refuses a terminal item, and preserves `notes`/`resultUrl` when the
+    item already carries evidence.
+11. Selecting each capture tab renders that tab's form — a link kind must not fall
+    through to the Idea form.
 
 ## Risks and non-goals
 
