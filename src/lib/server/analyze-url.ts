@@ -88,13 +88,10 @@ ${pageText === undefined ? "" : `<page_text>\n${pageText}\n</page_text>`}
     max_output_tokens: 800,
   });
 
-  const rawOutput = response as { output_parsed?: unknown };
-  const parsedOutput =
-    rawOutput.output_parsed ??
-    extractParsedOutput(response as Parameters<typeof extractParsedOutput>[0]);
-
   const { suggestedKind, kindRationale, ...analysis } =
-    AnalyzeUrlModelResultSchema.parse(parsedOutput);
+    AnalyzeUrlModelResultSchema.parse(
+      extractParsedOutput(response as Parameters<typeof extractParsedOutput>[0]),
+    );
 
   return AnalyzeUrlResponseSchema.parse({
     analysis,

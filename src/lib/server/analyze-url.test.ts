@@ -195,15 +195,26 @@ describe("analyzeUrl", () => {
             (request.input as Array<{ role: string; content: string }>)[0].content,
           );
           return {
-            output_parsed: {
-              title: "On interface craft",
-              summary: "Argues small details compound.",
-              effortTier: "focused_session",
-              suggestedTestTask: "Pick one detail to apply.",
-              usefulnessHypothesis: "May sharpen the next visual pass.",
-              suggestedKind: "read",
-              kindRationale: "Long-form prose, nothing to operate.",
-            },
+            status: "completed",
+            output: [
+              {
+                type: "message",
+                content: [
+                  {
+                    type: "output_text",
+                    parsed: {
+                      title: "On interface craft",
+                      summary: "Argues small details compound.",
+                      effortTier: "focused_session",
+                      suggestedTestTask: "Pick one detail to apply.",
+                      usefulnessHypothesis: "May sharpen the next visual pass.",
+                      suggestedKind: "read",
+                      kindRationale: "Long-form prose, nothing to operate.",
+                    },
+                  },
+                ],
+              },
+            ],
           };
         },
       },
@@ -235,20 +246,82 @@ describe("analyzeUrl", () => {
             (request.input as Array<{ role: string; content: string }>)[0].content,
           );
           return {
-            output_parsed: {
-              title: "Summariser API",
-              summary: "Summarises documents.",
-              effortTier: "quick_spin",
-              suggestedTestTask: "Summarise one real document.",
-              usefulnessHypothesis: "May cut a manual review step.",
-              suggestedKind: "ai_tool",
-              kindRationale: "An operable API.",
-            },
+            status: "completed",
+            output: [
+              {
+                type: "message",
+                content: [
+                  {
+                    type: "output_text",
+                    parsed: {
+                      title: "Summariser API",
+                      summary: "Summarises documents.",
+                      effortTier: "quick_spin",
+                      suggestedTestTask: "Summarise one real document.",
+                      usefulnessHypothesis: "May cut a manual review step.",
+                      suggestedKind: "ai_tool",
+                      kindRationale: "An operable API.",
+                    },
+                  },
+                ],
+              },
+            ],
           };
         },
       },
     );
 
     expect(captured.system).toContain("evaluation ticket");
+  });
+
+  it("rejects an incomplete model response instead of parsing it", async () => {
+    await expect(
+      analyzeUrl(
+        { url: "https://example.com/tool" },
+        {
+          validateUrl: publicValidator,
+          fetchPage: vi.fn(async () => ({
+            normalizedUrl: "https://example.com/tool",
+            text: "Tool page",
+          })),
+          // A response shaped like the real SDK's ParsedResponse: status is
+          // "incomplete" (e.g. truncated by max_output_tokens) but a stray
+          // truthy output_parsed is present anyway. The status/refusal
+          // controls must win regardless of output_parsed.
+          responsesParse: vi.fn(async () => ({
+            status: "incomplete",
+            output: [],
+            output_parsed: validModelResult,
+          })),
+        },
+      ),
+    ).rejects.toThrow("The model response was incomplete.");
+  });
+
+  it("rejects a refusal instead of parsing it", async () => {
+    await expect(
+      analyzeUrl(
+        { url: "https://example.com/tool" },
+        {
+          validateUrl: publicValidator,
+          fetchPage: vi.fn(async () => ({
+            normalizedUrl: "https://example.com/tool",
+            text: "Tool page",
+          })),
+          responsesParse: vi.fn(async () => ({
+            status: "completed",
+            output: [
+              {
+                type: "message",
+                content: [
+                  { type: "refusal", refusal: "I can't help with that." },
+                ],
+              },
+            ],
+            output_parsed: validModelResult,
+          })),
+        },
+      ),
+    ).rejects.toThrow("The model declined this analysis.");
   });
 });
