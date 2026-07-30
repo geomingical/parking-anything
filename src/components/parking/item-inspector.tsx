@@ -5,7 +5,8 @@ import { ExternalLink, X } from "lucide-react";
 import { useRef, useState } from "react";
 
 import type { ActionResult } from "@/hooks/use-parking-store";
-import type { EffortTier, ParkingItem } from "@/lib/parking/schemas";
+import { LINK_KINDS, displayFor, isLinkKind } from "@/lib/parking/link-kinds";
+import type { AiToolParkingItem, EffortTier, ParkingItem, ReadParkingItem } from "@/lib/parking/schemas";
 import type { ParkingAction } from "@/lib/parking/transitions";
 
 const STATUS_LABELS: Record<ParkingItem["status"], string> = {
@@ -15,11 +16,13 @@ const STATUS_LABELS: Record<ParkingItem["status"], string> = {
   scrapped: "Scrapped",
 };
 
-const EFFORT_LABELS: Record<EffortTier, string> = {
-  quick_spin: "Quick spin",
-  focused_session: "Focused session",
-  weekend_project: "Weekend project",
-};
+// `isLinkKind` (from the registry) narrows the *string* it is given, but a
+// predicate on `item.kind` doesn't propagate back to narrow `item` itself.
+// This wrapper applies the same registry check directly to the item so
+// TypeScript narrows both branches below.
+function isLinkItem(item: ParkingItem): item is AiToolParkingItem | ReadParkingItem {
+  return isLinkKind(item.kind);
+}
 
 type IdeaUpdate = {
   title: string;
@@ -137,7 +140,7 @@ function ItemInspectorContent({ item, open, onOpenChange, onApplyAction, onUpdat
           <div className="flex items-start justify-between gap-4 border-b-2 border-[var(--ink)] pb-5">
             <div className="min-w-0">
               <p className="text-xs font-black uppercase tracking-[0.16em] text-[var(--garage)]">
-                {item.kind === "ai_tool" ? "Tool" : "Idea"} ticket · {STATUS_LABELS[item.status]}
+                {displayFor(item.kind).label} ticket · {STATUS_LABELS[item.status]}
               </p>
               <Dialog.Title className="mt-2 text-2xl font-black tracking-[-0.03em]">{item.title}</Dialog.Title>
               <Dialog.Description className="mt-2 text-sm leading-6 text-[var(--muted-ink)]">
@@ -147,24 +150,27 @@ function ItemInspectorContent({ item, open, onOpenChange, onApplyAction, onUpdat
             <Dialog.Close asChild><button type="button" title="Close inspector" aria-label="Close inspector" className="pressable inline-flex size-10 shrink-0 items-center justify-center border border-black/20 bg-white hover:bg-black hover:text-white"><X aria-hidden="true" size={18} /></button></Dialog.Close>
           </div>
 
-          {item.kind === "ai_tool" ? (
+          {isLinkItem(item) ? (() => {
+            const labels = LINK_KINDS[item.kind].fieldLabels;
+            return (
             <>
               <dl className="divide-y divide-black/15 border-b border-black/15">
                 <div className="grid gap-1 py-4 sm:grid-cols-[9rem_1fr] sm:gap-4"><dt className="text-xs font-black uppercase text-[var(--muted-ink)]">Source</dt><dd className="min-w-0"><a href={item.url} target="_blank" rel="noreferrer" className="inline-flex max-w-full items-center gap-2 font-bold underline"><span className="truncate">Open original tool</span><ExternalLink aria-hidden="true" size={16} /></a></dd></div>
-                <div className="grid gap-1 py-4 sm:grid-cols-[9rem_1fr] sm:gap-4"><dt className="text-xs font-black uppercase text-[var(--muted-ink)]">Trial effort</dt><dd className="font-bold">{EFFORT_LABELS[item.effortTier]}</dd></div>
+                <div className="grid gap-1 py-4 sm:grid-cols-[9rem_1fr] sm:gap-4"><dt className="text-xs font-black uppercase text-[var(--muted-ink)]">Trial effort</dt><dd className="font-bold">{LINK_KINDS[item.kind].effortLabels[item.effortTier]}</dd></div>
               </dl>
-              <section className="py-5"><h2 className="text-xs font-black uppercase text-[var(--muted-ink)]">What it appears to do</h2><p className="mt-2 leading-7">{item.summary}</p></section>
-              <section className="border-t border-black/15 py-5"><h2 className="text-xs font-black uppercase text-[var(--muted-ink)]">Usefulness hypothesis</h2><p className="mt-2 leading-7">{item.usefulnessHypothesis}</p></section>
-              <section className="border-y-2 border-[var(--ink)] bg-[var(--safety)] px-4 py-5"><h2 className="text-xs font-black uppercase">First test task</h2><p className="mt-2 text-lg font-bold leading-7">{item.suggestedTestTask}</p></section>
+              <section className="py-5"><h2 className="text-xs font-black uppercase text-[var(--muted-ink)]">{labels.summary}</h2><p className="mt-2 leading-7">{item.summary}</p></section>
+              <section className="border-t border-black/15 py-5"><h2 className="text-xs font-black uppercase text-[var(--muted-ink)]">{labels.usefulnessHypothesis}</h2><p className="mt-2 leading-7">{item.usefulnessHypothesis}</p></section>
+              <section className="border-y-2 border-[var(--ink)] bg-[var(--safety)] px-4 py-5"><h2 className="text-xs font-black uppercase">{labels.suggestedTestTask}</h2><p className="mt-2 text-lg font-bold leading-7">{item.suggestedTestTask}</p></section>
             </>
-          ) : terminal ? (
-            <section className="space-y-4 py-5"><div><h2 className="text-xs font-black uppercase text-[var(--muted-ink)]">Idea</h2><p className="mt-2 whitespace-pre-wrap leading-7">{item.ideaText}</p></div>{item.effortTier && item.suggestedTestTask ? <div><p className="font-bold">{EFFORT_LABELS[item.effortTier]}</p><p className="mt-1">{item.suggestedTestTask}</p></div> : <p className="font-bold">Planning needed</p>}</section>
+            );
+          })() : terminal ? (
+            <section className="space-y-4 py-5"><div><h2 className="text-xs font-black uppercase text-[var(--muted-ink)]">Idea</h2><p className="mt-2 whitespace-pre-wrap leading-7">{item.ideaText}</p></div>{item.effortTier && item.suggestedTestTask ? <div><p className="font-bold">{displayFor(item.kind).effortLabels[item.effortTier]}</p><p className="mt-1">{item.suggestedTestTask}</p></div> : <p className="font-bold">Planning needed</p>}</section>
           ) : (
             <section className="space-y-4 py-5" aria-label="Idea planning">
               <div><label htmlFor="idea-inspector-title" className="text-sm font-black">Idea title</label><input id="idea-inspector-title" value={title} maxLength={120} onChange={(event) => setTitle(event.target.value)} className="mt-1 h-11 w-full border-2 border-[var(--ink)] bg-white px-3" /></div>
               <div><label htmlFor="idea-inspector-text" className="text-sm font-black">Idea</label><textarea id="idea-inspector-text" value={ideaText} maxLength={2000} rows={4} onChange={(event) => setIdeaText(event.target.value)} className="mt-1 w-full border-2 border-[var(--ink)] bg-white p-3" /></div>
               {!item.effortTier || !item.suggestedTestTask ? <p className="font-bold text-[var(--garage)]">Planning needed</p> : null}
-              <div><label htmlFor="idea-effort" className="text-sm font-black">Effort tier</label><select ref={effortRef} autoFocus={autoFocusPlanning && !effortTier} id="idea-effort" value={effortTier} onChange={(event) => setEffortTier(event.target.value as EffortTier | "")} className="mt-1 h-11 w-full border-2 border-[var(--ink)] bg-white px-3"><option value="">Select effort</option>{Object.entries(EFFORT_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></div>
+              <div><label htmlFor="idea-effort" className="text-sm font-black">Effort tier</label><select ref={effortRef} autoFocus={autoFocusPlanning && !effortTier} id="idea-effort" value={effortTier} onChange={(event) => setEffortTier(event.target.value as EffortTier | "")} className="mt-1 h-11 w-full border-2 border-[var(--ink)] bg-white px-3"><option value="">Select effort</option>{Object.entries(displayFor(item.kind).effortLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></div>
               <div><label htmlFor="idea-test-task" className="text-sm font-black">First test task</label><textarea ref={taskRef} autoFocus={autoFocusPlanning && Boolean(effortTier) && !suggestedTestTask.trim()} id="idea-test-task" value={suggestedTestTask} maxLength={500} rows={3} onChange={(event) => setSuggestedTestTask(event.target.value)} className="mt-1 w-full border-2 border-[var(--ink)] bg-white p-3" /></div>
               <button type="button" onClick={saveIdea} className="pressable h-11 bg-[var(--safety)] px-4 font-black">Save planning</button>
             </section>

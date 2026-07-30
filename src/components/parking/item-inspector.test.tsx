@@ -189,4 +189,38 @@ describe("ItemInspector", () => {
       expect(screen.queryByRole("button", { name: "Tow Away" })).not.toBeInTheDocument();
     },
   );
+
+  it("labels a read's fields with reading wording", () => {
+    const read = {
+      id: "read-1",
+      kind: "read" as const,
+      status: "parked" as const,
+      url: "https://example.com/article",
+      title: "On interface craft",
+      summary: "Argues small details compound.",
+      effortTier: "focused_session" as const,
+      suggestedTestTask: "Pick one detail to apply.",
+      usefulnessHypothesis: "May sharpen the next visual pass.",
+      createdAt: "2026-07-30T00:00:00.000Z",
+      updatedAt: "2026-07-30T00:00:00.000Z",
+      lastActivityAt: "2026-07-30T00:00:00.000Z",
+    };
+
+    render(
+      <ItemInspector
+        item={read}
+        open
+        onOpenChange={vi.fn()}
+        onApplyAction={vi.fn()}
+        onUpdateEvidence={vi.fn()}
+        onUpdateIdea={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText("Read ticket · Parked")).toBeVisible();
+    expect(screen.getByText("What it appears to argue")).toBeVisible();
+    expect(screen.getByText("Question this should answer")).toBeVisible();
+    expect(screen.getByText("Why it may be worth the time")).toBeVisible();
+    expect(screen.getByText("Careful read")).toBeVisible();
+  });
 });
