@@ -14,6 +14,7 @@ const response: AnalyzeUrlResponse = {
     usefulnessHypothesis: "It may shorten a repeated review step.",
   },
   sourceMode: "fetched",
+  classification: { suggestedKind: "ai_tool", rationale: "Operable API." },
 };
 
 function post(body: unknown, headers?: HeadersInit) {
@@ -95,5 +96,87 @@ describe("createAnalyzeRoute", () => {
     );
     await expect(result.json()).resolves.toEqual({ error: message });
     expect(analyze).not.toHaveBeenCalled();
+  });
+
+  it("passes the requested kind through to the analyzer", async () => {
+    const seen: Array<{ url: string; kind: string }> = [];
+    const POST = createAnalyzeRoute({
+      quotaGate: { consume: async () => undefined },
+      analyze: async (request) => {
+        seen.push(request);
+        return {
+          analysis: {
+            title: "On craft",
+            summary: "Argues small details compound.",
+            effortTier: "focused_session",
+            suggestedTestTask: "Pick one detail.",
+            usefulnessHypothesis: "May sharpen the next pass.",
+          },
+          sourceMode: "fetched",
+          classification: { suggestedKind: "read", rationale: "Prose." },
+        };
+      },
+    });
+
+    const response = await POST(
+      new Request("https://app.test/api/analyze-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: "https://example.com/a", kind: "read" }),
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    expect(seen).toEqual([{ url: "https://example.com/a", kind: "read" }]);
+  });
+
+  it("defaults the kind to ai_tool when omitted", async () => {
+    const seen: Array<{ url: string; kind: string }> = [];
+    const POST = createAnalyzeRoute({
+      quotaGate: { consume: async () => undefined },
+      analyze: async (request) => {
+        seen.push(request);
+        return {
+          analysis: {
+            title: "Summariser",
+            summary: "Summarises documents.",
+            effortTier: "quick_spin",
+            suggestedTestTask: "Summarise one document.",
+            usefulnessHypothesis: "May cut a review step.",
+          },
+          sourceMode: "fetched",
+          classification: { suggestedKind: "ai_tool", rationale: "Operable API." },
+        };
+      },
+    });
+
+    await POST(
+      new Request("https://app.test/api/analyze-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: "https://example.com/t" }),
+      }),
+    );
+
+    expect(seen[0].kind).toBe("ai_tool");
+  });
+
+  it("rejects an unregistered kind", async () => {
+    const POST = createAnalyzeRoute({
+      quotaGate: { consume: async () => undefined },
+      analyze: async () => {
+        throw new Error("must not be called");
+      },
+    });
+
+    const response = await POST(
+      new Request("https://app.test/api/analyze-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: "https://example.com/a", kind: "podcast" }),
+      }),
+    );
+
+    expect(response.status).toBe(400);
   });
 });

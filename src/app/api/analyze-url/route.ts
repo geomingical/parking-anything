@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import type { AnalyzeUrlResponse } from "@/lib/parking/schemas";
+import { LINK_KIND_IDS, type LinkKindId } from "@/lib/parking/link-kinds";
 import { analyzeUrl } from "@/lib/server/analyze-url";
 import {
   createProductionQuotaGate,
@@ -15,12 +16,16 @@ export const maxDuration = 20;
 const InputSchema = z
   .object({
     url: z.string().max(2_048),
+    kind: z.enum(LINK_KIND_IDS).default("ai_tool"),
   })
   .strict();
 
 type AnalyzeRouteDependencies = {
   quotaGate: QuotaGate;
-  analyze: (url: string) => Promise<AnalyzeUrlResponse>;
+  analyze: (request: {
+    url: string;
+    kind: LinkKindId;
+  }) => Promise<AnalyzeUrlResponse>;
 };
 
 export function createAnalyzeRoute(dependencies: AnalyzeRouteDependencies) {
@@ -41,7 +46,9 @@ export function createAnalyzeRoute(dependencies: AnalyzeRouteDependencies) {
         throw error;
       }
 
-      return Response.json(await dependencies.analyze(input.url));
+      return Response.json(
+        await dependencies.analyze({ url: input.url, kind: input.kind }),
+      );
     } catch (error) {
       return errorResponse(error);
     }
