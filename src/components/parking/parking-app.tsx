@@ -8,16 +8,16 @@ import type { ParkingAction } from "@/lib/parking/transitions";
 import { CaptureSwitcher, type CaptureMode } from "./capture-switcher";
 import { IdeaCaptureForm } from "./idea-capture-form";
 import { ItemInspector } from "./item-inspector";
+import { LinkCaptureForm } from "./link-capture-form";
 import { ManagerPatrol } from "./manager-patrol";
 import { MissionHeader } from "./mission-header";
 import { ParkingLot } from "./parking-lot";
 import { StatusTabs } from "./status-tabs";
-import { ToolCaptureForm } from "./tool-capture-form";
 
 export function ParkingApp() {
   const store = useParkingStore();
   const [activeStatus, setActiveStatus] = useState<ParkingItemStatus>("parked");
-  const [captureMode, setCaptureMode] = useState<CaptureMode>("tool");
+  const [captureMode, setCaptureMode] = useState<CaptureMode>("ai_tool");
   const [planningFocusId, setPlanningFocusId] = useState<string | null>(null);
   const itemTrigger = useRef<HTMLButtonElement | null>(null);
 
@@ -94,10 +94,14 @@ export function ParkingApp() {
       <section className="border-b border-black/10 bg-[var(--paper)] px-5 py-5 sm:px-8" aria-label="Park something">
         <div className="mx-auto max-w-7xl">
           <CaptureSwitcher activeMode={captureMode} onChange={setCaptureMode} />
-          {captureMode === "tool" ? (
-            <ToolCaptureForm onPark={store.addItem} onParked={() => setActiveStatus("parked")} />
-          ) : (
+          {captureMode === "idea" ? (
             <IdeaCaptureForm onPark={store.addItem} onParked={() => setActiveStatus("parked")} />
+          ) : (
+            <LinkCaptureForm
+              kind={captureMode}
+              onPark={store.addItem}
+              onParked={() => setActiveStatus("parked")}
+            />
           )}
         </div>
       </section>

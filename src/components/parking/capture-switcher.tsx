@@ -2,7 +2,9 @@
 
 import { useRef } from "react";
 
-export type CaptureMode = "tool" | "idea";
+import { LINK_KINDS, LINK_KIND_IDS, type LinkKindId } from "@/lib/parking/link-kinds";
+
+export type CaptureMode = LinkKindId | "idea";
 
 type CaptureSwitcherProps = {
   activeMode: CaptureMode;
@@ -10,7 +12,10 @@ type CaptureSwitcherProps = {
 };
 
 const modes: Array<{ mode: CaptureMode; label: string }> = [
-  { mode: "tool", label: "Park tool" },
+  ...LINK_KIND_IDS.map((id) => ({
+    mode: id as CaptureMode,
+    label: LINK_KINDS[id].captureLabel,
+  })),
   { mode: "idea", label: "Park idea" },
 ];
 
@@ -21,7 +26,7 @@ export function CaptureSwitcher({ activeMode, onChange }: CaptureSwitcherProps) 
     <div>
       <div
         aria-label="Choose what to park"
-        className="grid grid-cols-2 gap-2 sm:flex"
+        className="flex flex-wrap gap-2"
         role="tablist"
       >
         {modes.map(({ mode, label }, index) => (

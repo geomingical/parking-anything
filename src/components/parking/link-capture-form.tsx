@@ -4,18 +4,21 @@ import { LoaderCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import type { ActionResult } from "@/hooks/use-parking-store";
+import { LINK_KINDS, type LinkKindId } from "@/lib/parking/link-kinds";
 import {
   AnalyzeUrlResponseSchema,
   ParkingItemSchema,
   type ParkingItem,
 } from "@/lib/parking/schemas";
 
-type ToolCaptureFormProps = {
+type LinkCaptureFormProps = {
+  kind: LinkKindId;
   onPark(item: ParkingItem): ActionResult;
   onParked?(): void;
 };
 
-export function ToolCaptureForm({ onPark, onParked }: ToolCaptureFormProps) {
+export function LinkCaptureForm({ kind, onPark, onParked }: LinkCaptureFormProps) {
+  const registry = LINK_KINDS[kind];
   const [url, setUrl] = useState("");
   const [analyzingUrl, setAnalyzingUrl] = useState<string | null>(null);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
@@ -46,7 +49,7 @@ export function ToolCaptureForm({ onPark, onParked }: ToolCaptureFormProps) {
       const response = await fetch("/api/analyze-url", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: normalizedUrl }),
+        body: JSON.stringify({ url: normalizedUrl, kind }),
         signal: controller.signal,
       });
       const body: unknown = await response.json();
@@ -67,7 +70,7 @@ export function ToolCaptureForm({ onPark, onParked }: ToolCaptureFormProps) {
         ...result.data.analysis,
         id: crypto.randomUUID(),
         url: normalizedUrl,
-        kind: "ai_tool",
+        kind,
         status: "parked",
         createdAt: now,
         updatedAt: now,
@@ -92,8 +95,8 @@ export function ToolCaptureForm({ onPark, onParked }: ToolCaptureFormProps) {
   return (
     <div className="mt-5">
       <form className="flex flex-col gap-2 sm:flex-row" onSubmit={(event) => { event.preventDefault(); void analyzeAndPark(); }}>
-        <label htmlFor="ai-tool-url" className="sr-only">AI tool URL</label>
-        <input id="ai-tool-url" type="url" value={url} onChange={(event) => setUrl(event.target.value)} placeholder="https://example.com/ai-tool" disabled={Boolean(analyzingUrl)} className="h-12 min-w-0 flex-1 border-2 border-[var(--ink)] bg-white px-4 text-base disabled:bg-black/5" />
+        <label htmlFor="link-url" className="sr-only">{registry.urlFieldLabel}</label>
+        <input id="link-url" type="url" value={url} onChange={(event) => setUrl(event.target.value)} placeholder="https://example.com/ai-tool" disabled={Boolean(analyzingUrl)} className="h-12 min-w-0 flex-1 border-2 border-[var(--ink)] bg-white px-4 text-base disabled:bg-black/5" />
         <button type="submit" disabled={Boolean(analyzingUrl)} className="pressable inline-flex h-12 shrink-0 items-center justify-center gap-2 bg-[var(--safety)] px-6 text-sm font-black uppercase tracking-[0.08em] disabled:cursor-wait disabled:opacity-50">{analyzingUrl ? <LoaderCircle aria-hidden="true" size={16} className="spinner" /> : null}Analyze &amp; Park</button>
       </form>
       {analyzingUrl ? <p className="reveal mt-2 text-sm font-bold" aria-live="polite">Analyzing {analyzingUrl}…</p> : null}

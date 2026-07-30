@@ -15,6 +15,10 @@ const analysis = {
   suggestedTestTask: "Run one sample through the tool.",
   usefulnessHypothesis: "It may shorten a repeated review step.",
 };
+const classification = {
+  suggestedKind: "ai_tool",
+  rationale: "Reads as software you would operate.",
+};
 
 function storedItems(): ParkingItem[] {
   return JSON.parse(localStorage.getItem(STORAGE_KEY)!).parkingItems;
@@ -64,7 +68,7 @@ describe("ParkingApp live analysis", () => {
 
     await act(async () => {
       resolveResponse(
-        Response.json({ analysis, sourceMode: "fetched" }),
+        Response.json({ analysis, sourceMode: "fetched", classification }),
       );
     });
     expect(
@@ -72,20 +76,31 @@ describe("ParkingApp live analysis", () => {
     ).toBeVisible();
   });
 
-  it("switches capture modes by keyboard without writing anything", async () => {
+  it("switches capture modes by keyboard across all three tabs without writing anything", async () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     vi.stubGlobal("fetch", vi.fn());
     render(<ParkingApp />);
 
     const toolTab = await screen.findByRole("tab", { name: "Park tool" });
+    const readTab = screen.getByRole("tab", { name: "Park read" });
     const ideaTab = screen.getByRole("tab", { name: "Park idea" });
     expect(toolTab).toHaveAttribute("aria-selected", "true");
 
     toolTab.focus();
     await user.keyboard("{ArrowRight}");
+    expect(readTab).toHaveFocus();
+    expect(readTab).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByLabelText("Read URL")).toBeVisible();
+
+    await user.keyboard("{ArrowRight}");
     expect(ideaTab).toHaveFocus();
     expect(ideaTab).toHaveAttribute("aria-selected", "true");
     expect(screen.getByLabelText("Idea title")).toBeVisible();
+
+    await user.keyboard("{ArrowRight}");
+    expect(toolTab).toHaveFocus();
+    expect(toolTab).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByLabelText("AI tool URL")).toBeVisible();
 
     expect(fetch).not.toHaveBeenCalled();
     expect(storedItems()).toHaveLength(3);
@@ -233,6 +248,7 @@ describe("ParkingApp live analysis", () => {
         Response.json({
           analysis,
           sourceMode: "fetched",
+          classification,
         }),
       ),
     );
@@ -274,7 +290,7 @@ describe("ParkingApp live analysis", () => {
         ),
       )
       .mockResolvedValueOnce(
-        Response.json({ analysis, sourceMode: "fetched" }),
+        Response.json({ analysis, sourceMode: "fetched", classification }),
       );
     vi.stubGlobal("fetch", fetchMock);
     render(<ParkingApp />);
@@ -304,6 +320,7 @@ describe("ParkingApp live analysis", () => {
           sourceMode: "url_only",
           warning:
             "Page text could not be fetched, so this analysis uses the URL only.",
+          classification,
         }),
       ),
     );
@@ -344,5 +361,16 @@ describe("ParkingApp live analysis", () => {
     await waitFor(() => {
       expect(storedItems().some(({ id }) => id === "server-controlled-id")).toBe(false);
     });
+  });
+
+  it("renders the read form rather than falling through to the Idea form", async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    vi.stubGlobal("fetch", vi.fn());
+    render(<ParkingApp />);
+
+    await user.click(await screen.findByRole("tab", { name: "Park read" }));
+
+    expect(screen.getByLabelText("Read URL")).toBeVisible();
+    expect(screen.queryByLabelText("Idea title")).not.toBeInTheDocument();
   });
 });
