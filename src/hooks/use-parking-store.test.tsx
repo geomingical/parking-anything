@@ -28,6 +28,14 @@ const newIdea: ParkingItem = {
   lastActivityAt: NOW.toISOString(),
 };
 
+const readAnalysis = {
+  title: "On interface craft",
+  summary: "Argues small details compound.",
+  effortTier: "focused_session" as const,
+  suggestedTestTask: "Pick one detail to apply.",
+  usefulnessHypothesis: "May sharpen the next visual pass.",
+};
+
 function storedItems(): ParkingItem[] {
   return JSON.parse(localStorage.getItem(STORAGE_KEY)!).parkingItems;
 }
@@ -347,5 +355,89 @@ describe("useParkingStore", () => {
     expect(outcome).toMatchObject({ ok: false });
     expect(localStorage.getItem(STORAGE_KEY)).toBe(malformed);
     expect(result.current.needsReset).toBe(true);
+  });
+
+  // Nested (rather than a sibling describe) so these tests inherit the
+  // beforeEach/afterEach above: localStorage.clear() and fake timers pinned
+  // to NOW. A sibling describe would leak the previous test's localStorage
+  // state and leave Date.now() unmocked, breaking these on isolation grounds
+  // that have nothing to do with reparkItem itself.
+  describe("reparkItem", () => {
+    it("changes the kind while preserving identity and lifecycle fields", () => {
+      const { result } = renderHook(() => useParkingStore());
+      const before = result.current.items.find(({ id }) => id === "seed-stale")!;
+      let outcome;
+
+      act(() => {
+        outcome = result.current.reparkItem("seed-stale", {
+          kind: "read",
+          analysis: readAnalysis,
+        });
+      });
+
+      expect(outcome).toEqual({ ok: true });
+      const after = result.current.items.find(({ id }) => id === "seed-stale")!;
+      expect(after.kind).toBe("read");
+      expect(after.title).toBe("On interface craft");
+      expect(after.id).toBe(before.id);
+      expect(after.createdAt).toBe(before.createdAt);
+      expect(after.status).toBe(before.status);
+      expect(after.lastActivityAt).toBe(NOW.toISOString());
+    });
+
+    it("preserves recorded evidence", () => {
+      const { result } = renderHook(() => useParkingStore());
+      act(() => {
+        result.current.updateEvidence("seed-driving", "Partial notes.", "");
+      });
+
+      act(() => {
+        result.current.reparkItem("seed-driving", {
+          kind: "read",
+          analysis: readAnalysis,
+        });
+      });
+
+      expect(
+        result.current.items.find(({ id }) => id === "seed-driving")?.notes,
+      ).toBe("Partial notes.");
+    });
+
+    it("refuses a terminal item", () => {
+      const { result } = renderHook(() => useParkingStore());
+      const garaged = result.current.items.find(
+        ({ status }) => status === "garaged",
+      )!;
+      let outcome;
+
+      act(() => {
+        outcome = result.current.reparkItem(garaged.id, {
+          kind: "read",
+          analysis: readAnalysis,
+        });
+      });
+
+      expect(outcome).toMatchObject({ ok: false });
+      expect(
+        result.current.items.find(({ id }) => id === garaged.id)?.kind,
+      ).toBe(garaged.kind);
+    });
+
+    it("refuses an Idea, which has no URL to reclassify", () => {
+      const { result } = renderHook(() => useParkingStore());
+      act(() => {
+        result.current.addItem(newIdea);
+      });
+      let outcome;
+
+      act(() => {
+        outcome = result.current.reparkItem(newIdea.id, {
+          kind: "read",
+          analysis: readAnalysis,
+        });
+      });
+
+      expect(outcome).toMatchObject({ ok: false });
+    });
   });
 });

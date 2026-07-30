@@ -4,8 +4,11 @@ import { useState, useSyncExternalStore } from "react";
 import { ZodError } from "zod";
 
 import { makeSeedItems } from "@/lib/parking/fixtures";
+import type { LinkKindId } from "@/lib/parking/link-kinds";
+import { isLinkKind } from "@/lib/parking/link-kinds";
 import {
   ParkingStoreV2Schema,
+  type AnalyzeUrlResult,
   type EffortTier,
   type ParkingItem,
 } from "@/lib/parking/schemas";
@@ -40,6 +43,10 @@ export type ParkingStoreController = {
       effortTier?: EffortTier;
       suggestedTestTask?: string;
     },
+  ): ActionResult;
+  reparkItem(
+    id: string,
+    input: { kind: LinkKindId; analysis: AnalyzeUrlResult },
   ): ActionResult;
   resetDemo(): void;
 };
@@ -318,6 +325,42 @@ export function useParkingStore(): ParkingStoreController {
     });
   }
 
+  /*
+   * Rebuilds the item in the store rather than accepting a caller-built one:
+   * mutateItem takes any ParkingItem, so nothing else could guarantee that id,
+   * createdAt and status survived a re-park.
+   */
+  function reparkItem(
+    id: string,
+    input: { kind: LinkKindId; analysis: AnalyzeUrlResult },
+  ): ActionResult {
+    return mutateItem(id, (item) => {
+      const terminal = refuseIfTerminal(item);
+      if (terminal) return terminal;
+
+      if (!isLinkKind(item.kind)) {
+        return {
+          ok: false,
+          message: "Only items parked from a link can be re-parked as another kind.",
+        };
+      }
+
+      const now = new Date().toISOString();
+      return {
+        ok: true,
+        // Both link variants share one field shape, so swapping kind yields a
+        // valid item. commitItems revalidates before anything is written.
+        item: {
+          ...item,
+          ...input.analysis,
+          kind: input.kind,
+          updatedAt: now,
+          lastActivityAt: now,
+        } as ParkingItem,
+      };
+    });
+  }
+
   function resetDemo() {
     writeItems(makeSeedItems());
     setSelectedId(null);
@@ -331,6 +374,7 @@ export function useParkingStore(): ParkingStoreController {
     applyAction,
     updateEvidence,
     updateIdea,
+    reparkItem,
     resetDemo,
   };
 }
