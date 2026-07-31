@@ -19,6 +19,7 @@ export type LinkKind = KindDisplay & {
   framing: string;
   classifierHint: string;
   urlFieldLabel: string;
+  urlPlaceholder: string;
   fieldLabels: {
     summary: string;
     suggestedTestTask: string;
@@ -33,6 +34,7 @@ export const LINK_KINDS: Record<LinkKindId, LinkKind> = {
     captureLabel: "Park tool",
     accentVar: "--kind-tool",
     urlFieldLabel: "AI tool URL",
+    urlPlaceholder: "https://example.com/ai-tool",
     framing:
       "Turn one saved AI-tool URL into a concrete evaluation ticket. Describe what the tool appears to do, estimate realistic trial effort, and propose one specific test that can begin in 15 minutes.",
     classifierHint:
@@ -54,6 +56,7 @@ export const LINK_KINDS: Record<LinkKindId, LinkKind> = {
     captureLabel: "Park read",
     accentVar: "--kind-read",
     urlFieldLabel: "Read URL",
+    urlPlaceholder: "https://example.com/article",
     framing:
       "Turn one saved article URL into a concrete reading ticket. Describe what the piece appears to argue, estimate realistic reading effort, and propose one specific question the read should answer.",
     classifierHint:

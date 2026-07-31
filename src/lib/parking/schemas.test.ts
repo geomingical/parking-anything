@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { LINK_KIND_IDS } from "./link-kinds";
 import * as schemas from "./schemas";
 
 const {
@@ -384,4 +385,36 @@ describe("read parking items", () => {
     expect(response.classification.suggestedKind).toBe("read");
     expect(response.analysis).not.toHaveProperty("suggestedKind");
   });
+});
+
+describe("link-kind registry completeness invariant", () => {
+  // Every id the registry (LINK_KIND_IDS) exposes must have a matching
+  // literal variant in ParkingItemSchema's discriminated union. If a
+  // registry entry is added without a schema variant, the capture tab
+  // appears but every save silently fails with a confusing error — this
+  // test fails loudly instead.
+  function representativeLinkItem(kind: (typeof LINK_KIND_IDS)[number]) {
+    return {
+      id: `${kind}-representative`,
+      kind,
+      url: "https://example.com/representative",
+      status: "parked" as const,
+      title: "Representative item",
+      summary: "A representative summary long enough to satisfy the schema.",
+      effortTier: "quick_spin" as const,
+      suggestedTestTask: "Do one representative thing.",
+      usefulnessHypothesis: "Useful enough to be worth checking.",
+      createdAt: NOW,
+      updatedAt: NOW,
+      lastActivityAt: NOW,
+    };
+  }
+
+  it.each(LINK_KIND_IDS)(
+    "parses a representative parked item for registry id %s",
+    (kind) => {
+      const result = ParkingItemSchema.safeParse(representativeLinkItem(kind));
+      expect(result.success).toBe(true);
+    },
+  );
 });

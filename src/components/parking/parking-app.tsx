@@ -98,8 +98,10 @@ export function ParkingApp() {
             <IdeaCaptureForm onPark={store.addItem} onParked={() => setActiveStatus("parked")} />
           ) : (
             <LinkCaptureForm
+              key={captureMode}
               kind={captureMode}
               onPark={store.addItem}
+              onRepark={(id, kind, analysis) => store.reparkItem(id, { kind, analysis })}
               onParked={() => setActiveStatus("parked")}
             />
           )}

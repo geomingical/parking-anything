@@ -106,6 +106,25 @@ describe("ParkingApp live analysis", () => {
     expect(storedItems()).toHaveLength(3);
   });
 
+  it("clears a typed URL and drops an in-flight request when switching capture mode", async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    const fetchMock = vi.fn(() => new Promise<Response>(() => {}));
+    vi.stubGlobal("fetch", fetchMock);
+    render(<ParkingApp />);
+
+    const toolInput = await screen.findByLabelText("AI tool URL");
+    await user.type(toolInput, "https://example.com/tool");
+    expect(toolInput).toHaveValue("https://example.com/tool");
+    await user.click(screen.getByRole("button", { name: "Analyze & Park" }));
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    await user.click(screen.getByRole("tab", { name: "Park read" }));
+    await user.click(screen.getByRole("tab", { name: "Park tool" }));
+
+    expect(screen.getByLabelText("AI tool URL")).toHaveValue("");
+    expect(screen.getByRole("button", { name: "Analyze & Park" })).toBeEnabled();
+  });
+
   it("states the roadmap as a note instead of dead controls", async () => {
     vi.stubGlobal("fetch", vi.fn());
     render(<ParkingApp />);

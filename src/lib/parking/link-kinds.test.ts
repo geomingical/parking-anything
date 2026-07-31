@@ -21,12 +21,18 @@ describe("link kinds registry", () => {
       expect(kind.framing.length).toBeGreaterThan(0);
       expect(kind.classifierHint.length).toBeGreaterThan(0);
       expect(kind.urlFieldLabel.length).toBeGreaterThan(0);
+      expect(kind.urlPlaceholder.length).toBeGreaterThan(0);
       expect(Object.keys(kind.effortLabels)).toEqual([
         "quick_spin",
         "focused_session",
         "weekend_project",
       ]);
     }
+  });
+
+  it("gives each kind its own URL placeholder example", () => {
+    expect(LINK_KINDS.ai_tool.urlPlaceholder).toBe("https://example.com/ai-tool");
+    expect(LINK_KINDS.read.urlPlaceholder).toBe("https://example.com/article");
   });
 
   it("keeps kind accents out of the reserved status palette", () => {
