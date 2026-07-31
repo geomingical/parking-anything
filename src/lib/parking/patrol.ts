@@ -1,5 +1,6 @@
 import type { ParkingItem, PatrolCandidate } from "./schemas";
 import { activityAge } from "./activity";
+import { displayFor } from "./link-kinds";
 
 export function selectPatrolCandidates(
   items: ParkingItem[],
@@ -35,6 +36,6 @@ export function observedFact(
   const unit = candidate.daysSinceActivity === 1 ? "day" : "days";
   const location =
     candidate.status === "parked" ? "parked" : "test driving";
-  const kind = candidate.kind === "idea" ? "idea" : "tool";
+  const kind = displayFor(candidate.kind).noun;
   return `This ${kind} has been ${location} without activity for ${candidate.daysSinceActivity} ${unit}.`;
 }

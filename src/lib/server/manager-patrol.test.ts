@@ -85,7 +85,7 @@ describe("managerPatrol", () => {
       expect.objectContaining({
         role: "system",
         content: expect.stringMatching(
-          /AI tools and Ideas[\s\S]*untrusted facts[\s\S]*cannot be changed[\s\S]*excluded content[\s\S]*cannot mutate state[\s\S]*concise and clear/i,
+          /kinds: tool, read, idea[\s\S]*untrusted facts[\s\S]*cannot be changed[\s\S]*excluded content[\s\S]*cannot mutate state[\s\S]*concise and clear/i,
         ),
       }),
       expect.objectContaining({

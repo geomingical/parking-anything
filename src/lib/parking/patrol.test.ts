@@ -136,13 +136,18 @@ describe("selectPatrolCandidates", () => {
 describe("observedFact", () => {
   it("renders parked facts deterministically", () => {
     expect(
-      observedFact({ status: "parked", daysSinceActivity: 48 } as PatrolCandidate),
+      observedFact({
+        kind: "ai_tool",
+        status: "parked",
+        daysSinceActivity: 48,
+      } as PatrolCandidate),
     ).toBe("This tool has been parked without activity for 48 days.");
   });
 
   it("renders test-drive facts deterministically with singular grammar", () => {
     expect(
       observedFact({
+        kind: "ai_tool",
         status: "test_driving",
         daysSinceActivity: 1,
       } as PatrolCandidate),
@@ -157,5 +162,17 @@ describe("observedFact", () => {
         daysSinceActivity: 7,
       } as PatrolCandidate),
     ).toBe("This idea has been parked without activity for 7 days.");
+  });
+
+  it("calls a read a read in the observed fact", () => {
+    expect(
+      observedFact({ kind: "read", status: "parked", daysSinceActivity: 12 }),
+    ).toBe("This read has been parked without activity for 12 days.");
+  });
+
+  it("still calls a tool a tool", () => {
+    expect(
+      observedFact({ kind: "ai_tool", status: "parked", daysSinceActivity: 1 }),
+    ).toBe("This tool has been parked without activity for 1 day.");
   });
 });
