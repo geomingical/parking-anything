@@ -38,8 +38,20 @@ export function createAnalyzeRoute(dependencies: AnalyzeRouteDependencies) {
         input = InputSchema.parse(await readBoundedJson(request));
       } catch (error) {
         if (error instanceof z.ZodError) {
+          // Finding 5 fix: a bad `url` and a bad `kind` are different
+          // failures and must name the field that's actually wrong. A `url`
+          // issue (or an unrecognized top-level key) keeps the existing URL
+          // wording; a `kind`-only issue gets its own message instead of
+          // being misreported as a URL problem.
+          const urlInvalid = error.issues.some((issue) => issue.path[0] === "url");
+          const kindInvalid = error.issues.some((issue) => issue.path[0] === "kind");
           return Response.json(
-            { error: "Enter one valid public HTTP(S) URL." },
+            {
+              error:
+                !urlInvalid && kindInvalid
+                  ? "Choose a supported link kind."
+                  : "Enter one valid public HTTP(S) URL.",
+            },
             { status: 400 },
           );
         }

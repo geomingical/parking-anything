@@ -161,7 +161,7 @@ describe("createAnalyzeRoute", () => {
     expect(seen[0].kind).toBe("ai_tool");
   });
 
-  it("rejects an unregistered kind", async () => {
+  it("rejects an unregistered kind with a message naming the kind, not the URL", async () => {
     const POST = createAnalyzeRoute({
       quotaGate: { consume: async () => undefined },
       analyze: async () => {
@@ -178,5 +178,8 @@ describe("createAnalyzeRoute", () => {
     );
 
     expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      error: "Choose a supported link kind.",
+    });
   });
 });

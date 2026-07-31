@@ -15,7 +15,6 @@ import {
 type PendingAdvisory = {
   itemId: string;
   url: string;
-  requestedKind: LinkKindId;
   suggestedKind: LinkKindId;
   rationale: string;
 };
@@ -46,6 +45,28 @@ function extractServerError(body: unknown): string | null {
     if (typeof error === "string") return error;
   }
   return null;
+}
+
+/**
+ * Finding 2 fix: analyzeAndPark and repark hit the same endpoint and must
+ * present the same guidance for the same failure — retry-after wording for a
+ * 429 quota rejection, "try again shortly" for a 503 outage. Both callers
+ * route through this one helper so the wording can never drift between them.
+ */
+function messageForFailedResponse(
+  response: Response,
+  body: unknown,
+  fallbackMessage: string,
+): string {
+  const serverError = extractServerError(body) ?? fallbackMessage;
+  if (response.status === 429) {
+    const retryAfter = response.headers.get("retry-after");
+    return retryAfter
+      ? `${serverError} Try again in ${retryAfter} seconds.`
+      : `${serverError} Try again shortly.`;
+  }
+  if (response.status === 503) return `${serverError} Try again shortly.`;
+  return serverError;
 }
 
 export function LinkCaptureForm({ kind, onPark, onRepark, onParked }: LinkCaptureFormProps) {
@@ -113,13 +134,9 @@ export function LinkCaptureForm({ kind, onPark, onRepark, onParked }: LinkCaptur
       });
       const body = await readJsonBody(response);
       if (!response.ok) {
-        const serverError = extractServerError(body) ?? "The analysis could not be completed.";
-        if (response.status === 429) {
-          const retryAfter = response.headers.get("retry-after");
-          throw new Error(retryAfter ? `${serverError} Try again in ${retryAfter} seconds.` : `${serverError} Try again shortly.`);
-        }
-        if (response.status === 503) throw new Error(`${serverError} Try again shortly.`);
-        throw new Error(serverError);
+        throw new Error(
+          messageForFailedResponse(response, body, "The analysis could not be completed."),
+        );
       }
 
       const result = AnalyzeUrlResponseSchema.safeParse(body);
@@ -150,7 +167,6 @@ export function LinkCaptureForm({ kind, onPark, onRepark, onParked }: LinkCaptur
         setAdvisory({
           itemId: item.id,
           url: normalizedUrl,
-          requestedKind: kind,
           suggestedKind: result.data.classification.suggestedKind,
           rationale: result.data.classification.rationale,
         });
@@ -197,8 +213,9 @@ export function LinkCaptureForm({ kind, onPark, onRepark, onParked }: LinkCaptur
       });
       const body = await readJsonBody(response);
       if (!response.ok) {
-        const serverError = extractServerError(body) ?? "The re-park could not be completed.";
-        throw new Error(serverError);
+        throw new Error(
+          messageForFailedResponse(response, body, "The re-park could not be completed."),
+        );
       }
       const parsed = AnalyzeUrlResponseSchema.safeParse(body);
       if (!parsed.success) throw new Error("The re-park response could not be verified.");
@@ -217,7 +234,6 @@ export function LinkCaptureForm({ kind, onPark, onRepark, onParked }: LinkCaptur
           ? null
           : {
               ...pending,
-              requestedKind: pending.suggestedKind,
               suggestedKind: parsed.data.classification.suggestedKind,
               rationale: parsed.data.classification.rationale,
             },
@@ -227,7 +243,12 @@ export function LinkCaptureForm({ kind, onPark, onRepark, onParked }: LinkCaptur
       setAnalysisError(
         error instanceof Error ? error.message : "The re-park could not be completed.",
       );
-      setAdvisory(null);
+      // Finding 1 fix: do NOT clear the advisory here. It is the only
+      // affordance that can change an item's kind, so clearing it on a
+      // transient failure (429 quota gate, a needsReset store refusal, etc.)
+      // would strand the item under the wrong kind with no way to recover
+      // short of towing it to the Scrapyard and re-parking the URL. Leave it
+      // set so the "Re-park as …" button stays clickable for a retry.
     } finally {
       if (reparkController.current === controller) {
         reparkController.current = null;

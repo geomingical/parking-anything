@@ -52,7 +52,7 @@ export async function analyzeUrl(
   const fetchPage = dependencies.fetchPage ?? fetchPublicPage;
   const responsesParse: AnalyzeResponsesParse =
     dependencies.responsesParse ??
-    ((request) => getOpenAIClient().responses.parse(request));
+    ((params) => getOpenAIClient().responses.parse(params));
   const initiallyNormalizedUrl = await validateUrl(request.url);
 
   let normalizedUrl = initiallyNormalizedUrl;

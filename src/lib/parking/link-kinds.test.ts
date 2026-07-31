@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
+
 import { describe, expect, it } from "vitest";
 
 import {
@@ -50,5 +53,25 @@ describe("link kinds registry", () => {
   it("falls back to an Idea display for the non-link kind", () => {
     expect(displayFor("idea").label).toBe("Idea");
     expect(displayFor("read").label).toBe("Read");
+  });
+
+  // Finding 3: nothing previously bound each registry accentVar to the CSS
+  // custom property it names. An undefined --kind-* token makes the whole
+  // `border-left` declaration invalid, so the accent band silently vanishes
+  // with a fully green suite. Read the actual stylesheet from disk so a
+  // drift between the two is caught here instead of in the browser.
+  it("defines a CSS custom property for every registry accentVar", () => {
+    const css = readFileSync(
+      path.join(process.cwd(), "src/app/globals.css"),
+      "utf-8",
+    );
+    const accentVars = [
+      ...LINK_KIND_IDS.map((id) => LINK_KINDS[id].accentVar),
+      displayFor("idea").accentVar,
+    ];
+
+    for (const accentVar of accentVars) {
+      expect(css).toMatch(new RegExp(`(^|\\s)${accentVar}\\s*:`));
+    }
   });
 });

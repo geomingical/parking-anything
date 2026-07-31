@@ -27,6 +27,14 @@ export type LinkKind = KindDisplay & {
   };
 };
 
+// Finding 6: shared by ai_tool and the idea fallback below — they used to
+// duplicate this record verbatim with nothing binding them together.
+const DEFAULT_EFFORT_LABELS: Record<EffortTier, string> = {
+  quick_spin: "Quick spin",
+  focused_session: "Focused session",
+  weekend_project: "Weekend project",
+};
+
 export const LINK_KINDS: Record<LinkKindId, LinkKind> = {
   ai_tool: {
     label: "Tool",
@@ -39,11 +47,7 @@ export const LINK_KINDS: Record<LinkKindId, LinkKind> = {
       "Turn one saved AI-tool URL into a concrete evaluation ticket. Describe what the tool appears to do, estimate realistic trial effort, and propose one specific test that can begin in 15 minutes.",
     classifierHint:
       "software you would operate: an app, service, API, model, or library",
-    effortLabels: {
-      quick_spin: "Quick spin",
-      focused_session: "Focused session",
-      weekend_project: "Weekend project",
-    },
+    effortLabels: DEFAULT_EFFORT_LABELS,
     fieldLabels: {
       summary: "What it appears to do",
       suggestedTestTask: "First test task",
@@ -78,11 +82,7 @@ const IDEA_DISPLAY: KindDisplay = {
   label: "Idea",
   noun: "idea",
   accentVar: "--kind-idea",
-  effortLabels: {
-    quick_spin: "Quick spin",
-    focused_session: "Focused session",
-    weekend_project: "Weekend project",
-  },
+  effortLabels: DEFAULT_EFFORT_LABELS,
 };
 
 export function isLinkKind(value: string): value is LinkKindId {

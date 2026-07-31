@@ -449,3 +449,71 @@ describe("LinkCaptureForm fix round 1: repark hardening", () => {
     expect(await screen.findByText(/uses the URL only/)).toBeVisible();
   });
 });
+
+describe("LinkCaptureForm final fix wave", () => {
+  beforeEach(() => {
+    vi.stubGlobal("crypto", { ...globalThis.crypto, randomUUID: () => "parked-id" });
+  });
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  // Finding 1: a transient re-park failure (quota gate 429, a needsReset store
+  // refusal, etc.) must NOT clear the advisory. The advisory's button is the
+  // only affordance that can change an item's kind, so clearing it here
+  // strands the item under the wrong kind forever.
+  it("keeps the advisory and its re-park button after a 429 re-park failure", async () => {
+    const user = userEvent.setup();
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        Response.json({ analysis, sourceMode: "fetched", classification: { suggestedKind: "read", rationale: "Long-form prose." } }),
+      )
+      .mockResolvedValueOnce(
+        Response.json(
+          { error: "Too many requests." },
+          { status: 429, headers: { "retry-after": "5" } },
+        ),
+      );
+    vi.stubGlobal("fetch", fetchMock);
+    render(
+      <LinkCaptureForm kind="ai_tool" onPark={() => ({ ok: true })} onRepark={() => ({ ok: true })} />,
+    );
+
+    await user.type(screen.getByLabelText("AI tool URL"), "https://example.com/a");
+    await user.click(screen.getByRole("button", { name: "Analyze & Park" }));
+    await user.click(await screen.findByRole("button", { name: "Re-park as Read" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Too many requests. Try again in 5 seconds.",
+    );
+    expect(screen.getByRole("button", { name: "Re-park as Read" })).toBeVisible();
+  });
+
+  // Finding 2: repark must apply the same 503 "try again shortly" wording as
+  // analyzeAndPark, not a bare server string.
+  it("applies the 503 wording to a re-park failure, same as analyze", async () => {
+    const user = userEvent.setup();
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        Response.json({ analysis, sourceMode: "fetched", classification: { suggestedKind: "read", rationale: "Long-form prose." } }),
+      )
+      .mockResolvedValueOnce(
+        Response.json({ error: "Live AI is temporarily unavailable." }, { status: 503 }),
+      );
+    vi.stubGlobal("fetch", fetchMock);
+    render(
+      <LinkCaptureForm kind="ai_tool" onPark={() => ({ ok: true })} onRepark={() => ({ ok: true })} />,
+    );
+
+    await user.type(screen.getByLabelText("AI tool URL"), "https://example.com/a");
+    await user.click(screen.getByRole("button", { name: "Analyze & Park" }));
+    await user.click(await screen.findByRole("button", { name: "Re-park as Read" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Live AI is temporarily unavailable. Try again shortly.",
+    );
+  });
+});
