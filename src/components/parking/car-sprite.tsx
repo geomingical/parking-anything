@@ -1,6 +1,7 @@
 import Image from "next/image";
 import type { CSSProperties } from "react";
 
+import { displayFor } from "@/lib/parking/link-kinds";
 import type { EffortTier, ParkingItem } from "@/lib/parking/schemas";
 
 const CAR_IMAGES: Record<EffortTier, string> = {
@@ -14,12 +15,6 @@ const STATUS_LABELS: Record<ParkingItem["status"], string> = {
   test_driving: "Test Driving",
   garaged: "Garaged",
   scrapped: "Scrapped",
-};
-
-const EFFORT_LABELS: Record<EffortTier, string> = {
-  quick_spin: "Quick spin",
-  focused_session: "Focused session",
-  weekend_project: "Weekend project",
 };
 
 /*
@@ -45,7 +40,7 @@ export function CarSprite({
   onSelect,
 }: CarSpriteProps) {
   const statusLabel = STATUS_LABELS[item.status];
-  const kindLabel = item.kind === "ai_tool" ? "Tool" : "Idea";
+  const display = displayFor(item.kind);
   const enterDelay =
     Math.min(enterIndex, STAGGER_MAX_STEPS) * STAGGER_STEP_MS;
 
@@ -54,7 +49,10 @@ export function CarSprite({
       type="button"
       aria-label={`${item.title}, ${statusLabel}`}
       onClick={(event) => onSelect(item.id, event.currentTarget)}
-      style={{ "--enter-delay": `${enterDelay}ms` } as CSSProperties}
+      style={{
+        "--enter-delay": `${enterDelay}ms`,
+        "--kind-accent": `var(${display.accentVar})`,
+      } as CSSProperties}
       className="car-card car-enter group flex h-full min-w-0 flex-col items-center justify-between overflow-hidden border border-white/50 bg-[var(--asphalt-deep)]/75 px-3 py-2 text-white hover:border-[var(--safety)] hover:bg-[var(--asphalt-deep)]"
     >
       <span className="relative min-h-0 w-full flex-1">
@@ -81,8 +79,8 @@ export function CarSprite({
         {item.title}
       </span>
       <span className="mt-0.5 w-full truncate text-center text-[0.6rem] font-black uppercase tracking-[0.08em] text-white/60">
-        {kindLabel}
-        {item.effortTier ? ` · ${EFFORT_LABELS[item.effortTier]}` : ""}
+        {display.label}
+        {item.effortTier ? ` · ${display.effortLabels[item.effortTier]}` : ""}
       </span>
       {needsReview ? (
         <span className="mt-1 whitespace-nowrap bg-[var(--safety)] px-1.5 py-0.5 text-[0.6rem] font-black uppercase tracking-[0.04em] text-black">

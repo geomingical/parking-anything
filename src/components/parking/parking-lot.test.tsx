@@ -54,6 +54,32 @@ describe("ParkingLot", () => {
 
     expect(screen.getByText("No cars are waiting in this zone.")).toBeVisible();
   });
+
+  it("labels a read with its own kind wording and accent", () => {
+    const read = {
+      id: "read-1",
+      kind: "read" as const,
+      status: "parked" as const,
+      url: "https://example.com/article",
+      title: "On interface craft",
+      summary: "Argues small details compound.",
+      effortTier: "focused_session" as const,
+      suggestedTestTask: "Pick one detail.",
+      usefulnessHypothesis: "May sharpen the next pass.",
+      createdAt: "2026-07-30T00:00:00.000Z",
+      updatedAt: "2026-07-30T00:00:00.000Z",
+      lastActivityAt: "2026-07-30T00:00:00.000Z",
+    };
+
+    render(<ParkingLot items={[read]} onSelect={vi.fn()} now={new Date("2026-07-30T00:00:00.000Z")} />);
+
+    expect(screen.getByText("Read · Careful read")).toBeVisible();
+    // jsdom does not resolve CSS custom properties through toHaveStyle, so assert the
+    // inline style attribute directly — otherwise this fails for the wrong reason.
+    expect(
+      screen.getByRole("button", { name: "On interface craft, Parked" }).getAttribute("style"),
+    ).toContain("--kind-accent: var(--kind-read)");
+  });
 });
 
 describe("StatusTabs", () => {

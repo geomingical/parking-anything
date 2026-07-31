@@ -12,6 +12,13 @@
   --scrap: #b84a45;
   --line: #ffffff;
 
+  /* Kind accents. Deliberately outside the status/action palette: --safety is
+     reserved for the attention state, --garage and --scrap each already carry a
+     status and an action meaning. */
+  --kind-tool: #6b7f8f;
+  --kind-read: #8a6ea8;
+  --kind-idea: #7d8a72;
+
   /* Motion curves. The built-in CSS easings are too weak to read as intentional. */
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
@@ -145,6 +152,7 @@ h3 {
 /* A parked car is a physical card: a top highlight edge, and it lifts on hover. */
 .car-card {
   --press-scale: 0.985;
+  border-left: 3px solid var(--kind-accent, transparent);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
   transition:
     transform var(--press) var(--ease-out),
