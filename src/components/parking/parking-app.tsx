@@ -10,6 +10,7 @@ import { IdeaCaptureForm } from "./idea-capture-form";
 import { ItemInspector } from "./item-inspector";
 import { LinkCaptureForm } from "./link-capture-form";
 import { ManagerPatrol } from "./manager-patrol";
+import { MisparkAdvisory, type PendingAdvisory } from "./mispark-advisory";
 import { MissionHeader } from "./mission-header";
 import { ParkingLot } from "./parking-lot";
 import { StatusTabs } from "./status-tabs";
@@ -19,6 +20,12 @@ export function ParkingApp() {
   const [activeStatus, setActiveStatus] = useState<ParkingItemStatus>("parked");
   const [captureMode, setCaptureMode] = useState<CaptureMode>("ai_tool");
   const [planningFocusId, setPlanningFocusId] = useState<string | null>(null);
+  // Owned here (not by LinkCaptureForm) so it survives a capture-mode switch
+  // and a park of something else — it is the only affordance anywhere in the
+  // app that can change an item's kind, so ordinary navigation must not
+  // silently discard it. See mispark-advisory.tsx.
+  const [advisory, setAdvisory] = useState<PendingAdvisory | null>(null);
+  const [advisoryNotice, setAdvisoryNotice] = useState<string | null>(null);
   const itemTrigger = useRef<HTMLButtonElement | null>(null);
 
   const counts = useMemo(
@@ -101,10 +108,47 @@ export function ParkingApp() {
               key={captureMode}
               kind={captureMode}
               onPark={store.addItem}
-              onRepark={(id, kind, analysis) => store.reparkItem(id, { kind, analysis })}
               onParked={() => setActiveStatus("parked")}
+              onMispark={(next) => {
+                setAdvisory(next);
+                setAdvisoryNotice(null);
+              }}
             />
           )}
+          {/* Deliberately rendered OUTSIDE the keyed LinkCaptureForm above so
+              switching capture mode (which remounts that form) cannot
+              destroy this. */}
+          {advisory ? (
+            <MisparkAdvisory
+              key={advisory.itemId}
+              advisory={advisory}
+              onRepark={(id, kind, analysis) => store.reparkItem(id, { kind, analysis })}
+              onReparked={setAdvisory}
+              onReparkFailed={(pending) => {
+                const item = store.items.find((candidate) => candidate.id === pending.itemId);
+                const permanent = !item || item.status === "garaged" || item.status === "scrapped";
+                if (!permanent) return;
+                // A permanent failure (item towed away or garaged, or gone
+                // entirely, while the advisory sat unresolved) can never
+                // succeed on retry, unlike a transient 429/network blip —
+                // drop the advisory but say why instead of letting it vanish
+                // silently.
+                setAdvisory(null);
+                setAdvisoryNotice(
+                  !item
+                    ? "This item could no longer be found, so it can no longer be re-parked."
+                    : item.status === "garaged"
+                      ? "This item was already moved to the Garage, so it can no longer be re-parked."
+                      : "This item was already towed away, so it can no longer be re-parked.",
+                );
+              }}
+            />
+          ) : null}
+          {advisoryNotice ? (
+            <p role="status" className="reveal mt-3 border-l-4 border-[var(--scrap)] bg-white px-4 py-3 text-sm font-bold">
+              {advisoryNotice}
+            </p>
+          ) : null}
         </div>
       </section>
       <main className="mx-auto max-w-7xl px-5 py-6 sm:px-8 sm:py-8">

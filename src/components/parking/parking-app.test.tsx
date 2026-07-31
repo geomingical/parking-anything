@@ -393,3 +393,135 @@ describe("ParkingApp live analysis", () => {
     expect(screen.queryByLabelText("Idea title")).not.toBeInTheDocument();
   });
 });
+
+describe("ParkingApp mis-park advisory ownership (residual fix P1/P2)", () => {
+  beforeEach(() => {
+    localStorage.clear();
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    vi.setSystemTime(NOW);
+    vi.stubGlobal("crypto", {
+      ...globalThis.crypto,
+      randomUUID: vi.fn(() => "client-owned-id"),
+    });
+  });
+
+  afterEach(() => {
+    cleanup();
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  // P1, required test: parking under one kind with a mismatched
+  // classification must produce an advisory that SURVIVES a capture-mode
+  // switch, because switching mode used to remount (and destroy) the form
+  // that owned the advisory. It is the only affordance anywhere in the app
+  // that can change an item's kind, so this must not be lost to ordinary
+  // navigation.
+  it("keeps the mis-park advisory visible after switching capture mode", async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Response.json({
+          analysis,
+          sourceMode: "fetched",
+          classification: { suggestedKind: "read", rationale: "Long-form prose." },
+        }),
+      ),
+    );
+    render(<ParkingApp />);
+
+    await user.type(await screen.findByLabelText("AI tool URL"), "https://example.com/tool");
+    await user.click(screen.getByRole("button", { name: "Analyze & Park" }));
+    expect(await screen.findByRole("button", { name: "Re-park as Read" })).toBeVisible();
+
+    await user.click(screen.getByRole("tab", { name: "Park read" }));
+    await user.click(screen.getByRole("tab", { name: "Park tool" }));
+
+    expect(screen.getByRole("button", { name: "Re-park as Read" })).toBeVisible();
+  });
+
+  // P2, required test (a): a transient re-park failure (429 quota gate) must
+  // NOT drop the advisory — the item is still re-parkable, so the button
+  // must stay clickable for a retry.
+  it("keeps the mis-park advisory button after a 429 re-park failure", async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        Response.json({
+          analysis,
+          sourceMode: "fetched",
+          classification: { suggestedKind: "read", rationale: "Long-form prose." },
+        }),
+      )
+      .mockResolvedValueOnce(
+        Response.json(
+          { error: "Too many requests." },
+          { status: 429, headers: { "retry-after": "5" } },
+        ),
+      );
+    vi.stubGlobal("fetch", fetchMock);
+    render(<ParkingApp />);
+
+    await user.type(await screen.findByLabelText("AI tool URL"), "https://example.com/tool");
+    await user.click(screen.getByRole("button", { name: "Analyze & Park" }));
+    await user.click(await screen.findByRole("button", { name: "Re-park as Read" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Too many requests. Try again in 5 seconds.",
+    );
+    expect(screen.getByRole("button", { name: "Re-park as Read" })).toBeVisible();
+  });
+
+  // P2, required test (b): the reachable permanent-failure scenario from the
+  // review — park a tool, get an advisory, tow the item away (a terminal
+  // status), then hit "Re-park as …". reparkItem refuses terminal items
+  // forever, so retrying can never succeed; the advisory must be dropped and
+  // the user told why, instead of leaving a button that will always fail.
+  it("drops the mis-park advisory and explains why once the item has been towed away", async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        Response.json({
+          analysis,
+          sourceMode: "fetched",
+          classification: { suggestedKind: "read", rationale: "Long-form prose." },
+        }),
+      )
+      .mockResolvedValueOnce(
+        Response.json({
+          analysis,
+          sourceMode: "fetched",
+          classification: { suggestedKind: "read", rationale: "Long-form prose." },
+        }),
+      );
+    vi.stubGlobal("fetch", fetchMock);
+    render(<ParkingApp />);
+
+    await user.type(await screen.findByLabelText("AI tool URL"), "https://example.com/tool");
+    await user.click(screen.getByRole("button", { name: "Analyze & Park" }));
+    expect(await screen.findByRole("button", { name: "Re-park as Read" })).toBeVisible();
+
+    await user.click(
+      await screen.findByRole("button", { name: "Example Tool, Parked" }),
+    );
+    await user.click(screen.getByRole("button", { name: "Tow Away" }));
+    await user.type(
+      screen.getByLabelText("Decision reason"),
+      "No longer relevant after review.",
+    );
+    await user.click(screen.getByRole("button", { name: "Confirm Tow Away" }));
+
+    await user.click(screen.getByRole("button", { name: "Re-park as Read" }));
+
+    await waitFor(() =>
+      expect(screen.queryByRole("button", { name: "Re-park as Read" })).not.toBeInTheDocument(),
+    );
+    expect(
+      await screen.findByText(/towed away, so it can no longer be re-parked/),
+    ).toBeVisible();
+  });
+});
