@@ -63,8 +63,17 @@ Everything kind-dependent reads from here: switcher tabs, card band and label,
 inspector field labels, effort wording, the AI framing, the classifier's option list,
 and the re-park button text.
 
-Adding a future kind costs **two** edits: a registry entry and one schema variant
-(below). Not one — see the note under Schema.
+Adding a future kind costs **four** edits, not two. The first two are the registry entry
+and one schema variant (below). The final whole-branch review disproved the original
+"two edits" claim by tracing a hypothetical `podcast` kind, and found two more:
+
+3. `item-inspector.tsx` — `isLinkItem`'s declared return type must gain the new variant,
+   or the else-branch stops narrowing and `item.ideaText` fails to compile. TypeScript
+   catches this, so it is safe.
+4. `globals.css` — a `--kind-<id>` accent token. **Nothing caught this**: an undefined
+   token makes the whole `border-left` declaration invalid, so the card band silently
+   disappears with a fully green suite. A test now binds every registry `accentVar` to a
+   token defined in `globals.css`.
 
 ### Schema — `src/lib/parking/schemas.ts`
 
