@@ -403,7 +403,7 @@ describe("useParkingStore", () => {
       ).toBe("Partial notes.");
     });
 
-    it("refuses a terminal item", () => {
+    it("refuses a terminal item, tagged with reason 'terminal' (Finding 2)", () => {
       const { result } = renderHook(() => useParkingStore());
       const garaged = result.current.items.find(
         ({ status }) => status === "garaged",
@@ -417,13 +417,13 @@ describe("useParkingStore", () => {
         });
       });
 
-      expect(outcome).toMatchObject({ ok: false });
+      expect(outcome).toMatchObject({ ok: false, reason: "terminal" });
       expect(
         result.current.items.find(({ id }) => id === garaged.id)?.kind,
       ).toBe(garaged.kind);
     });
 
-    it("refuses an Idea, which has no URL to reclassify", () => {
+    it("refuses an Idea, which has no URL to reclassify, tagged with reason 'not_a_link' (Finding 2)", () => {
       const { result } = renderHook(() => useParkingStore());
       act(() => {
         result.current.addItem(newIdea);
@@ -437,7 +437,23 @@ describe("useParkingStore", () => {
         });
       });
 
-      expect(outcome).toMatchObject({ ok: false });
+      expect(outcome).toMatchObject({ ok: false, reason: "not_a_link" });
+    });
+
+    // Finding 2: the caller must be able to tell "gone entirely" apart from
+    // every other refusal without inspecting items itself.
+    it("refuses a missing item, tagged with reason 'not_found' (Finding 2)", () => {
+      const { result } = renderHook(() => useParkingStore());
+      let outcome;
+
+      act(() => {
+        outcome = result.current.reparkItem("no-such-item", {
+          kind: "read",
+          analysis: readAnalysis,
+        });
+      });
+
+      expect(outcome).toMatchObject({ ok: false, reason: "not_found" });
     });
   });
 });

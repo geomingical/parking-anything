@@ -87,7 +87,9 @@ describe("MisparkAdvisory re-park flow", () => {
     await waitFor(() => expect(onRepark).toHaveBeenCalledTimes(1));
     expect(onRepark).toHaveBeenCalledWith("parked-id", "read", analysis);
     expect(JSON.parse(String(fetchMock.mock.calls[0][1]!.body)).kind).toBe("read");
-    await waitFor(() => expect(onReparked).toHaveBeenCalledWith(null));
+    // Finding 3: the warning now travels alongside the advisory instead of
+    // being rendered (and lost on unmount) inside this component.
+    await waitFor(() => expect(onReparked).toHaveBeenCalledWith(null, null));
   });
 
   it("reports a new advisory via onReparked when the re-park still disagrees", async () => {
@@ -106,11 +108,14 @@ describe("MisparkAdvisory re-park flow", () => {
     await user.click(screen.getByRole("button", { name: "Re-park as Read" }));
 
     await waitFor(() =>
-      expect(onReparked).toHaveBeenCalledWith({
-        ...pendingAdvisory,
-        suggestedKind: "ai_tool",
-        rationale: "Long-form prose.",
-      }),
+      expect(onReparked).toHaveBeenCalledWith(
+        {
+          ...pendingAdvisory,
+          suggestedKind: "ai_tool",
+          rationale: "Long-form prose.",
+        },
+        null,
+      ),
     );
   });
 
@@ -169,7 +174,20 @@ describe("MisparkAdvisory re-park flow", () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
-  it("clears a stale url-only warning once a subsequent re-park is fully fetched", async () => {
+  // Finding 3: this used to render the warning locally and prove it cleared
+  // on a subsequent fetch by keeping the OLD advisory around whenever
+  // onReparked received `null` (`advisory = next ?? advisory`) — which is
+  // NOT what the real handler (ParkingApp) does. ParkingApp drops the
+  // advisory outright on `null`, unmounting this component, so a warning
+  // that lived in this component's own state would never have painted in
+  // production. The component no longer holds any warning state at all: it
+  // hands (next, warning) up on every call, and it is the CALLER's job (now
+  // tested end-to-end in parking-app.test.tsx) to show a fresh warning and
+  // not carry a stale one forward. What this component still owns, and what
+  // this test verifies mirroring the real handler, is that each call reports
+  // exactly the warning that came back with THAT response — never one
+  // left over from a previous call.
+  it("reports a fresh warning (or null) with every onReparked call, mirroring the real (non-retaining) handler", async () => {
     const user = userEvent.setup();
     const fetchMock = vi
       .fn()
@@ -178,41 +196,51 @@ describe("MisparkAdvisory re-park flow", () => {
           analysis,
           sourceMode: "url_only",
           warning: "Page text could not be fetched, so this analysis uses the URL only.",
-          classification,
+          classification: { suggestedKind: "ai_tool", rationale: "Long-form prose." },
         }),
       )
       .mockResolvedValueOnce(
-        Response.json({ analysis, sourceMode: "fetched", classification }),
+        Response.json({
+          analysis,
+          sourceMode: "fetched",
+          // Agrees with the SECOND click's advisory kind ("ai_tool"), so
+          // this is the agreement (null) case.
+          classification: { suggestedKind: "ai_tool", rationale: "Long-form prose." },
+        }),
       );
     vi.stubGlobal("fetch", fetchMock);
-    let advisory = pendingAdvisory;
+    const onReparked = vi.fn();
     const { rerender } = render(
       <MisparkAdvisory
-        advisory={advisory}
+        advisory={pendingAdvisory}
         onRepark={() => ({ ok: true })}
-        onReparked={(next) => {
-          advisory = next ?? advisory;
-        }}
+        onReparked={onReparked}
         onReparkFailed={() => {}}
       />,
     );
 
     await user.click(screen.getByRole("button", { name: "Re-park as Read" }));
-    expect(await screen.findByText(/uses the URL only/)).toBeVisible();
+    await waitFor(() =>
+      expect(onReparked).toHaveBeenNthCalledWith(
+        1,
+        { ...pendingAdvisory, suggestedKind: "ai_tool", rationale: "Long-form prose." },
+        "Page text could not be fetched, so this analysis uses the URL only.",
+      ),
+    );
 
+    // The real handler passes back exactly the advisory it was handed in the
+    // previous call — never the stale one it started with.
     rerender(
       <MisparkAdvisory
-        advisory={advisory}
+        advisory={{ ...pendingAdvisory, suggestedKind: "ai_tool", rationale: "Long-form prose." }}
         onRepark={() => ({ ok: true })}
-        onReparked={() => {}}
+        onReparked={onReparked}
         onReparkFailed={() => {}}
       />,
     );
-    await user.click(screen.getByRole("button", { name: "Re-park as Read" }));
+    await user.click(screen.getByRole("button", { name: "Re-park as Tool" }));
 
-    await waitFor(() =>
-      expect(screen.queryByText(/uses the URL only/)).not.toBeInTheDocument(),
-    );
+    await waitFor(() => expect(onReparked).toHaveBeenNthCalledWith(2, null, null));
   });
 });
 
@@ -259,7 +287,13 @@ describe("MisparkAdvisory failure handling", () => {
       "Too many requests. Try again in 5 seconds.",
     );
     expect(screen.getByRole("button", { name: "Re-park as Read" })).toBeVisible();
-    expect(onReparkFailed).toHaveBeenCalledWith(pendingAdvisory);
+    // A network/HTTP-layer failure carries no store-decided reason — always
+    // transient from this component's point of view.
+    expect(onReparkFailed).toHaveBeenCalledWith(
+      pendingAdvisory,
+      undefined,
+      "Too many requests. Try again in 5 seconds.",
+    );
   });
 
   it("applies the 503 wording to a re-park failure, same as analyze", async () => {
@@ -298,7 +332,11 @@ describe("MisparkAdvisory failure handling", () => {
     render(
       <MisparkAdvisory
         advisory={pendingAdvisory}
-        onRepark={() => ({ ok: false, message: "This item has reached a final decision and cannot be edited." })}
+        onRepark={() => ({
+          ok: false,
+          reason: "terminal",
+          message: "This item has reached a final decision and cannot be edited.",
+        })}
         onReparked={() => {}}
         onReparkFailed={onReparkFailed}
       />,
@@ -309,6 +347,12 @@ describe("MisparkAdvisory failure handling", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "This item has reached a final decision and cannot be edited.",
     );
-    expect(onReparkFailed).toHaveBeenCalledWith(pendingAdvisory);
+    // The store-decided reason travels with the failure so the caller never
+    // has to re-derive permanence from its own (possibly stale) item list.
+    expect(onReparkFailed).toHaveBeenCalledWith(
+      pendingAdvisory,
+      "terminal",
+      "This item has reached a final decision and cannot be edited.",
+    );
   });
 });

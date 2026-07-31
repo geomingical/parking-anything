@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, useState } from "react";
 
-import { useParkingStore } from "@/hooks/use-parking-store";
+import { useParkingStore, type ReparkFailureReason } from "@/hooks/use-parking-store";
 import type { ParkingItemStatus } from "@/lib/parking/schemas";
 import type { ParkingAction } from "@/lib/parking/transitions";
 import { CaptureSwitcher, type CaptureMode } from "./capture-switcher";
@@ -24,9 +24,39 @@ export function ParkingApp() {
   // and a park of something else — it is the only affordance anywhere in the
   // app that can change an item's kind, so ordinary navigation must not
   // silently discard it. See mispark-advisory.tsx.
-  const [advisory, setAdvisory] = useState<PendingAdvisory | null>(null);
+  //
+  // Keyed by itemId (not a single slot): a competing park that also
+  // mis-parks must not evict an advisory whose own re-park is in flight — a
+  // single slot meant `setAdvisory` silently replaced it, unmounting its
+  // MisparkAdvisory (via `key={advisory.itemId}` below) and aborting its
+  // request out from under the user (Finding 1).
+  const [advisories, setAdvisories] = useState<Map<string, PendingAdvisory>>(
+    () => new Map(),
+  );
   const [advisoryNotice, setAdvisoryNotice] = useState<string | null>(null);
+  // A URL-only re-park warning, lifted out of MisparkAdvisory: when the new
+  // classification agrees, the advisory is removed (and that component
+  // unmounts) in the same tick it would have queued this locally — anything
+  // stored inside that dying component would never paint (Finding 3).
+  const [reparkWarning, setReparkWarning] = useState<string | null>(null);
   const itemTrigger = useRef<HTMLButtonElement | null>(null);
+
+  function upsertAdvisory(next: PendingAdvisory) {
+    setAdvisories((prev) => {
+      const updated = new Map(prev);
+      updated.set(next.itemId, next);
+      return updated;
+    });
+  }
+
+  function removeAdvisory(itemId: string) {
+    setAdvisories((prev) => {
+      if (!prev.has(itemId)) return prev;
+      const updated = new Map(prev);
+      updated.delete(itemId);
+      return updated;
+    });
+  }
 
   const counts = useMemo(
     () =>
@@ -96,6 +126,17 @@ export function ParkingApp() {
         onReset={() => {
           store.resetDemo();
           setActiveStatus("parked");
+          // Reset replaces every item wholesale, so any pending advisory (and
+          // any in-flight re-park behind it) targets an item id that no
+          // longer exists in the fresh demo data. Clearing the map unmounts
+          // each MisparkAdvisory, which aborts its own request via its
+          // unmount effect — the stale-target problem is avoided by never
+          // letting a response for a pre-reset item resolve into a decision
+          // at all (Finding 2), rather than trying to classify it after the
+          // fact.
+          setAdvisories(new Map());
+          setAdvisoryNotice(null);
+          setReparkWarning(null);
         }}
       />
       <section className="border-b border-black/10 bg-[var(--paper)] px-5 py-5 sm:px-8" aria-label="Park something">
@@ -110,39 +151,55 @@ export function ParkingApp() {
               onPark={store.addItem}
               onParked={() => setActiveStatus("parked")}
               onMispark={(next) => {
-                setAdvisory(next);
+                upsertAdvisory(next);
                 setAdvisoryNotice(null);
               }}
             />
           )}
           {/* Deliberately rendered OUTSIDE the keyed LinkCaptureForm above so
               switching capture mode (which remounts that form) cannot
-              destroy this. */}
-          {advisory ? (
+              destroy this. One MisparkAdvisory per pending item, each still
+              keyed by its own itemId so ITS OWN abort/lock/ownership
+              behaviour is unaffected by any other advisory's lifecycle —
+              only that item's own successful (or permanently-failed) re-park
+              removes it from the map (Finding 1). */}
+          {Array.from(advisories.values()).map((advisory) => (
             <MisparkAdvisory
               key={advisory.itemId}
               advisory={advisory}
               onRepark={(id, kind, analysis) => store.reparkItem(id, { kind, analysis })}
-              onReparked={setAdvisory}
-              onReparkFailed={(pending) => {
-                const item = store.items.find((candidate) => candidate.id === pending.itemId);
-                const permanent = !item || item.status === "garaged" || item.status === "scrapped";
+              onReparked={(next, warning) => {
+                if (next) {
+                  upsertAdvisory(next);
+                } else {
+                  removeAdvisory(advisory.itemId);
+                }
+                setReparkWarning(warning);
+              }}
+              onReparkFailed={(
+                pending,
+                reason: ReparkFailureReason | undefined,
+                message,
+              ) => {
+                // The store computed `reason` from the LIVE item at write
+                // time — not from anything captured here — so this decision
+                // cannot go stale even if this item changed status (e.g. was
+                // towed) after the re-park request was sent (Finding 2).
+                const permanent = reason === "not_found" || reason === "terminal";
                 if (!permanent) return;
-                // A permanent failure (item towed away or garaged, or gone
-                // entirely, while the advisory sat unresolved) can never
-                // succeed on retry, unlike a transient 429/network blip —
-                // drop the advisory but say why instead of letting it vanish
-                // silently.
-                setAdvisory(null);
-                setAdvisoryNotice(
-                  !item
-                    ? "This item could no longer be found, so it can no longer be re-parked."
-                    : item.status === "garaged"
-                      ? "This item was already moved to the Garage, so it can no longer be re-parked."
-                      : "This item was already towed away, so it can no longer be re-parked.",
-                );
+                // A permanent failure can never succeed on retry, unlike a
+                // transient 429/network blip or a "blocked" write (e.g. an
+                // unconfirmed reset) — drop the advisory but say why instead
+                // of letting it vanish silently.
+                removeAdvisory(pending.itemId);
+                setAdvisoryNotice(message);
               }}
             />
+          ))}
+          {reparkWarning ? (
+            <p role="status" className="reveal mt-3 border-l-4 border-[var(--safety)] bg-white px-4 py-3 text-sm font-bold">
+              {reparkWarning}
+            </p>
           ) : null}
           {advisoryNotice ? (
             <p role="status" className="reveal mt-3 border-l-4 border-[var(--scrap)] bg-white px-4 py-3 text-sm font-bold">

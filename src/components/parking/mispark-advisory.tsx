@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
-import type { ActionResult } from "@/hooks/use-parking-store";
+import type { ReparkFailureReason, ReparkResult } from "@/hooks/use-parking-store";
 import { messageForFailedResponse, readJsonBody } from "@/lib/parking/analyze-url-client";
 import { LINK_KINDS, type LinkKindId } from "@/lib/parking/link-kinds";
 import { AnalyzeUrlResponseSchema, type AnalyzeUrlResult } from "@/lib/parking/schemas";
@@ -16,19 +16,31 @@ export type PendingAdvisory = {
 
 type MisparkAdvisoryProps = {
   advisory: PendingAdvisory;
-  onRepark(id: string, kind: LinkKindId, analysis: AnalyzeUrlResult): ActionResult;
+  onRepark(id: string, kind: LinkKindId, analysis: AnalyzeUrlResult): ReparkResult;
   /**
    * Called after a successful re-park: `null` when the model now agrees with
    * the new kind, or an updated PendingAdvisory when it still disagrees.
+   * `warning` is the URL-only warning (if any) from THIS re-park's response —
+   * handed to the parent rather than rendered here, because the `null` case
+   * unmounts this component in the same tick (ParkingApp drops the advisory
+   * from its map), so anything queued into this component's own state would
+   * never paint (Finding 3).
    */
-  onReparked(next: PendingAdvisory | null): void;
+  onReparked(next: PendingAdvisory | null, warning: string | null): void;
   /**
    * Called after ANY failed re-park (network/HTTP failure, or a successful
    * fetch whose store write was refused). The component itself never decides
-   * whether to keep or drop the advisory — only the parent can, because only
-   * the parent can see whether the target item has since become terminal.
+   * whether to keep or drop the advisory — only the parent can. `reason` is
+   * undefined for a network/HTTP-layer failure (always transient — retry may
+   * succeed) and the store's own ReparkFailureReason for a refused write,
+   * computed by the store from the LIVE item at write time rather than any
+   * snapshot the caller might be holding (Finding 2).
    */
-  onReparkFailed(pending: PendingAdvisory): void;
+  onReparkFailed(
+    pending: PendingAdvisory,
+    reason: ReparkFailureReason | undefined,
+    message: string,
+  ): void;
 };
 
 /**
@@ -44,7 +56,6 @@ export function MisparkAdvisory({
   onReparkFailed,
 }: MisparkAdvisoryProps) {
   const [reparking, setReparking] = useState(false);
-  const [warning, setWarning] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const reparkController = useRef<AbortController | null>(null);
   const operationLock = useRef(false);
@@ -65,7 +76,6 @@ export function MisparkAdvisory({
     operationLock.current = true;
     setReparking(true);
     setError(null);
-    setWarning(null);
 
     try {
       const response = await fetch("/api/analyze-url", {
@@ -89,9 +99,20 @@ export function MisparkAdvisory({
       if (reparkController.current !== controller) return;
 
       const saved = onRepark(advisory.itemId, advisory.suggestedKind, parsed.data.analysis);
-      if (!saved.ok) throw new Error(saved.message);
+      if (!saved.ok) {
+        // Refused by the store, not a network/HTTP failure — saved.reason
+        // came from the live item at write time, so the parent can decide
+        // keep-vs-drop without ever looking at its own (possibly stale)
+        // items snapshot.
+        setError(saved.message);
+        onReparkFailed(advisory, saved.reason, saved.message);
+        return;
+      }
 
-      setWarning(parsed.data.warning ?? null);
+      // Warning is handed to the parent, not rendered here: when the new
+      // classification agrees, onReparked(null, …) causes ParkingApp to drop
+      // this advisory in the same tick, unmounting this component before any
+      // locally-queued state could ever paint.
       onReparked(
         parsed.data.classification.suggestedKind === advisory.suggestedKind
           ? null
@@ -100,6 +121,7 @@ export function MisparkAdvisory({
               suggestedKind: parsed.data.classification.suggestedKind,
               rationale: parsed.data.classification.rationale,
             },
+        parsed.data.warning ?? null,
       );
     } catch (caught) {
       if (controller.signal.aborted) return;
@@ -107,7 +129,7 @@ export function MisparkAdvisory({
       const message =
         caught instanceof Error ? caught.message : "The re-park could not be completed.";
       setError(message);
-      onReparkFailed(advisory);
+      onReparkFailed(advisory, undefined, message);
     } finally {
       if (reparkController.current === controller) {
         reparkController.current = null;
@@ -133,11 +155,6 @@ export function MisparkAdvisory({
           {reparking ? "Re-parking…" : `Re-park as ${LINK_KINDS[advisory.suggestedKind].label}`}
         </button>
       </div>
-      {warning ? (
-        <p role="status" className="reveal mt-3 border-l-4 border-[var(--safety)] bg-white px-4 py-3 text-sm font-bold">
-          {warning}
-        </p>
-      ) : null}
       {error ? (
         <p role="alert" className="reveal mt-3 border-l-4 border-[var(--scrap)] bg-white px-4 py-3 text-sm font-bold">
           {error}

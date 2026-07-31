@@ -47,13 +47,27 @@ export type ParkingStoreController = {
   reparkItem(
     id: string,
     input: { kind: LinkKindId; analysis: AnalyzeUrlResult },
-  ): ActionResult;
+  ): ReparkResult;
   resetDemo(): void;
 };
 
 export type ActionResult =
   | { ok: true }
   | { ok: false; message: string };
+
+/*
+ * Only reparkItem returns this — every other mutator keeps ActionResult
+ * unchanged. A caller (MisparkAdvisory) needs to know WHY a re-park was
+ * refused, not just that it was, so it can decide whether a retry could ever
+ * succeed without inspecting the store's items itself (see Finding 2: a
+ * captured items snapshot goes stale the instant the target item changes
+ * status while a request is in flight).
+ */
+export type ReparkFailureReason = "not_found" | "terminal" | "not_a_link" | "blocked";
+
+export type ReparkResult =
+  | { ok: true }
+  | { ok: false; message: string; reason: ReparkFailureReason };
 
 type PersistentSnapshot = Pick<
   ParkingStoreController,
@@ -327,38 +341,61 @@ export function useParkingStore(): ParkingStoreController {
 
   /*
    * Rebuilds the item in the store rather than accepting a caller-built one:
-   * mutateItem takes any ParkingItem, so nothing else could guarantee that id,
-   * createdAt and status survived a re-park.
+   * a caller-built item could not guarantee that id, createdAt and status
+   * survived a re-park. This deliberately does not go through mutateItem:
+   * every refusal here needs a `reason` tag alongside its message so the
+   * caller (MisparkAdvisory, via ParkingApp) can decide keep-vs-drop from the
+   * live item at the moment of the write, not from a snapshot it captured
+   * earlier and might have gone stale (Finding 2).
    */
   function reparkItem(
     id: string,
     input: { kind: LinkKindId; analysis: AnalyzeUrlResult },
-  ): ActionResult {
-    return mutateItem(id, (item) => {
-      const terminal = refuseIfTerminal(item);
-      if (terminal) return terminal;
-
-      if (!isLinkKind(item.kind)) {
-        return {
-          ok: false,
-          message: "Only items parked from a link can be re-parked as another kind.",
-        };
-      }
-
-      const now = new Date().toISOString();
+  ): ReparkResult {
+    const currentItems = buildBrowserSnapshot().items;
+    const index = currentItems.findIndex((candidate) => candidate.id === id);
+    if (index === -1) {
       return {
-        ok: true,
-        // Both link variants share one field shape, so swapping kind yields a
-        // valid item. commitItems revalidates before anything is written.
-        item: {
-          ...item,
-          ...input.analysis,
-          kind: input.kind,
-          updatedAt: now,
-          lastActivityAt: now,
-        } as ParkingItem,
+        ok: false,
+        reason: "not_found",
+        message: "This item could no longer be found, so it can no longer be re-parked.",
       };
-    });
+    }
+
+    const item = currentItems[index];
+    if (refuseIfTerminal(item)) {
+      return {
+        ok: false,
+        reason: "terminal",
+        message:
+          item.status === "garaged"
+            ? "This item was already moved to the Garage, so it can no longer be re-parked."
+            : "This item was already towed away, so it can no longer be re-parked.",
+      };
+    }
+
+    if (!isLinkKind(item.kind)) {
+      return {
+        ok: false,
+        reason: "not_a_link",
+        message: "Only items parked from a link can be re-parked as another kind.",
+      };
+    }
+
+    const now = new Date().toISOString();
+    const items = [...currentItems];
+    items[index] = {
+      ...item,
+      ...input.analysis,
+      kind: input.kind,
+      updatedAt: now,
+      lastActivityAt: now,
+    } as ParkingItem;
+
+    const committed = commitItems(items);
+    return committed.ok
+      ? { ok: true }
+      : { ok: false, reason: "blocked", message: committed.message };
   }
 
   function resetDemo() {

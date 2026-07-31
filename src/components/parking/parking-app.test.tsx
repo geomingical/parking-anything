@@ -524,4 +524,337 @@ describe("ParkingApp mis-park advisory ownership (residual fix P1/P2)", () => {
       await screen.findByText(/towed away, so it can no longer be re-parked/),
     ).toBeVisible();
   });
+
+  // Finding 2 (the real regression): the OLD test above tows BEFORE clicking
+  // "Re-park as Read", so by the time the advisory's onReparkFailed closure
+  // is created it already captures post-tow items — the closure happens to
+  // be fresh. This test interleaves the tow WHILE the re-park request is
+  // still in flight, which is the actual race: onReparkFailed's decision
+  // must come from the store's own live check inside reparkItem, not from
+  // any items array ParkingApp captured before the request went out.
+  it("drops the advisory and explains why when the item is towed away WHILE its own re-park is still in flight", async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    let resolveRepark!: (response: Response) => void;
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        Response.json({
+          analysis,
+          sourceMode: "fetched",
+          classification: { suggestedKind: "read", rationale: "Long-form prose." },
+        }),
+      )
+      .mockImplementationOnce(
+        () =>
+          new Promise<Response>((resolve) => {
+            resolveRepark = resolve;
+          }),
+      );
+    vi.stubGlobal("fetch", fetchMock);
+    render(<ParkingApp />);
+
+    await user.type(await screen.findByLabelText("AI tool URL"), "https://example.com/tool");
+    await user.click(screen.getByRole("button", { name: "Analyze & Park" }));
+    expect(await screen.findByRole("button", { name: "Re-park as Read" })).toBeVisible();
+
+    // Start the re-park — the response will not arrive until we resolve it
+    // below, deliberately keeping it in flight through the tow.
+    await user.click(screen.getByRole("button", { name: "Re-park as Read" }));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+    expect(screen.getByRole("button", { name: "Re-parking…" })).toBeVisible();
+
+    // Tow the item away WHILE that request is still pending.
+    await user.click(
+      await screen.findByRole("button", { name: "Example Tool, Parked" }),
+    );
+    await user.click(screen.getByRole("button", { name: "Tow Away" }));
+    await user.type(
+      screen.getByLabelText("Decision reason"),
+      "Superseded while the re-park was in flight.",
+    );
+    await user.click(screen.getByRole("button", { name: "Confirm Tow Away" }));
+
+    // Now let the in-flight re-park response arrive.
+    await act(async () => {
+      resolveRepark(
+        Response.json({
+          analysis,
+          sourceMode: "fetched",
+          classification: { suggestedKind: "read", rationale: "Long-form prose." },
+        }),
+      );
+    });
+
+    await waitFor(() =>
+      expect(
+        screen.queryByRole("button", { name: /Re-park as Read|Re-parking…/ }),
+      ).not.toBeInTheDocument(),
+    );
+    expect(
+      await screen.findByText(/towed away, so it can no longer be re-parked/),
+    ).toBeVisible();
+  });
+
+  // Finding 2 also affects Reset demo data: it replaces every item wholesale,
+  // so an in-flight re-park targets an id that no longer exists in the fresh
+  // seed data the instant reset runs.
+  it("clears the advisory when Reset demo data is confirmed while its re-park is still in flight", async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    let resolveRepark!: (response: Response) => void;
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        Response.json({
+          analysis,
+          sourceMode: "fetched",
+          classification: { suggestedKind: "read", rationale: "Long-form prose." },
+        }),
+      )
+      .mockImplementationOnce(
+        () =>
+          new Promise<Response>((resolve) => {
+            resolveRepark = resolve;
+          }),
+      );
+    vi.stubGlobal("fetch", fetchMock);
+    render(<ParkingApp />);
+
+    await user.type(await screen.findByLabelText("AI tool URL"), "https://example.com/tool");
+    await user.click(screen.getByRole("button", { name: "Analyze & Park" }));
+    expect(await screen.findByRole("button", { name: "Re-park as Read" })).toBeVisible();
+
+    await user.click(screen.getByRole("button", { name: "Re-park as Read" }));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+
+    await user.click(screen.getByRole("button", { name: "Reset demo data settings" }));
+    await user.click(screen.getByRole("button", { name: "Reset demo data" }));
+
+    expect(
+      screen.queryByRole("button", { name: /Re-park as Read|Re-parking…/ }),
+    ).not.toBeInTheDocument();
+
+    // The now-orphaned response must not resurrect anything about an item
+    // that has nothing to do with the fresh demo data.
+    await act(async () => {
+      resolveRepark(
+        Response.json({
+          analysis,
+          sourceMode: "fetched",
+          classification: { suggestedKind: "read", rationale: "Long-form prose." },
+        }),
+      );
+    });
+
+    expect(
+      screen.queryByRole("button", { name: /Re-park as Read|Re-parking…/ }),
+    ).not.toBeInTheDocument();
+    expect(storedItems()).toHaveLength(3);
+  });
+
+  // Finding 3: mispark-advisory.tsx queues its URL-only warning and then
+  // calls onReparked(null) when the new classification agrees — but
+  // ParkingApp wires onReparked to drop the advisory, unmounting the
+  // component that was about to show that warning in the very same tick.
+  it("shows the URL-only re-park warning even though the agreeing re-park drops the advisory (Finding 3)", async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        Response.json({
+          analysis,
+          sourceMode: "fetched",
+          classification: { suggestedKind: "read", rationale: "Long-form prose." },
+        }),
+      )
+      .mockResolvedValueOnce(
+        Response.json({
+          analysis,
+          sourceMode: "url_only",
+          warning:
+            "Page text could not be fetched, so this analysis uses the URL only.",
+          classification: { suggestedKind: "read", rationale: "Long-form prose." },
+        }),
+      );
+    vi.stubGlobal("fetch", fetchMock);
+    render(<ParkingApp />);
+
+    await user.type(await screen.findByLabelText("AI tool URL"), "https://example.com/tool");
+    await user.click(screen.getByRole("button", { name: "Analyze & Park" }));
+    await user.click(await screen.findByRole("button", { name: "Re-park as Read" }));
+
+    expect(
+      await screen.findByText(
+        "Page text could not be fetched, so this analysis uses the URL only.",
+      ),
+    ).toBeVisible();
+    // The advisory really is gone (the model now agrees) — proving the
+    // warning is no longer coming from the component that just unmounted.
+    expect(
+      screen.queryByRole("button", { name: /Re-park as Read|Re-parking…/ }),
+    ).not.toBeInTheDocument();
+  });
+});
+
+describe("ParkingApp concurrent mis-park advisories (Finding 1)", () => {
+  beforeEach(() => {
+    localStorage.clear();
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    vi.setSystemTime(NOW);
+    let idCount = 0;
+    vi.stubGlobal("crypto", {
+      ...globalThis.crypto,
+      randomUUID: vi.fn(() => `item-${++idCount}`),
+    });
+  });
+
+  afterEach(() => {
+    cleanup();
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  async function parkTool(user: ReturnType<typeof userEvent.setup>, url: string, title: string) {
+    const input = await screen.findByLabelText("AI tool URL");
+    await user.clear(input);
+    await user.type(input, url);
+    await user.click(screen.getByRole("button", { name: "Analyze & Park" }));
+    await screen.findByRole("button", { name: `${title}, Parked` });
+  }
+
+  // Finding 1, order A: item A's re-park is still in flight when item B is
+  // parked and ALSO mis-parks. A single advisory slot would have had item
+  // B's advisory silently replace (and unmount, aborting) item A's — this
+  // proves both survive, and that resolving A's in-flight response afterward
+  // still lands correctly without disturbing B.
+  it("keeps both advisories when B mis-parks while A's re-park is in flight, and A resolves after B appears", async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    let resolveReparkA!: (response: Response) => void;
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        Response.json({
+          analysis: { ...analysis, title: "Tool A" },
+          sourceMode: "fetched",
+          classification: { suggestedKind: "read", rationale: "Long-form prose A." },
+        }),
+      )
+      .mockImplementationOnce(
+        () =>
+          new Promise<Response>((resolve) => {
+            resolveReparkA = resolve;
+          }),
+      )
+      .mockResolvedValueOnce(
+        Response.json({
+          analysis: { ...analysis, title: "Tool B" },
+          sourceMode: "fetched",
+          classification: { suggestedKind: "read", rationale: "Long-form prose B." },
+        }),
+      );
+    vi.stubGlobal("fetch", fetchMock);
+    render(<ParkingApp />);
+
+    await parkTool(user, "https://example.com/a", "Tool A");
+    await user.click(screen.getByRole("button", { name: "Re-park as Read" }));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+    expect(screen.getByRole("button", { name: "Re-parking…" })).toBeVisible();
+
+    await parkTool(user, "https://example.com/b", "Tool B");
+
+    // A's advisory must still be there (mid-request), alongside B's own,
+    // untouched advisory.
+    expect(screen.getByRole("button", { name: "Re-parking…" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "Re-park as Read" })).toBeVisible();
+    expect(screen.getByText("Long-form prose B.")).toBeVisible();
+
+    await act(async () => {
+      resolveReparkA(
+        Response.json({
+          analysis: { ...analysis, title: "Tool A" },
+          sourceMode: "fetched",
+          classification: { suggestedKind: "read", rationale: "Long-form prose A." },
+        }),
+      );
+    });
+
+    // A agreed, so A's advisory is gone; B's is untouched and still the only
+    // one left.
+    await waitFor(() =>
+      expect(screen.queryByRole("button", { name: "Re-parking…" })).not.toBeInTheDocument(),
+    );
+    expect(screen.getAllByRole("button", { name: "Re-park as Read" })).toHaveLength(1);
+    expect(screen.getByText("Long-form prose B.")).toBeVisible();
+  });
+
+  // Finding 1, order B: the reverse completion order — B's own re-park
+  // resolves while A's is still in flight. Resolving B must not disturb A's
+  // still-pending advisory.
+  it("keeps A's advisory in flight and unaffected when B's own re-park resolves first", async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    let resolveReparkA!: (response: Response) => void;
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        Response.json({
+          analysis: { ...analysis, title: "Tool A" },
+          sourceMode: "fetched",
+          classification: { suggestedKind: "read", rationale: "Long-form prose A." },
+        }),
+      )
+      .mockImplementationOnce(
+        () =>
+          new Promise<Response>((resolve) => {
+            resolveReparkA = resolve;
+          }),
+      )
+      .mockResolvedValueOnce(
+        Response.json({
+          analysis: { ...analysis, title: "Tool B" },
+          sourceMode: "fetched",
+          classification: { suggestedKind: "read", rationale: "Long-form prose B." },
+        }),
+      )
+      .mockResolvedValueOnce(
+        Response.json({
+          analysis: { ...analysis, title: "Tool B" },
+          sourceMode: "fetched",
+          classification: { suggestedKind: "read", rationale: "Long-form prose B." },
+        }),
+      );
+    vi.stubGlobal("fetch", fetchMock);
+    render(<ParkingApp />);
+
+    await parkTool(user, "https://example.com/a", "Tool A");
+    await user.click(screen.getByRole("button", { name: "Re-park as Read" }));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+    expect(screen.getByRole("button", { name: "Re-parking…" })).toBeVisible();
+
+    await parkTool(user, "https://example.com/b", "Tool B");
+    expect(screen.getByRole("button", { name: "Re-park as Read" })).toBeVisible();
+
+    // Resolve B's own re-park (agreeing) — it should complete and disappear
+    // without touching A's still-pending advisory.
+    await user.click(screen.getByRole("button", { name: "Re-park as Read" }));
+    await waitFor(() =>
+      expect(screen.queryByRole("button", { name: "Re-park as Read" })).not.toBeInTheDocument(),
+    );
+    expect(screen.getByRole("button", { name: "Re-parking…" })).toBeVisible();
+
+    // Clean up A's still-pending request so it doesn't leak into another
+    // test; confirm it still lands correctly and unaffected by B's history.
+    await act(async () => {
+      resolveReparkA(
+        Response.json({
+          analysis: { ...analysis, title: "Tool A" },
+          sourceMode: "fetched",
+          classification: { suggestedKind: "read", rationale: "Long-form prose A." },
+        }),
+      );
+    });
+    await waitFor(() =>
+      expect(screen.queryByRole("button", { name: "Re-parking…" })).not.toBeInTheDocument(),
+    );
+    expect(screen.queryByRole("button", { name: "Re-park as Read" })).not.toBeInTheDocument();
+  });
 });
