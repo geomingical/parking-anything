@@ -57,15 +57,34 @@ export function LinkCaptureForm({ kind, onPark, onRepark, onParked }: LinkCaptur
   const [advisory, setAdvisory] = useState<PendingAdvisory | null>(null);
   const [reparking, setReparking] = useState(false);
   const analyzeController = useRef<AbortController | null>(null);
+  const reparkController = useRef<AbortController | null>(null);
+  // Fix round 1, Finding 2: park and re-park share ONE synchronous lock so
+  // they can never run concurrently and clobber each other's state.
+  const operationLock = useRef(false);
 
-  useEffect(() => () => analyzeController.current?.abort(), []);
+  useEffect(
+    () => () => {
+      // Fix round 1, Finding 1: abort AND null out both controllers on
+      // unmount. Aborting alone cannot stop a response that has already won
+      // the race past the network call, so any resumed async function must
+      // see its own controller no longer matches the ref and bail before
+      // touching the store or calling setState.
+      analyzeController.current?.abort();
+      analyzeController.current = null;
+      reparkController.current?.abort();
+      reparkController.current = null;
+    },
+    [],
+  );
 
   async function analyzeAndPark() {
-    // Defect B fix: this must be a synchronous lock, not a state read. Two
-    // submits dispatched in the same commit both see the same (stale) React
-    // state, but the ref is mutated immediately below and is visible to the
-    // very next synchronous call.
-    if (analyzeController.current) return;
+    // Defect B / Finding 2 fix: this must be a synchronous lock, not a
+    // render snapshot. Two submits dispatched in the same commit both see
+    // the same (stale) React state, but the ref is mutated immediately below
+    // and is visible to the very next synchronous call — and it is shared
+    // with repark() so a park can never start while a re-park is in flight
+    // (or vice versa).
+    if (operationLock.current) return;
 
     let normalizedUrl: string;
     try {
@@ -79,6 +98,7 @@ export function LinkCaptureForm({ kind, onPark, onRepark, onParked }: LinkCaptur
 
     const controller = new AbortController();
     analyzeController.current = controller;
+    operationLock.current = true;
     setAnalyzingUrl(normalizedUrl);
     setAnalysisError(null);
     setAnalysisWarning(null);
@@ -105,9 +125,11 @@ export function LinkCaptureForm({ kind, onPark, onRepark, onParked }: LinkCaptur
       const result = AnalyzeUrlResponseSchema.safeParse(body);
       if (!result.success) throw new Error("The analysis response could not be verified. Try again.");
 
-      // Defect B fix (continued): an abort alone cannot stop a response that
-      // already won the race and is mid-flight past the network call. Refuse
-      // to persist if a newer request has since taken the lock.
+      // Defect B / Finding 1 fix (continued): an abort alone cannot stop a
+      // response that already won the race and is mid-flight past the
+      // network call. The unmount cleanup nulls this ref, so this check is
+      // genuinely reachable (not dead code) — it fires whenever the
+      // component has unmounted since the request began.
       if (analyzeController.current !== controller) return;
 
       const now = new Date().toISOString();
@@ -139,21 +161,39 @@ export function LinkCaptureForm({ kind, onPark, onRepark, onParked }: LinkCaptur
       if (controller.signal.aborted) return;
       setAnalysisError(error instanceof Error ? error.message : "The analysis could not be completed. Try again.");
     } finally {
+      // Gated on ref identity, not unconditional: after unmount the ref is
+      // already null (cleanup ran), so this deliberately skips releasing the
+      // lock and skips setState on a dead instance — see Finding 1.
       if (analyzeController.current === controller) {
         analyzeController.current = null;
+        operationLock.current = false;
         setAnalyzingUrl(null);
       }
     }
   }
 
   async function repark(pending: PendingAdvisory) {
-    if (reparking) return;
+    // Finding 3 fix: same synchronous-lock treatment as analyzeAndPark — the
+    // previous `if (reparking) return` was a render-snapshot state read that
+    // let two same-commit clicks both start a request. Finding 2 fix: this
+    // shares operationLock with analyzeAndPark, so a park can never start
+    // while a re-park is in flight, and vice versa.
+    if (operationLock.current) return;
+
+    const controller = new AbortController();
+    reparkController.current = controller;
+    operationLock.current = true;
     setReparking(true);
+    setAnalysisError(null);
+    // Finding 4 fix: clear any warning left over from the FIRST analysis as
+    // soon as a re-park starts — it describes the old analysis, not this one.
+    setAnalysisWarning(null);
     try {
       const response = await fetch("/api/analyze-url", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: pending.url, kind: pending.suggestedKind }),
+        signal: controller.signal,
       });
       const body = await readJsonBody(response);
       if (!response.ok) {
@@ -163,8 +203,15 @@ export function LinkCaptureForm({ kind, onPark, onRepark, onParked }: LinkCaptur
       const parsed = AnalyzeUrlResponseSchema.safeParse(body);
       if (!parsed.success) throw new Error("The re-park response could not be verified.");
 
+      // Finding 1 fix: ownership check before mutating the store, genuinely
+      // reachable because unmount cleanup nulls this ref (see above).
+      if (reparkController.current !== controller) return;
+
       const saved = onRepark(pending.itemId, pending.suggestedKind, parsed.data.analysis);
       if (!saved.ok) throw new Error(saved.message);
+      // Finding 4 fix (continued): the warning now describes THIS response,
+      // not the one that produced the advisory being acted on.
+      setAnalysisWarning(parsed.data.warning ?? null);
       setAdvisory(
         parsed.data.classification.suggestedKind === pending.suggestedKind
           ? null
@@ -176,21 +223,31 @@ export function LinkCaptureForm({ kind, onPark, onRepark, onParked }: LinkCaptur
             },
       );
     } catch (error) {
+      if (controller.signal.aborted) return;
       setAnalysisError(
         error instanceof Error ? error.message : "The re-park could not be completed.",
       );
       setAdvisory(null);
     } finally {
-      setReparking(false);
+      if (reparkController.current === controller) {
+        reparkController.current = null;
+        operationLock.current = false;
+        setReparking(false);
+      }
     }
   }
+
+  // Finding 2 fix: the URL input and submit must be disabled whenever EITHER
+  // flow is active, not just the park flow — otherwise a park can be started
+  // while a re-park is in flight.
+  const busy = Boolean(analyzingUrl) || reparking;
 
   return (
     <div className="mt-5">
       <form className="flex flex-col gap-2 sm:flex-row" onSubmit={(event) => { event.preventDefault(); void analyzeAndPark(); }}>
         <label htmlFor="link-url" className="sr-only">{registry.urlFieldLabel}</label>
-        <input id="link-url" type="url" value={url} onChange={(event) => setUrl(event.target.value)} placeholder={registry.urlPlaceholder} disabled={Boolean(analyzingUrl)} className="h-12 min-w-0 flex-1 border-2 border-[var(--ink)] bg-white px-4 text-base disabled:bg-black/5" />
-        <button type="submit" disabled={Boolean(analyzingUrl)} className="pressable inline-flex h-12 shrink-0 items-center justify-center gap-2 bg-[var(--safety)] px-6 text-sm font-black uppercase tracking-[0.08em] disabled:cursor-wait disabled:opacity-50">{analyzingUrl ? <LoaderCircle aria-hidden="true" size={16} className="spinner" /> : null}Analyze &amp; Park</button>
+        <input id="link-url" type="url" value={url} onChange={(event) => setUrl(event.target.value)} placeholder={registry.urlPlaceholder} disabled={busy} className="h-12 min-w-0 flex-1 border-2 border-[var(--ink)] bg-white px-4 text-base disabled:bg-black/5" />
+        <button type="submit" disabled={busy} className="pressable inline-flex h-12 shrink-0 items-center justify-center gap-2 bg-[var(--safety)] px-6 text-sm font-black uppercase tracking-[0.08em] disabled:cursor-wait disabled:opacity-50">{analyzingUrl ? <LoaderCircle aria-hidden="true" size={16} className="spinner" /> : null}Analyze &amp; Park</button>
       </form>
       {analyzingUrl ? <p className="reveal mt-2 text-sm font-bold" aria-live="polite">Analyzing {analyzingUrl}…</p> : null}
       {analysisError ? <p role="alert" className="reveal mt-3 border-l-4 border-[var(--scrap)] bg-white px-4 py-3 text-sm font-bold">{analysisError}</p> : null}
