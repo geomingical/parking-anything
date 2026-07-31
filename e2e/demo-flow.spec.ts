@@ -10,6 +10,10 @@ const analyzeFixture = {
   },
   sourceMode: "url_only",
   warning: "Page text could not be fetched, so this analysis uses the URL only.",
+  classification: {
+    suggestedKind: "ai_tool",
+    rationale: "An operable tool rather than something to read.",
+  },
 };
 
 const modelPatrolFixture = {
