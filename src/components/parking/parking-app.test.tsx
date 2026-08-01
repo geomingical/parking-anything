@@ -434,12 +434,12 @@ describe("ParkingApp mis-park advisory ownership (residual fix P1/P2)", () => {
 
     await user.type(await screen.findByLabelText("AI tool URL"), "https://example.com/tool");
     await user.click(screen.getByRole("button", { name: "Analyze & Park" }));
-    expect(await screen.findByRole("button", { name: "Re-park as Read" })).toBeVisible();
+    expect(await screen.findByRole("button", { name: "Re-park Example Tool as Read" })).toBeVisible();
 
     await user.click(screen.getByRole("tab", { name: "Park read" }));
     await user.click(screen.getByRole("tab", { name: "Park tool" }));
 
-    expect(screen.getByRole("button", { name: "Re-park as Read" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "Re-park Example Tool as Read" })).toBeVisible();
   });
 
   // P2, required test (a): a transient re-park failure (429 quota gate) must
@@ -467,43 +467,41 @@ describe("ParkingApp mis-park advisory ownership (residual fix P1/P2)", () => {
 
     await user.type(await screen.findByLabelText("AI tool URL"), "https://example.com/tool");
     await user.click(screen.getByRole("button", { name: "Analyze & Park" }));
-    await user.click(await screen.findByRole("button", { name: "Re-park as Read" }));
+    await user.click(await screen.findByRole("button", { name: "Re-park Example Tool as Read" }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "Too many requests. Try again in 5 seconds.",
     );
-    expect(screen.getByRole("button", { name: "Re-park as Read" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "Re-park Example Tool as Read" })).toBeVisible();
   });
 
-  // P2, required test (b): the reachable permanent-failure scenario from the
-  // review — park a tool, get an advisory, tow the item away (a terminal
-  // status), then hit "Re-park as …". reparkItem refuses terminal items
-  // forever, so retrying can never succeed; the advisory must be dropped and
-  // the user told why, instead of leaving a button that will always fail.
-  it("drops the mis-park advisory and explains why once the item has been towed away", async () => {
+  // P2 (superseded by Finding 3 this round): this used to prove that
+  // clicking a doomed "Re-park as …" button after a tow produced a clear
+  // explanation, relying on reparkItem's live terminal check. Finding 3
+  // replaces that reactive handling with a proactive one — an item's
+  // advisory is now dropped the instant the item reaches a terminal status,
+  // so the doomed button (and the click that used to trigger the
+  // explanation) never exists in the first place. The original intent —
+  // "an advisory tied to a towed item must not survive" — still holds and is
+  // verified here; it just happens earlier now, with no failure message
+  // needed because no failing request is ever attempted. The store's own
+  // terminal refusal (reason: "terminal") remains covered directly in
+  // use-parking-store.test.tsx, independent of this UI path.
+  it("drops the mis-park advisory as soon as the item is towed away, without waiting for a doomed re-park click", async () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-    const fetchMock = vi
-      .fn()
-      .mockResolvedValueOnce(
-        Response.json({
-          analysis,
-          sourceMode: "fetched",
-          classification: { suggestedKind: "read", rationale: "Long-form prose." },
-        }),
-      )
-      .mockResolvedValueOnce(
-        Response.json({
-          analysis,
-          sourceMode: "fetched",
-          classification: { suggestedKind: "read", rationale: "Long-form prose." },
-        }),
-      );
+    const fetchMock = vi.fn().mockResolvedValueOnce(
+      Response.json({
+        analysis,
+        sourceMode: "fetched",
+        classification: { suggestedKind: "read", rationale: "Long-form prose." },
+      }),
+    );
     vi.stubGlobal("fetch", fetchMock);
     render(<ParkingApp />);
 
     await user.type(await screen.findByLabelText("AI tool URL"), "https://example.com/tool");
     await user.click(screen.getByRole("button", { name: "Analyze & Park" }));
-    expect(await screen.findByRole("button", { name: "Re-park as Read" })).toBeVisible();
+    expect(await screen.findByRole("button", { name: "Re-park Example Tool as Read" })).toBeVisible();
 
     await user.click(
       await screen.findByRole("button", { name: "Example Tool, Parked" }),
@@ -515,24 +513,24 @@ describe("ParkingApp mis-park advisory ownership (residual fix P1/P2)", () => {
     );
     await user.click(screen.getByRole("button", { name: "Confirm Tow Away" }));
 
-    await user.click(screen.getByRole("button", { name: "Re-park as Read" }));
-
-    await waitFor(() =>
-      expect(screen.queryByRole("button", { name: "Re-park as Read" })).not.toBeInTheDocument(),
-    );
+    // Gone immediately — no click on a doomed button required.
     expect(
-      await screen.findByText(/towed away, so it can no longer be re-parked/),
-    ).toBeVisible();
+      screen.queryByRole("button", { name: "Re-park Example Tool as Read" }),
+    ).not.toBeInTheDocument();
+    // Only the one fetch (analyze) was ever made; no re-park attempt fires
+    // against an item that is already terminal.
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
-  // Finding 2 (the real regression): the OLD test above tows BEFORE clicking
-  // "Re-park as Read", so by the time the advisory's onReparkFailed closure
-  // is created it already captures post-tow items — the closure happens to
-  // be fresh. This test interleaves the tow WHILE the re-park request is
-  // still in flight, which is the actual race: onReparkFailed's decision
-  // must come from the store's own live check inside reparkItem, not from
-  // any items array ParkingApp captured before the request went out.
-  it("drops the advisory and explains why when the item is towed away WHILE its own re-park is still in flight", async () => {
+  // Finding 3 (superseded from Finding 2 last round): the OLD test here
+  // proved onReparkFailed's decision came from reparkItem's own live check
+  // rather than a stale items snapshot, by towing WHILE the re-park request
+  // was still in flight and waiting for the store to refuse the write. That
+  // race is now avoided altogether: towing evicts the advisory (and, via its
+  // unmount cleanup, aborts the in-flight request) the instant the item goes
+  // terminal, so the late-arriving response must land as a genuine no-op —
+  // no resurrected advisory, no error, nothing written for it.
+  it("evicts the advisory and aborts its in-flight re-park the instant the item is towed away, so the late response is a no-op", async () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     let resolveRepark!: (response: Response) => void;
     const fetchMock = vi
@@ -555,11 +553,11 @@ describe("ParkingApp mis-park advisory ownership (residual fix P1/P2)", () => {
 
     await user.type(await screen.findByLabelText("AI tool URL"), "https://example.com/tool");
     await user.click(screen.getByRole("button", { name: "Analyze & Park" }));
-    expect(await screen.findByRole("button", { name: "Re-park as Read" })).toBeVisible();
+    expect(await screen.findByRole("button", { name: "Re-park Example Tool as Read" })).toBeVisible();
 
     // Start the re-park — the response will not arrive until we resolve it
     // below, deliberately keeping it in flight through the tow.
-    await user.click(screen.getByRole("button", { name: "Re-park as Read" }));
+    await user.click(screen.getByRole("button", { name: "Re-park Example Tool as Read" }));
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
     expect(screen.getByRole("button", { name: "Re-parking…" })).toBeVisible();
 
@@ -574,7 +572,14 @@ describe("ParkingApp mis-park advisory ownership (residual fix P1/P2)", () => {
     );
     await user.click(screen.getByRole("button", { name: "Confirm Tow Away" }));
 
-    // Now let the in-flight re-park response arrive.
+    // The advisory (in-flight state and all) is gone immediately — no need
+    // to wait for the response.
+    expect(
+      screen.queryByRole("button", { name: /Re-park Example Tool as Read|Re-parking…/ }),
+    ).not.toBeInTheDocument();
+
+    // Now let the in-flight re-park response arrive late. It must be inert:
+    // no resurrected advisory, no failure notice, nothing left over.
     await act(async () => {
       resolveRepark(
         Response.json({
@@ -585,14 +590,14 @@ describe("ParkingApp mis-park advisory ownership (residual fix P1/P2)", () => {
       );
     });
 
-    await waitFor(() =>
-      expect(
-        screen.queryByRole("button", { name: /Re-park as Read|Re-parking…/ }),
-      ).not.toBeInTheDocument(),
-    );
     expect(
-      await screen.findByText(/towed away, so it can no longer be re-parked/),
-    ).toBeVisible();
+      screen.queryByRole("button", { name: /Re-park Example Tool as Read|Re-parking…/ }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/towed away, so it can no longer be re-parked/),
+    ).not.toBeInTheDocument();
+    const records = storedItems().filter(({ id }) => id === "client-owned-id");
+    expect(records[0]).toMatchObject({ status: "scrapped" });
   });
 
   // Finding 2 also affects Reset demo data: it replaces every item wholesale,
@@ -621,16 +626,16 @@ describe("ParkingApp mis-park advisory ownership (residual fix P1/P2)", () => {
 
     await user.type(await screen.findByLabelText("AI tool URL"), "https://example.com/tool");
     await user.click(screen.getByRole("button", { name: "Analyze & Park" }));
-    expect(await screen.findByRole("button", { name: "Re-park as Read" })).toBeVisible();
+    expect(await screen.findByRole("button", { name: "Re-park Example Tool as Read" })).toBeVisible();
 
-    await user.click(screen.getByRole("button", { name: "Re-park as Read" }));
+    await user.click(screen.getByRole("button", { name: "Re-park Example Tool as Read" }));
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
 
     await user.click(screen.getByRole("button", { name: "Reset demo data settings" }));
     await user.click(screen.getByRole("button", { name: "Reset demo data" }));
 
     expect(
-      screen.queryByRole("button", { name: /Re-park as Read|Re-parking…/ }),
+      screen.queryByRole("button", { name: /Re-park Example Tool as Read|Re-parking…/ }),
     ).not.toBeInTheDocument();
 
     // The now-orphaned response must not resurrect anything about an item
@@ -646,7 +651,7 @@ describe("ParkingApp mis-park advisory ownership (residual fix P1/P2)", () => {
     });
 
     expect(
-      screen.queryByRole("button", { name: /Re-park as Read|Re-parking…/ }),
+      screen.queryByRole("button", { name: /Re-park Example Tool as Read|Re-parking…/ }),
     ).not.toBeInTheDocument();
     expect(storedItems()).toHaveLength(3);
   });
@@ -680,17 +685,19 @@ describe("ParkingApp mis-park advisory ownership (residual fix P1/P2)", () => {
 
     await user.type(await screen.findByLabelText("AI tool URL"), "https://example.com/tool");
     await user.click(screen.getByRole("button", { name: "Analyze & Park" }));
-    await user.click(await screen.findByRole("button", { name: "Re-park as Read" }));
+    await user.click(await screen.findByRole("button", { name: "Re-park Example Tool as Read" }));
 
+    // Matched as a substring (not exact text) because Finding 1 (this round)
+    // now prefixes every warning with its item's identity so it stays
+    // attributable across concurrent advisories — see the "Finding 1" describe
+    // block below.
     expect(
-      await screen.findByText(
-        "Page text could not be fetched, so this analysis uses the URL only.",
-      ),
+      await screen.findByText(/Page text could not be fetched, so this analysis uses the URL only\./),
     ).toBeVisible();
     // The advisory really is gone (the model now agrees) — proving the
     // warning is no longer coming from the component that just unmounted.
     expect(
-      screen.queryByRole("button", { name: /Re-park as Read|Re-parking…/ }),
+      screen.queryByRole("button", { name: /Re-park Example Tool as Read|Re-parking…/ }),
     ).not.toBeInTheDocument();
   });
 });
@@ -756,7 +763,7 @@ describe("ParkingApp concurrent mis-park advisories (Finding 1)", () => {
     render(<ParkingApp />);
 
     await parkTool(user, "https://example.com/a", "Tool A");
-    await user.click(screen.getByRole("button", { name: "Re-park as Read" }));
+    await user.click(screen.getByRole("button", { name: "Re-park Tool A as Read" }));
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
     expect(screen.getByRole("button", { name: "Re-parking…" })).toBeVisible();
 
@@ -765,7 +772,7 @@ describe("ParkingApp concurrent mis-park advisories (Finding 1)", () => {
     // A's advisory must still be there (mid-request), alongside B's own,
     // untouched advisory.
     expect(screen.getByRole("button", { name: "Re-parking…" })).toBeVisible();
-    expect(screen.getByRole("button", { name: "Re-park as Read" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "Re-park Tool B as Read" })).toBeVisible();
     expect(screen.getByText("Long-form prose B.")).toBeVisible();
 
     await act(async () => {
@@ -783,7 +790,10 @@ describe("ParkingApp concurrent mis-park advisories (Finding 1)", () => {
     await waitFor(() =>
       expect(screen.queryByRole("button", { name: "Re-parking…" })).not.toBeInTheDocument(),
     );
-    expect(screen.getAllByRole("button", { name: "Re-park as Read" })).toHaveLength(1);
+    expect(screen.getByRole("button", { name: "Re-park Tool B as Read" })).toBeVisible();
+    expect(
+      screen.queryByRole("button", { name: "Re-park Tool A as Read" }),
+    ).not.toBeInTheDocument();
     expect(screen.getByText("Long-form prose B.")).toBeVisible();
   });
 
@@ -826,18 +836,20 @@ describe("ParkingApp concurrent mis-park advisories (Finding 1)", () => {
     render(<ParkingApp />);
 
     await parkTool(user, "https://example.com/a", "Tool A");
-    await user.click(screen.getByRole("button", { name: "Re-park as Read" }));
+    await user.click(screen.getByRole("button", { name: "Re-park Tool A as Read" }));
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
     expect(screen.getByRole("button", { name: "Re-parking…" })).toBeVisible();
 
     await parkTool(user, "https://example.com/b", "Tool B");
-    expect(screen.getByRole("button", { name: "Re-park as Read" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "Re-park Tool B as Read" })).toBeVisible();
 
     // Resolve B's own re-park (agreeing) — it should complete and disappear
     // without touching A's still-pending advisory.
-    await user.click(screen.getByRole("button", { name: "Re-park as Read" }));
+    await user.click(screen.getByRole("button", { name: "Re-park Tool B as Read" }));
     await waitFor(() =>
-      expect(screen.queryByRole("button", { name: "Re-park as Read" })).not.toBeInTheDocument(),
+      expect(
+        screen.queryByRole("button", { name: "Re-park Tool B as Read" }),
+      ).not.toBeInTheDocument(),
     );
     expect(screen.getByRole("button", { name: "Re-parking…" })).toBeVisible();
 
@@ -855,6 +867,189 @@ describe("ParkingApp concurrent mis-park advisories (Finding 1)", () => {
     await waitFor(() =>
       expect(screen.queryByRole("button", { name: "Re-parking…" })).not.toBeInTheDocument(),
     );
-    expect(screen.queryByRole("button", { name: "Re-park as Read" })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /Re-park Tool [AB] as Read/ }),
+    ).not.toBeInTheDocument();
+  });
+
+  // Finding 1 (this round): the URL-only re-park warning used to live in one
+  // shared scalar, set from whichever re-park completed most recently. With
+  // two concurrent advisories, item B's fetched (no-warning) completion would
+  // call setReparkWarning(null) and erase item A's url-only warning — even
+  // though A's warning has nothing to do with B. The warning must be keyed by
+  // item id, exactly like the advisories themselves, and each one rendered
+  // with its own item's identity so it is attributable.
+  it("keeps item A's url-only re-park warning after item B's own re-park completes fetched (no warning)", async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    let resolveReparkA!: (response: Response) => void;
+    let resolveReparkB!: (response: Response) => void;
+    const fetchMock = vi
+      .fn()
+      // Park A (mis-parks to read)
+      .mockResolvedValueOnce(
+        Response.json({
+          analysis: { ...analysis, title: "Tool A" },
+          sourceMode: "fetched",
+          classification: { suggestedKind: "read", rationale: "Long-form prose A." },
+        }),
+      )
+      // A's own re-park — deferred
+      .mockImplementationOnce(
+        () =>
+          new Promise<Response>((resolve) => {
+            resolveReparkA = resolve;
+          }),
+      )
+      // Park B (mis-parks to read)
+      .mockResolvedValueOnce(
+        Response.json({
+          analysis: { ...analysis, title: "Tool B" },
+          sourceMode: "fetched",
+          classification: { suggestedKind: "read", rationale: "Long-form prose B." },
+        }),
+      )
+      // B's own re-park — deferred
+      .mockImplementationOnce(
+        () =>
+          new Promise<Response>((resolve) => {
+            resolveReparkB = resolve;
+          }),
+      );
+    vi.stubGlobal("fetch", fetchMock);
+    render(<ParkingApp />);
+
+    await parkTool(user, "https://example.com/a", "Tool A");
+    await user.click(screen.getByRole("button", { name: "Re-park Tool A as Read" }));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+
+    await parkTool(user, "https://example.com/b", "Tool B");
+    await user.click(screen.getByRole("button", { name: "Re-park Tool B as Read" }));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(4));
+
+    // A's re-park lands first: it agrees (drops the advisory) and reports a
+    // URL-only warning.
+    await act(async () => {
+      resolveReparkA(
+        Response.json({
+          analysis: { ...analysis, title: "Tool A" },
+          sourceMode: "url_only",
+          warning: "Page text could not be fetched, so this analysis uses the URL only.",
+          classification: { suggestedKind: "read", rationale: "Long-form prose A." },
+        }),
+      );
+    });
+    // The warning is rendered attributed to its own item (Finding 1: keyed
+    // by item id, not a shared scalar), not as a bare, unattributed message.
+    expect(
+      await screen.findByText(
+        "Tool A: Page text could not be fetched, so this analysis uses the URL only.",
+      ),
+    ).toBeVisible();
+
+    // B's re-park lands second: it also agrees (drops the advisory) but was
+    // fetched cleanly, so it carries no warning at all.
+    await act(async () => {
+      resolveReparkB(
+        Response.json({
+          analysis: { ...analysis, title: "Tool B" },
+          sourceMode: "fetched",
+          classification: { suggestedKind: "read", rationale: "Long-form prose B." },
+        }),
+      );
+    });
+
+    // B completing warning-free must NOT erase A's still-relevant warning —
+    // proving the warning is keyed per item rather than a single shared
+    // last-writer-wins slot — and it must remain attributable to Tool A.
+    expect(
+      screen.getByText(
+        "Tool A: Page text could not be fetched, so this analysis uses the URL only.",
+      ),
+    ).toBeVisible();
+  });
+});
+
+describe("ParkingApp advisory lifecycle (Finding 3)", () => {
+  beforeEach(() => {
+    localStorage.clear();
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    vi.setSystemTime(NOW);
+    vi.stubGlobal("crypto", {
+      ...globalThis.crypto,
+      randomUUID: vi.fn(() => "client-owned-id"),
+    });
+  });
+
+  afterEach(() => {
+    cleanup();
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  // The exact reachable sequence from the finding: park a tool, get an
+  // advisory, open the card, and move the item to the Garage through the
+  // ordinary inspector flow (Start Test Drive, then Park in Garage). Nothing
+  // here ever clicks "Re-park …" — the advisory must be gone on its own,
+  // because reparkItem refuses a garaged item forever.
+  it("drops the mis-park advisory once its item is parked in the Garage via the ordinary inspector flow", async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Response.json({
+          analysis,
+          sourceMode: "fetched",
+          classification: { suggestedKind: "read", rationale: "Long-form prose." },
+        }),
+      ),
+    );
+    render(<ParkingApp />);
+
+    await user.type(await screen.findByLabelText("AI tool URL"), "https://example.com/tool");
+    await user.click(screen.getByRole("button", { name: "Analyze & Park" }));
+    expect(await screen.findByRole("button", { name: "Re-park Example Tool as Read" })).toBeVisible();
+
+    await user.click(
+      await screen.findByRole("button", { name: "Example Tool, Parked" }),
+    );
+    await user.click(screen.getByRole("button", { name: "Start Test Drive" }));
+    await user.type(screen.getByLabelText("Test notes"), "Confirmed it does what it claims.");
+    await user.tab();
+    await user.click(screen.getByRole("button", { name: "Park in Garage" }));
+
+    expect(
+      screen.queryByRole("button", { name: "Re-park Example Tool as Read" }),
+    ).not.toBeInTheDocument();
+  });
+
+  // Finding 3's other requirement: an explicit, always-available dismiss
+  // control, wired all the way through ParkingApp (not just the isolated
+  // MisparkAdvisory unit).
+  it("dismisses an advisory via its own dismiss control, leaving the item itself untouched", async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Response.json({
+          analysis,
+          sourceMode: "fetched",
+          classification: { suggestedKind: "read", rationale: "Long-form prose." },
+        }),
+      ),
+    );
+    render(<ParkingApp />);
+
+    await user.type(await screen.findByLabelText("AI tool URL"), "https://example.com/tool");
+    await user.click(screen.getByRole("button", { name: "Analyze & Park" }));
+    expect(await screen.findByRole("button", { name: "Re-park Example Tool as Read" })).toBeVisible();
+
+    await user.click(screen.getByRole("button", { name: "Dismiss Example Tool advisory" }));
+
+    expect(
+      screen.queryByRole("button", { name: "Re-park Example Tool as Read" }),
+    ).not.toBeInTheDocument();
+    const records = storedItems().filter(({ id }) => id === "client-owned-id");
+    expect(records[0]).toMatchObject({ status: "parked", kind: "ai_tool" });
   });
 });

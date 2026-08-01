@@ -10,7 +10,7 @@ import { IdeaCaptureForm } from "./idea-capture-form";
 import { ItemInspector } from "./item-inspector";
 import { LinkCaptureForm } from "./link-capture-form";
 import { ManagerPatrol } from "./manager-patrol";
-import { MisparkAdvisory, type PendingAdvisory } from "./mispark-advisory";
+import { advisoryLabel, MisparkAdvisory, type PendingAdvisory } from "./mispark-advisory";
 import { MissionHeader } from "./mission-header";
 import { ParkingLot } from "./parking-lot";
 import { StatusTabs } from "./status-tabs";
@@ -38,7 +38,17 @@ export function ParkingApp() {
   // classification agrees, the advisory is removed (and that component
   // unmounts) in the same tick it would have queued this locally — anything
   // stored inside that dying component would never paint (Finding 3).
-  const [reparkWarning, setReparkWarning] = useState<string | null>(null);
+  //
+  // Keyed by itemId, exactly like `advisories` above and for the same
+  // reason: a single shared slot was last-writer-wins across ALL advisories,
+  // so item B's own (warning-free) completion could erase item A's still-
+  // relevant warning — possibly before it ever painted, since React can
+  // batch the two completions into one commit. `label` is captured at the
+  // moment THAT item's re-park completed so the warning stays attributable
+  // even after its advisory is gone from the map above (Finding 1).
+  const [reparkWarnings, setReparkWarnings] = useState<
+    Map<string, { label: string; message: string }>
+  >(() => new Map());
   const itemTrigger = useRef<HTMLButtonElement | null>(null);
 
   function upsertAdvisory(next: PendingAdvisory) {
@@ -56,6 +66,37 @@ export function ParkingApp() {
       updated.delete(itemId);
       return updated;
     });
+  }
+
+  function clearReparkWarning(itemId: string) {
+    setReparkWarnings((prev) => {
+      if (!prev.has(itemId)) return prev;
+      const updated = new Map(prev);
+      updated.delete(itemId);
+      return updated;
+    });
+  }
+
+  // Only the completing item's own entry is ever touched — a sibling
+  // advisory's warning (or absence of one) never reaches this function.
+  function reportReparkOutcome(advisory: PendingAdvisory, warning: string | null) {
+    if (warning) {
+      setReparkWarnings((prev) => {
+        const updated = new Map(prev);
+        updated.set(advisory.itemId, { label: advisoryLabel(advisory), message: warning });
+        return updated;
+      });
+    } else {
+      clearReparkWarning(advisory.itemId);
+    }
+  }
+
+  // Drops both an item's advisory and any warning still attributed to it.
+  // Used both for the explicit dismiss control and for evicting an advisory
+  // whose item just reached a terminal status (Finding 3).
+  function dismissAdvisory(itemId: string) {
+    removeAdvisory(itemId);
+    clearReparkWarning(itemId);
   }
 
   const counts = useMemo(
@@ -115,7 +156,15 @@ export function ParkingApp() {
         park_in_garage: "garaged",
         tow_away: "scrapped",
       };
-      setActiveStatus(destination[action.type] ?? activeStatus);
+      const nextStatus = destination[action.type] ?? activeStatus;
+      setActiveStatus(nextStatus);
+      // An advisory's "Re-park as …" button is guaranteed to fail once its
+      // item reaches a terminal status (reparkItem refuses terminal items
+      // forever) — drop it here rather than waiting for the user to click a
+      // button that cannot work (Finding 3).
+      if (nextStatus === "garaged" || nextStatus === "scrapped") {
+        dismissAdvisory(store.selectedId);
+      }
     }
     return result;
   }
@@ -136,7 +185,7 @@ export function ParkingApp() {
           // fact.
           setAdvisories(new Map());
           setAdvisoryNotice(null);
-          setReparkWarning(null);
+          setReparkWarnings(new Map());
         }}
       />
       <section className="border-b border-black/10 bg-[var(--paper)] px-5 py-5 sm:px-8" aria-label="Park something">
@@ -161,8 +210,9 @@ export function ParkingApp() {
               destroy this. One MisparkAdvisory per pending item, each still
               keyed by its own itemId so ITS OWN abort/lock/ownership
               behaviour is unaffected by any other advisory's lifecycle —
-              only that item's own successful (or permanently-failed) re-park
-              removes it from the map (Finding 1). */}
+              only that item's own successful (or permanently-failed) re-park,
+              a dismiss, or its item reaching a terminal status removes it
+              from the map (Finding 1, Finding 3). */}
           {Array.from(advisories.values()).map((advisory) => (
             <MisparkAdvisory
               key={advisory.itemId}
@@ -174,7 +224,9 @@ export function ParkingApp() {
                 } else {
                   removeAdvisory(advisory.itemId);
                 }
-                setReparkWarning(warning);
+                // Keyed by this item's own id — a sibling advisory's warning
+                // (or lack of one) is never touched by this call (Finding 1).
+                reportReparkOutcome(advisory, warning);
               }}
               onReparkFailed={(
                 pending,
@@ -191,16 +243,21 @@ export function ParkingApp() {
                 // transient 429/network blip or a "blocked" write (e.g. an
                 // unconfirmed reset) — drop the advisory but say why instead
                 // of letting it vanish silently.
-                removeAdvisory(pending.itemId);
+                dismissAdvisory(pending.itemId);
                 setAdvisoryNotice(message);
               }}
+              onDismiss={dismissAdvisory}
             />
           ))}
-          {reparkWarning ? (
-            <p role="status" className="reveal mt-3 border-l-4 border-[var(--safety)] bg-white px-4 py-3 text-sm font-bold">
-              {reparkWarning}
+          {Array.from(reparkWarnings.entries()).map(([itemId, warning]) => (
+            <p
+              key={itemId}
+              role="status"
+              className="reveal mt-3 border-l-4 border-[var(--safety)] bg-white px-4 py-3 text-sm font-bold"
+            >
+              {warning.label}: {warning.message}
             </p>
-          ) : null}
+          ))}
           {advisoryNotice ? (
             <p role="status" className="reveal mt-3 border-l-4 border-[var(--scrap)] bg-white px-4 py-3 text-sm font-bold">
               {advisoryNotice}

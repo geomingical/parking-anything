@@ -59,6 +59,7 @@ describe("LinkCaptureForm onMispark reporting", () => {
       expect(onMispark).toHaveBeenCalledWith({
         itemId: "parked-id",
         url: "https://example.com/a",
+        title: "On interface craft",
         suggestedKind: "read",
         rationale: "Long-form prose.",
       }),

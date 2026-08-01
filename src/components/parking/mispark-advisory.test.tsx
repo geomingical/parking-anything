@@ -47,14 +47,57 @@ describe("MisparkAdvisory rendering", () => {
         onRepark={() => ({ ok: true })}
         onReparked={() => {}}
         onReparkFailed={() => {}}
+        onDismiss={() => {}}
       />,
     );
 
     const status = screen.getByRole("status");
     expect(status).toHaveTextContent(/Long-form prose\./);
-    const button = screen.getByRole("button", { name: "Re-park as Read" });
+    const button = screen.getByRole("button", { name: "Re-park example.com as Read" });
     expect(button).toBeVisible();
     expect(button).toHaveClass("pressable");
+  });
+
+  // Finding 2: two advisories with similar rationales are otherwise
+  // indistinguishable, and the button's accessible name used to be identical
+  // for both. PendingAdvisory carries no title in this fixture, so the card
+  // must fall back to the URL's hostname.
+  it("shows the URL hostname as identity on the card when no title is available", () => {
+    render(
+      <MisparkAdvisory
+        advisory={pendingAdvisory}
+        onRepark={() => ({ ok: true })}
+        onReparked={() => {}}
+        onReparkFailed={() => {}}
+        onDismiss={() => {}}
+      />,
+    );
+
+    const status = screen.getByRole("status");
+    expect(status).toHaveTextContent("example.com");
+    expect(
+      screen.getByRole("button", { name: "Re-park example.com as Read" }),
+    ).toBeVisible();
+  });
+
+  // Finding 2: the item's stored title, when available, must be preferred
+  // over the URL hostname for identity.
+  it("prefers the item's stored title over the URL hostname for identity", () => {
+    render(
+      <MisparkAdvisory
+        advisory={{ ...pendingAdvisory, title: "On interface craft" }}
+        onRepark={() => ({ ok: true })}
+        onReparked={() => {}}
+        onReparkFailed={() => {}}
+        onDismiss={() => {}}
+      />,
+    );
+
+    const status = screen.getByRole("status");
+    expect(status).toHaveTextContent("On interface craft");
+    expect(
+      screen.getByRole("button", { name: "Re-park On interface craft as Read" }),
+    ).toBeVisible();
   });
 });
 
@@ -79,10 +122,11 @@ describe("MisparkAdvisory re-park flow", () => {
         onRepark={onRepark}
         onReparked={onReparked}
         onReparkFailed={() => {}}
+        onDismiss={() => {}}
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "Re-park as Read" }));
+    await user.click(screen.getByRole("button", { name: "Re-park example.com as Read" }));
 
     await waitFor(() => expect(onRepark).toHaveBeenCalledTimes(1));
     expect(onRepark).toHaveBeenCalledWith("parked-id", "read", analysis);
@@ -102,10 +146,11 @@ describe("MisparkAdvisory re-park flow", () => {
         onRepark={() => ({ ok: true })}
         onReparked={onReparked}
         onReparkFailed={() => {}}
+        onDismiss={() => {}}
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "Re-park as Read" }));
+    await user.click(screen.getByRole("button", { name: "Re-park example.com as Read" }));
 
     await waitFor(() =>
       expect(onReparked).toHaveBeenCalledWith(
@@ -137,10 +182,11 @@ describe("MisparkAdvisory re-park flow", () => {
         onRepark={onRepark}
         onReparked={() => {}}
         onReparkFailed={() => {}}
+        onDismiss={() => {}}
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "Re-park as Read" }));
+    await user.click(screen.getByRole("button", { name: "Re-park example.com as Read" }));
     expect(fetchMock.mock.calls[0]?.[1]).toHaveProperty("signal");
 
     unmount();
@@ -162,10 +208,11 @@ describe("MisparkAdvisory re-park flow", () => {
         onRepark={() => ({ ok: true })}
         onReparked={() => {}}
         onReparkFailed={() => {}}
+        onDismiss={() => {}}
       />,
     );
 
-    const button = screen.getByRole("button", { name: "Re-park as Read" });
+    const button = screen.getByRole("button", { name: "Re-park example.com as Read" });
     await act(async () => {
       fireEvent.click(button);
       fireEvent.click(button);
@@ -216,10 +263,11 @@ describe("MisparkAdvisory re-park flow", () => {
         onRepark={() => ({ ok: true })}
         onReparked={onReparked}
         onReparkFailed={() => {}}
+        onDismiss={() => {}}
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "Re-park as Read" }));
+    await user.click(screen.getByRole("button", { name: "Re-park example.com as Read" }));
     await waitFor(() =>
       expect(onReparked).toHaveBeenNthCalledWith(
         1,
@@ -236,9 +284,10 @@ describe("MisparkAdvisory re-park flow", () => {
         onRepark={() => ({ ok: true })}
         onReparked={onReparked}
         onReparkFailed={() => {}}
+        onDismiss={() => {}}
       />,
     );
-    await user.click(screen.getByRole("button", { name: "Re-park as Tool" }));
+    await user.click(screen.getByRole("button", { name: "Re-park example.com as Tool" }));
 
     await waitFor(() => expect(onReparked).toHaveBeenNthCalledWith(2, null, null));
   });
@@ -278,15 +327,16 @@ describe("MisparkAdvisory failure handling", () => {
         onRepark={() => ({ ok: true })}
         onReparked={() => {}}
         onReparkFailed={onReparkFailed}
+        onDismiss={() => {}}
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "Re-park as Read" }));
+    await user.click(screen.getByRole("button", { name: "Re-park example.com as Read" }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "Too many requests. Try again in 5 seconds.",
     );
-    expect(screen.getByRole("button", { name: "Re-park as Read" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "Re-park example.com as Read" })).toBeVisible();
     // A network/HTTP-layer failure carries no store-decided reason — always
     // transient from this component's point of view.
     expect(onReparkFailed).toHaveBeenCalledWith(
@@ -312,10 +362,11 @@ describe("MisparkAdvisory failure handling", () => {
         onRepark={() => ({ ok: true })}
         onReparked={() => {}}
         onReparkFailed={() => {}}
+        onDismiss={() => {}}
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "Re-park as Read" }));
+    await user.click(screen.getByRole("button", { name: "Re-park example.com as Read" }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "Live AI is temporarily unavailable. Try again shortly.",
@@ -339,10 +390,11 @@ describe("MisparkAdvisory failure handling", () => {
         })}
         onReparked={() => {}}
         onReparkFailed={onReparkFailed}
+        onDismiss={() => {}}
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "Re-park as Read" }));
+    await user.click(screen.getByRole("button", { name: "Re-park example.com as Read" }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "This item has reached a final decision and cannot be edited.",
@@ -354,5 +406,47 @@ describe("MisparkAdvisory failure handling", () => {
       "terminal",
       "This item has reached a final decision and cannot be edited.",
     );
+  });
+});
+
+// Finding 3: an advisory used to outlive its item's lifecycle, only ever
+// removed by a re-park result or a full reset — leaving a user with no way
+// to clear one they simply don't want. This control gives every card an
+// explicit, always-available way out, named for the same reason the re-park
+// button is (Finding 2): a screen-reader user with two advisories on screen
+// must be able to tell which one they are about to dismiss.
+describe("MisparkAdvisory dismiss control", () => {
+  it("renders a dismiss control naming the item, using the pressable class", () => {
+    render(
+      <MisparkAdvisory
+        advisory={pendingAdvisory}
+        onRepark={() => ({ ok: true })}
+        onReparked={() => {}}
+        onReparkFailed={() => {}}
+        onDismiss={() => {}}
+      />,
+    );
+
+    const dismiss = screen.getByRole("button", { name: "Dismiss example.com advisory" });
+    expect(dismiss).toBeVisible();
+    expect(dismiss).toHaveClass("pressable");
+  });
+
+  it("calls onDismiss with the item id when the dismiss control is activated", async () => {
+    const user = userEvent.setup();
+    const onDismiss = vi.fn();
+    render(
+      <MisparkAdvisory
+        advisory={pendingAdvisory}
+        onRepark={() => ({ ok: true })}
+        onReparked={() => {}}
+        onReparkFailed={() => {}}
+        onDismiss={onDismiss}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Dismiss example.com advisory" }));
+
+    expect(onDismiss).toHaveBeenCalledWith("parked-id");
   });
 });

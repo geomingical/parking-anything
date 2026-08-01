@@ -1,5 +1,6 @@
 "use client";
 
+import { X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import type { ReparkFailureReason, ReparkResult } from "@/hooks/use-parking-store";
@@ -10,9 +11,33 @@ import { AnalyzeUrlResponseSchema, type AnalyzeUrlResult } from "@/lib/parking/s
 export type PendingAdvisory = {
   itemId: string;
   url: string;
+  /**
+   * The item's stored title, when available. Optional (rather than always
+   * populated from the item) so a caller that only has a URL on hand can
+   * still construct an advisory — `advisoryLabel` falls back to the URL's
+   * hostname (Finding 2: two advisories with similar rationales were
+   * otherwise indistinguishable, including in the re-park button's
+   * accessible name).
+   */
+  title?: string;
   suggestedKind: LinkKindId;
   rationale: string;
 };
+
+/**
+ * The identity shown on an advisory's card and folded into its re-park
+ * button's accessible name (Finding 2). Prefers the item's stored title;
+ * falls back to the URL's hostname so two advisories are always
+ * distinguishable even without one.
+ */
+export function advisoryLabel(advisory: Pick<PendingAdvisory, "url" | "title">): string {
+  if (advisory.title && advisory.title.trim()) return advisory.title;
+  try {
+    return new URL(advisory.url).hostname;
+  } catch {
+    return advisory.url;
+  }
+}
 
 type MisparkAdvisoryProps = {
   advisory: PendingAdvisory;
@@ -41,6 +66,13 @@ type MisparkAdvisoryProps = {
     reason: ReparkFailureReason | undefined,
     message: string,
   ): void;
+  /**
+   * Called when the user explicitly clears this advisory. An advisory used
+   * to be removable only by a re-park result or a full reset, so the only
+   * way to escape one you did not want was a button guaranteed to fail once
+   * the item went terminal — this is an always-available way out (Finding 3).
+   */
+  onDismiss(itemId: string): void;
 };
 
 /**
@@ -54,6 +86,7 @@ export function MisparkAdvisory({
   onRepark,
   onReparked,
   onReparkFailed,
+  onDismiss,
 }: MisparkAdvisoryProps) {
   const [reparking, setReparking] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -139,10 +172,23 @@ export function MisparkAdvisory({
     }
   }
 
+  const label = advisoryLabel(advisory);
+
   return (
     <>
       <div role="status" className="reveal mt-3 border-l-4 border-[var(--garage)] bg-white px-4 py-3">
-        <p className="text-sm font-bold">
+        <div className="flex items-start justify-between gap-3">
+          <p className="text-xs font-black uppercase tracking-wide text-[var(--muted-ink)]">{label}</p>
+          <button
+            type="button"
+            onClick={() => onDismiss(advisory.itemId)}
+            aria-label={`Dismiss ${label} advisory`}
+            className="pressable inline-flex size-7 shrink-0 items-center justify-center border border-black/20 bg-white hover:bg-black hover:text-white"
+          >
+            <X aria-hidden="true" size={14} />
+          </button>
+        </div>
+        <p className="mt-1 text-sm font-bold">
           This looks more like a {LINK_KINDS[advisory.suggestedKind].noun}.
         </p>
         <p className="mt-1 text-sm leading-6 text-[var(--muted-ink)]">{advisory.rationale}</p>
@@ -152,7 +198,7 @@ export function MisparkAdvisory({
           onClick={() => void repark()}
           className="pressable mt-3 h-10 bg-[var(--garage)] px-3 text-sm font-black text-white disabled:cursor-wait disabled:opacity-70"
         >
-          {reparking ? "Re-parking…" : `Re-park as ${LINK_KINDS[advisory.suggestedKind].label}`}
+          {reparking ? "Re-parking…" : `Re-park ${label} as ${LINK_KINDS[advisory.suggestedKind].label}`}
         </button>
       </div>
       {error ? (

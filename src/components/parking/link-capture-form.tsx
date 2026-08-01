@@ -110,6 +110,7 @@ export function LinkCaptureForm({ kind, onPark, onParked, onMispark }: LinkCaptu
         onMispark?.({
           itemId: item.id,
           url: normalizedUrl,
+          title: item.title,
           suggestedKind: result.data.classification.suggestedKind,
           rationale: result.data.classification.rationale,
         });
