@@ -1053,3 +1053,95 @@ describe("ParkingApp advisory lifecycle (Finding 3)", () => {
     expect(records[0]).toMatchObject({ status: "parked", kind: "ai_tool" });
   });
 });
+
+describe("ParkingApp cross-tab advisory reconciliation", () => {
+  beforeEach(() => {
+    localStorage.clear();
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    vi.setSystemTime(NOW);
+    vi.stubGlobal("crypto", {
+      ...globalThis.crypto,
+      randomUUID: vi.fn(() => "client-owned-id"),
+    });
+  });
+
+  afterEach(() => {
+    cleanup();
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  // The local terminal-status check inside applySelectedAction only ever ran
+  // for a transition THIS tab made. A second tab can garage or tow the same
+  // item — use-parking-store already adopts that write via its `storage`
+  // listener (see "adopts parking data written by another tab" in
+  // use-parking-store.test.tsx) — but nothing pruned the advisory or its
+  // warning for a change that arrived that way, so this tab kept offering a
+  // "Re-park …" button guaranteed to fail forever. Reconciliation must be
+  // driven by store.items itself, not by the route the change came in on.
+  it("prunes the advisory and its re-park warning when another tab moves the item to a terminal status", async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        Response.json({
+          analysis,
+          sourceMode: "fetched",
+          classification: { suggestedKind: "read", rationale: "Long-form prose." },
+        }),
+      )
+      .mockResolvedValueOnce(
+        Response.json({
+          analysis,
+          sourceMode: "url_only",
+          warning:
+            "Page text could not be fetched, so this analysis uses the URL only.",
+          classification: {
+            suggestedKind: "ai_tool",
+            rationale: "Reads as software you would operate.",
+          },
+        }),
+      );
+    vi.stubGlobal("fetch", fetchMock);
+    render(<ParkingApp />);
+
+    await user.type(await screen.findByLabelText("AI tool URL"), "https://example.com/tool");
+    await user.click(screen.getByRole("button", { name: "Analyze & Park" }));
+    await user.click(await screen.findByRole("button", { name: "Re-park Example Tool as Read" }));
+
+    // The second re-park disagrees again (back to ai_tool), so both an
+    // advisory AND an attributed warning are live for the same item at once.
+    expect(
+      await screen.findByRole("button", { name: "Re-park Example Tool as Tool" }),
+    ).toBeVisible();
+    expect(
+      await screen.findByText(/Page text could not be fetched, so this analysis uses the URL only\./),
+    ).toBeVisible();
+
+    // Simulate a second tab towing the item away: write the updated store
+    // directly and fire the same `storage` event use-parking-store's own
+    // cross-tab adoption test relies on, rather than going through this
+    // tab's own applySelectedAction.
+    const items = storedItems();
+    const towedElsewhere = items.map((item) =>
+      item.id === "client-owned-id"
+        ? { ...item, status: "scrapped" as const, finalDecisionReason: "Handled in another tab." }
+        : item,
+    );
+    act(() => {
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({ version: 2, parkingItems: towedElsewhere }),
+      );
+      window.dispatchEvent(new StorageEvent("storage", { key: STORAGE_KEY }));
+    });
+
+    expect(
+      screen.queryByRole("button", { name: /Re-park Example Tool as (Read|Tool)/ }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/Page text could not be fetched, so this analysis uses the URL only\./),
+    ).not.toBeInTheDocument();
+  });
+});

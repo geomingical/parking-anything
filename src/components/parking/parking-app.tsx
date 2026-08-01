@@ -3,7 +3,7 @@
 import { useMemo, useRef, useState } from "react";
 
 import { useParkingStore, type ReparkFailureReason } from "@/hooks/use-parking-store";
-import type { ParkingItemStatus } from "@/lib/parking/schemas";
+import type { ParkingItem, ParkingItemStatus } from "@/lib/parking/schemas";
 import type { ParkingAction } from "@/lib/parking/transitions";
 import { CaptureSwitcher, type CaptureMode } from "./capture-switcher";
 import { IdeaCaptureForm } from "./idea-capture-form";
@@ -14,6 +14,31 @@ import { advisoryLabel, MisparkAdvisory, type PendingAdvisory } from "./mispark-
 import { MissionHeader } from "./mission-header";
 import { ParkingLot } from "./parking-lot";
 import { StatusTabs } from "./status-tabs";
+
+/*
+ * An advisory (or its warning) outlives the item it targets whenever that
+ * item goes missing or reaches a terminal status — regardless of WHICH route
+ * produced that: this tab's own applySelectedAction, a reset, or a second
+ * browser tab's write adopted through use-parking-store's `storage`
+ * listener. Keying this off `items` itself (rather than the action that
+ * changed them) is what makes the cross-tab case handled for free instead of
+ * needing its own special case.
+ *
+ * Returns the SAME map instance when nothing needed pruning, so a caller can
+ * skip the setState entirely and avoid a render loop.
+ */
+function pruneStaleEntries<T>(map: Map<string, T>, items: ParkingItem[]): Map<string, T> {
+  let changed = false;
+  const next = new Map(map);
+  for (const itemId of map.keys()) {
+    const item = items.find((candidate) => candidate.id === itemId);
+    if (!item || item.status === "garaged" || item.status === "scrapped") {
+      next.delete(itemId);
+      changed = true;
+    }
+  }
+  return changed ? next : map;
+}
 
 export function ParkingApp() {
   const store = useParkingStore();
@@ -50,6 +75,34 @@ export function ParkingApp() {
     Map<string, { label: string; message: string }>
   >(() => new Map());
   const itemTrigger = useRef<HTMLButtonElement | null>(null);
+  // Tracks the `store.items` reference this render's reconciliation (below)
+  // has already run against, so it can run again only when items actually
+  // change — the "adjusting state when a prop changes" pattern, deliberately
+  // done during render rather than in a useEffect (calling setState
+  // unconditionally inside an effect body trips the set-state-in-effect
+  // lint rule, and doing it in render lets React fold the extra pass into
+  // the same commit instead of a separate cascading one).
+  const [reconciledItems, setReconciledItems] = useState(store.items);
+
+  // Reconciles both maps against the live items whenever items change,
+  // regardless of what produced that change — this tab's own action, a
+  // reset, or a second tab's write adopted via use-parking-store's `storage`
+  // listener. This subsumes the narrower terminal-status check that used to
+  // live inline in applySelectedAction: that only ever fired for a
+  // transition THIS tab made, so an item garaged or towed from another tab
+  // left its advisory (and warning) stranded here, offering a "Re-park …"
+  // button reparkItem will refuse forever. `pruneStaleEntries` returns the
+  // same Map instance when nothing needed pruning, so these setters are
+  // no-ops whenever there is nothing to change — no render loop.
+  //
+  // No separate abort path is needed: MisparkAdvisory is keyed by itemId, so
+  // removing an entry here unmounts the card, and its own unmount effect
+  // already aborts any in-flight request.
+  if (store.items !== reconciledItems) {
+    setReconciledItems(store.items);
+    setAdvisories((prev) => pruneStaleEntries(prev, store.items));
+    setReparkWarnings((prev) => pruneStaleEntries(prev, store.items));
+  }
 
   function upsertAdvisory(next: PendingAdvisory) {
     setAdvisories((prev) => {
@@ -92,8 +145,10 @@ export function ParkingApp() {
   }
 
   // Drops both an item's advisory and any warning still attributed to it.
-  // Used both for the explicit dismiss control and for evicting an advisory
-  // whose item just reached a terminal status (Finding 3).
+  // Used for the explicit dismiss control and for a permanently-failed
+  // re-park (Finding 3) — NOT for a terminal-status eviction, which is now
+  // handled generally by the items-reconciliation effect above rather than
+  // by any caller reaching for this directly.
   function dismissAdvisory(itemId: string) {
     removeAdvisory(itemId);
     clearReparkWarning(itemId);
@@ -158,13 +213,10 @@ export function ParkingApp() {
       };
       const nextStatus = destination[action.type] ?? activeStatus;
       setActiveStatus(nextStatus);
-      // An advisory's "Re-park as …" button is guaranteed to fail once its
-      // item reaches a terminal status (reparkItem refuses terminal items
-      // forever) — drop it here rather than waiting for the user to click a
-      // button that cannot work (Finding 3).
-      if (nextStatus === "garaged" || nextStatus === "scrapped") {
-        dismissAdvisory(store.selectedId);
-      }
+      // No local terminal-status eviction here: the items-reconciliation
+      // effect above already drops this item's advisory (and warning) the
+      // instant store.items reflects the new status, for this transition
+      // exactly as it does for one that arrives from another tab.
     }
     return result;
   }
