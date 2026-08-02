@@ -58,19 +58,36 @@ export type ActionResult =
  * the model's separate opinion of what kind the item is. They are kept apart
  * all the way down so the item's stored classification can only ever be set
  * by an explicit assignment, never by the `...analysis` spread.
+ *
+ * `expectedUpdatedAt` is the item's `updatedAt` as the caller last observed
+ * it, captured at the moment the re-analysis request started (not whenever
+ * the response happens to land). It powers optimistic concurrency: the
+ * inspector stays mounted for as long as the item is non-terminal, the
+ * request has no way to abort a write that is already in flight to another
+ * tab, and the store adopts cross-tab writes via its `storage` listener — so
+ * a late response racing a newer edit must be refused rather than silently
+ * overwriting it.
  */
 export type ReparkInput = {
   kind: LinkKindId;
   analysis: AnalyzeUrlResult;
   classification: AnalyzeClassification;
+  expectedUpdatedAt: string;
 };
 
 /*
  * Only reparkItem returns this — every other mutator keeps ActionResult
  * unchanged. A refusal says WHY it was refused, computed from the live item
  * at write time rather than from anything the caller captured earlier.
+ * "stale" is a lost-update refusal: the live item's updatedAt has moved past
+ * what the caller captured when the request started.
  */
-export type ReparkFailureReason = "not_found" | "terminal" | "not_a_link" | "blocked";
+export type ReparkFailureReason =
+  | "not_found"
+  | "terminal"
+  | "not_a_link"
+  | "stale"
+  | "blocked";
 
 export type ReparkResult =
   | { ok: true }
@@ -381,6 +398,18 @@ export function useParkingStore(): ParkingStoreController {
         ok: false,
         reason: "not_a_link",
         message: "Only items parked from a link can be re-parked as another kind.",
+      };
+    }
+
+    // Optimistic concurrency: the item this response was analysed against no
+    // longer exists. Discard the response and its warning rather than
+    // overwrite whatever changed it in the meantime.
+    if (item.updatedAt !== input.expectedUpdatedAt) {
+      return {
+        ok: false,
+        reason: "stale",
+        message:
+          "This item changed elsewhere while the re-park was in progress, so it was refused.",
       };
     }
 

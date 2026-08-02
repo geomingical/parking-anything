@@ -45,6 +45,12 @@ export function CarSprite({
   // inspector offers. The card's aria-label is set explicitly below, so this
   // marker is visible content only and leaves the accessible name alone.
   const suggestion = reparkSuggestionFor(item);
+  // Finding 3: the accessible NAME stays exactly "{title}, {Status}" — many
+  // unit tests and every e2e spec match on it — so the suggestion is instead
+  // exposed as a description. Without this, a screen-reader user hears only
+  // "Title, Parked" and has no way to discover a correction exists short of
+  // opening every card.
+  const suggestionDescriptionId = suggestion ? `repark-suggestion-${item.id}` : undefined;
   const enterDelay =
     Math.min(enterIndex, STAGGER_MAX_STEPS) * STAGGER_STEP_MS;
 
@@ -52,6 +58,7 @@ export function CarSprite({
     <button
       type="button"
       aria-label={`${item.title}, ${statusLabel}`}
+      aria-describedby={suggestionDescriptionId}
       onClick={(event) => onSelect(item.id, event.currentTarget)}
       style={{
         "--enter-delay": `${enterDelay}ms`,
@@ -87,9 +94,14 @@ export function CarSprite({
         {item.effortTier ? ` · ${display.effortLabels[item.effortTier]}` : ""}
       </span>
       {suggestion ? (
-        <span className="mt-1 whitespace-nowrap border border-white/50 px-1.5 py-0.5 text-[0.6rem] font-black uppercase tracking-[0.04em] text-white/80">
-          Looks like a {displayFor(suggestion.kind).noun}
-        </span>
+        <>
+          <span className="mt-1 whitespace-nowrap border border-white/50 px-1.5 py-0.5 text-[0.6rem] font-black uppercase tracking-[0.04em] text-white/80">
+            Looks like a {displayFor(suggestion.kind).noun}
+          </span>
+          <span id={suggestionDescriptionId} className="sr-only">
+            Classification suggests {displayFor(suggestion.kind).label}; open to re-park.
+          </span>
+        </>
       ) : null}
       {needsReview ? (
         <span className="mt-1 whitespace-nowrap bg-[var(--safety)] px-1.5 py-0.5 text-[0.6rem] font-black uppercase tracking-[0.04em] text-black">

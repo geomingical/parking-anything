@@ -119,11 +119,17 @@ export type ReparkSuggestion = {
 /**
  * The single place that decides whether an item's stored classification is
  * worth acting on. Returns null when the model agrees, when nothing was ever
- * classified, or for an Idea — which has no URL, so nothing can be
- * re-analysed for it.
+ * classified, for an Idea — which has no URL, so nothing can be re-analysed
+ * for it — or once the item has reached a terminal status. A garaged or
+ * scrapped item can no longer be re-parked (see refuseIfTerminal in
+ * use-parking-store.ts), so offering the suggestion there would be a dead
+ * end. Gating it here, rather than in each caller, is what keeps the card's
+ * marker (car-sprite.tsx) and the inspector's offer (item-inspector.tsx)
+ * from drifting apart.
  */
 export function reparkSuggestionFor(item: ParkingItem): ReparkSuggestion | null {
   if (!isLinkItem(item)) return null;
+  if (item.status === "garaged" || item.status === "scrapped") return null;
   const { suggestedKind, kindRationale, url, kind } = item;
   if (!suggestedKind || suggestedKind === kind) return null;
   return { kind: suggestedKind, rationale: kindRationale, url };

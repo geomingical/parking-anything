@@ -380,6 +380,7 @@ describe("useParkingStore", () => {
           kind: "read",
           analysis: readAnalysis,
           classification: agreeingClassification,
+          expectedUpdatedAt: before.updatedAt,
         });
       });
 
@@ -398,12 +399,14 @@ describe("useParkingStore", () => {
       act(() => {
         result.current.updateEvidence("seed-driving", "Partial notes.", "");
       });
+      const edited = result.current.items.find(({ id }) => id === "seed-driving")!;
 
       act(() => {
         result.current.reparkItem("seed-driving", {
           kind: "read",
           analysis: readAnalysis,
           classification: agreeingClassification,
+          expectedUpdatedAt: edited.updatedAt,
         });
       });
 
@@ -424,6 +427,7 @@ describe("useParkingStore", () => {
           kind: "read",
           analysis: readAnalysis,
           classification: agreeingClassification,
+          expectedUpdatedAt: garaged.updatedAt,
         });
       });
 
@@ -445,6 +449,7 @@ describe("useParkingStore", () => {
           kind: "read",
           analysis: readAnalysis,
           classification: agreeingClassification,
+          expectedUpdatedAt: newIdea.updatedAt,
         });
       });
 
@@ -462,6 +467,7 @@ describe("useParkingStore", () => {
           kind: "read",
           analysis: readAnalysis,
           classification: agreeingClassification,
+          expectedUpdatedAt: NOW.toISOString(),
         });
       });
 
@@ -472,12 +478,14 @@ describe("useParkingStore", () => {
     // marker would keep pointing at a kind the model no longer disputes.
     it("stores the fresh classification, clearing the suggestion when the model now agrees", () => {
       const { result } = renderHook(() => useParkingStore());
+      const before = result.current.items.find(({ id }) => id === "seed-stale")!;
 
       act(() => {
         result.current.reparkItem("seed-stale", {
           kind: "read",
           analysis: readAnalysis,
           classification: agreeingClassification,
+          expectedUpdatedAt: before.updatedAt,
         });
       });
 
@@ -492,6 +500,7 @@ describe("useParkingStore", () => {
 
     it("keeps offering a suggestion when the re-analysis still disagrees", () => {
       const { result } = renderHook(() => useParkingStore());
+      const before = result.current.items.find(({ id }) => id === "seed-stale")!;
 
       act(() => {
         result.current.reparkItem("seed-stale", {
@@ -501,6 +510,7 @@ describe("useParkingStore", () => {
             suggestedKind: "ai_tool",
             rationale: "Reads as software you would operate.",
           },
+          expectedUpdatedAt: before.updatedAt,
         });
       });
 
@@ -511,11 +521,68 @@ describe("useParkingStore", () => {
       });
     });
 
+    // Finding 1: a late re-park response must not silently overwrite a
+    // newer edit made through another route (e.g. a second browser tab)
+    // while the request was in flight. The caller captures updatedAt when
+    // the request starts and the store refuses the write if the live item
+    // has since moved on, discarding the stale response entirely.
+    it("refuses a re-park whose expectedUpdatedAt no longer matches the live item, tagged with reason 'stale' (Finding 1)", () => {
+      const { result } = renderHook(() => useParkingStore());
+      const before = result.current.items.find(({ id }) => id === "seed-stale")!;
+      const staleUpdatedAt = before.updatedAt;
+
+      // Simulate another route editing the same still-parked item while the
+      // re-park request this test is about to make is "in flight".
+      act(() => {
+        result.current.updateEvidence("seed-stale", "Edited from another tab.", "");
+      });
+      const editedElsewhere = result.current.items.find(({ id }) => id === "seed-stale")!;
+      expect(editedElsewhere.updatedAt).not.toBe(staleUpdatedAt);
+
+      let outcome;
+      act(() => {
+        outcome = result.current.reparkItem("seed-stale", {
+          kind: "read",
+          analysis: readAnalysis,
+          classification: agreeingClassification,
+          expectedUpdatedAt: staleUpdatedAt,
+        });
+      });
+
+      expect(outcome).toMatchObject({ ok: false, reason: "stale" });
+      // The newer state from the other route must survive untouched — the
+      // stale response's analysis, kind and classification must never land.
+      expect(result.current.items.find(({ id }) => id === "seed-stale")).toEqual(
+        editedElsewhere,
+      );
+    });
+
+    it("accepts a re-park whose expectedUpdatedAt still matches the live item", () => {
+      const { result } = renderHook(() => useParkingStore());
+      const before = result.current.items.find(({ id }) => id === "seed-stale")!;
+      let outcome;
+
+      act(() => {
+        outcome = result.current.reparkItem("seed-stale", {
+          kind: "read",
+          analysis: readAnalysis,
+          classification: agreeingClassification,
+          expectedUpdatedAt: before.updatedAt,
+        });
+      });
+
+      expect(outcome).toEqual({ ok: true });
+      expect(result.current.items.find(({ id }) => id === "seed-stale")?.kind).toBe(
+        "read",
+      );
+    });
+
     // The classification must be set deliberately from the response's own
     // `classification` block. Even if an analysis payload somehow carried
     // these fields, the explicit assignment must win over the spread.
     it("never lets the analysis payload decide the stored classification", () => {
       const { result } = renderHook(() => useParkingStore());
+      const before = result.current.items.find(({ id }) => id === "seed-stale")!;
 
       act(() => {
         result.current.reparkItem("seed-stale", {
@@ -526,6 +593,7 @@ describe("useParkingStore", () => {
             kindRationale: "Smuggled in through the analysis payload.",
           } as unknown as typeof readAnalysis,
           classification: agreeingClassification,
+          expectedUpdatedAt: before.updatedAt,
         });
       });
 

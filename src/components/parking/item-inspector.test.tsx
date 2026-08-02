@@ -342,7 +342,7 @@ describe("ItemInspector re-park", () => {
     },
   );
 
-  it("re-analyses under the suggested kind and hands the store both analysis and classification", async () => {
+  it("re-analyses under the suggested kind and hands the store the analysis, classification, and the item's updatedAt at request time (Finding 1)", async () => {
     const user = userEvent.setup();
     const fetchMock = respond("read");
     vi.stubGlobal("fetch", fetchMock);
@@ -355,10 +355,103 @@ describe("ItemInspector re-park", () => {
       url: "https://example.com/article",
       kind: "read",
     });
-    expect(onRepark).toHaveBeenCalledWith("read", analysis, {
-      suggestedKind: "read",
-      rationale: "Long-form prose.",
+    expect(onRepark).toHaveBeenCalledWith(
+      "read",
+      analysis,
+      { suggestedKind: "read", rationale: "Long-form prose." },
+      misparkedTool.updatedAt,
+    );
+  });
+
+  // Finding 1: the request captures the item's updatedAt at the moment the
+  // click starts it, not whatever the item looks like once the response
+  // lands — otherwise a caller could not tell whether the item moved on
+  // while the request was in flight.
+  it("captures updatedAt at the moment the re-park starts, not at some later point", async () => {
+    const user = userEvent.setup();
+    let resolveFetch!: (response: Response) => void;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(
+        () =>
+          new Promise<Response>((resolve) => {
+            resolveFetch = resolve;
+          }),
+      ),
+    );
+    const onRepark = vi.fn().mockReturnValue({ ok: true });
+    const { rerender } = render(
+      <ItemInspector
+        item={misparkedTool}
+        open
+        onOpenChange={vi.fn()}
+        onApplyAction={vi.fn().mockReturnValue({ ok: true })}
+        onUpdateEvidence={vi.fn().mockReturnValue({ ok: true })}
+        onUpdateIdea={vi.fn().mockReturnValue({ ok: true })}
+        onRepark={onRepark}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Re-park as Read" }));
+
+    // The item changes elsewhere (e.g. another tab) while the request is
+    // still in flight; the inspector re-renders with the newer prop.
+    const editedElsewhere = { ...misparkedTool, updatedAt: "2026-08-01T00:00:00.000Z" };
+    rerender(
+      <ItemInspector
+        item={editedElsewhere}
+        open
+        onOpenChange={vi.fn()}
+        onApplyAction={vi.fn().mockReturnValue({ ok: true })}
+        onUpdateEvidence={vi.fn().mockReturnValue({ ok: true })}
+        onUpdateIdea={vi.fn().mockReturnValue({ ok: true })}
+        onRepark={onRepark}
+      />,
+    );
+
+    await act(async () => {
+      resolveFetch(
+        Response.json({
+          analysis,
+          sourceMode: "fetched",
+          classification: { suggestedKind: "read", rationale: "Long-form prose." },
+        }),
+      );
     });
+
+    await waitFor(() => expect(onRepark).toHaveBeenCalledTimes(1));
+    expect(onRepark).toHaveBeenCalledWith(
+      "read",
+      analysis,
+      { suggestedKind: "read", rationale: "Long-form prose." },
+      misparkedTool.updatedAt,
+    );
+  });
+
+  // Finding 4: reason is a genuine consumer, not dead weight — the "stale"
+  // refusal is the one case where retrying is actually worth suggesting, so
+  // the inspector appends an actionable next step the other reasons do not
+  // need (terminal/not_a_link/not_found already say enough on their own).
+  it("tells the user the re-park was refused and to reopen the card, for a stale refusal (Finding 1, Finding 4)", async () => {
+    const user = userEvent.setup();
+    vi.stubGlobal("fetch", respond("read"));
+    renderInspector(
+      misparkedTool,
+      undefined,
+      undefined,
+      vi.fn().mockReturnValue({
+        ok: false,
+        reason: "stale",
+        message:
+          "This item changed elsewhere while the re-park was in progress, so it was refused.",
+      }),
+    );
+
+    await user.click(screen.getByRole("button", { name: "Re-park as Read" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "This item changed elsewhere while the re-park was in progress, so it was refused. Reopen this card to see the latest version.",
+    );
   });
 
   // The re-park response's own URL-only warning must be visible even though

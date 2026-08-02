@@ -134,4 +134,24 @@ describe("reparkSuggestionFor", () => {
       }),
     ).toBeNull();
   });
+
+  // Finding 2: a garaged or scrapped item can no longer be re-parked at all
+  // (see refuseIfTerminal in use-parking-store.ts), so a mismatched
+  // classification must stop being offered the moment an item goes terminal
+  // — otherwise the card keeps saying "looks like another kind" with no
+  // action reachable anywhere. Gated here, not in each caller, so the card
+  // and the inspector cannot drift apart again.
+  it.each(["garaged", "scrapped"] as const)(
+    "offers nothing for a %s item even when the stored classification still disagrees",
+    (status) => {
+      expect(
+        reparkSuggestionFor({
+          ...tool,
+          status,
+          suggestedKind: "read" as const,
+          kindRationale: "Long-form prose.",
+        }),
+      ).toBeNull();
+    },
+  );
 });

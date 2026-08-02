@@ -4,7 +4,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { ExternalLink, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
-import type { ActionResult } from "@/hooks/use-parking-store";
+import type { ActionResult, ReparkResult } from "@/hooks/use-parking-store";
 import { messageForFailedResponse, readJsonBody } from "@/lib/parking/analyze-url-client";
 import {
   LINK_KINDS,
@@ -47,7 +47,8 @@ type ItemInspectorProps = {
     kind: LinkKindId,
     analysis: AnalyzeUrlResult,
     classification: AnalyzeClassification,
-  ): ActionResult;
+    expectedUpdatedAt: string,
+  ): ReparkResult;
   autoFocusPlanning?: boolean;
 };
 
@@ -87,9 +88,9 @@ function ItemInspectorContent({ item, open, onOpenChange, onApplyAction, onUpdat
 
   const terminal = item.status === "garaged" || item.status === "scrapped";
   // Read straight off the item, so the offer and the card's marker can never
-  // disagree, and a terminal item is suppressed by the same rule as every
-  // other action below.
-  const suggestion = terminal ? null : reparkSuggestionFor(item);
+  // disagree. reparkSuggestionFor itself refuses a terminal item (Finding
+  // 2), so there is no separate terminal check to keep in sync here.
+  const suggestion = reparkSuggestionFor(item);
 
   useEffect(
     () => () => {
@@ -112,6 +113,10 @@ function ItemInspectorContent({ item, open, onOpenChange, onApplyAction, onUpdat
   async function repark(kind: LinkKindId, url: string) {
     if (reparkLock.current) return;
 
+    // Captured now, from this render's `item` — not read again once the
+    // response lands. That is what lets the store detect a newer edit that
+    // happened elsewhere while this request was in flight (Finding 1).
+    const expectedUpdatedAt = item.updatedAt;
     const controller = new AbortController();
     reparkController.current = controller;
     reparkLock.current = true;
@@ -137,9 +142,22 @@ function ItemInspectorContent({ item, open, onOpenChange, onApplyAction, onUpdat
 
       if (reparkController.current !== controller) return;
 
-      const saved = onRepark(kind, parsed.data.analysis, parsed.data.classification);
+      const saved = onRepark(
+        kind,
+        parsed.data.analysis,
+        parsed.data.classification,
+        expectedUpdatedAt,
+      );
       if (!saved.ok) {
-        setValidationMessage(saved.message);
+        // "stale" is the one refusal reason where retrying is actually
+        // worth suggesting — the item just needs a fresh look, unlike
+        // terminal/not_a_link/not_found, whose own message already says
+        // enough (Finding 4).
+        setValidationMessage(
+          saved.reason === "stale"
+            ? `${saved.message} Reopen this card to see the latest version.`
+            : saved.message,
+        );
         return;
       }
       // Held here rather than in the section below, which the store's own

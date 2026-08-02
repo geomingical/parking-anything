@@ -132,6 +132,46 @@ describe("ParkingLot", () => {
         screen.getByRole("button", { name: "On interface craft, Parked" }),
       ).toBeVisible();
     });
+
+    // Finding 3: before the refactor the suggestion was pushed at the user
+    // right after parking; now it lives behind opening a card. A sighted
+    // user has the visual marker, but a screen-reader user hears only
+    // "Title, Parked" and would have to open every card to discover a
+    // correction exists. aria-describedby exposes it without touching the
+    // accessible NAME, which many other tests and every e2e spec match on.
+    it("exposes the suggestion to screen readers via aria-describedby, saying what it is and what to do", () => {
+      renderCard({ ...tool, suggestedKind: "read" as const, kindRationale: "Long-form prose." });
+
+      const button = screen.getByRole("button", { name: "On interface craft, Parked" });
+      const describedById = button.getAttribute("aria-describedby");
+      expect(describedById).toBeTruthy();
+      const description = document.getElementById(describedById!);
+      expect(description).not.toBeNull();
+      expect(description).toHaveTextContent(/read/i);
+      expect(description).toHaveTextContent(/re-park/i);
+    });
+
+    it("has no aria-describedby when there is no suggestion to announce", () => {
+      renderCard(tool);
+
+      expect(
+        screen.getByRole("button", { name: "On interface craft, Parked" }),
+      ).not.toHaveAttribute("aria-describedby");
+    });
+
+    // Finding 2, verified again from the card's own accessibility surface:
+    // a terminal item must not describe a suggestion nobody can act on.
+    it.each(["garaged", "scrapped"] as const)(
+      "has no aria-describedby for a terminal %s item even with a stored mismatch",
+      (status) => {
+        renderCard({ ...tool, status, suggestedKind: "read" as const, kindRationale: "Long-form prose." });
+
+        const label = status === "garaged" ? "Garaged" : "Scrapped";
+        expect(
+          screen.getByRole("button", { name: `On interface craft, ${label}` }),
+        ).not.toHaveAttribute("aria-describedby");
+      },
+    );
   });
 });
 

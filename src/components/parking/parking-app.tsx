@@ -197,10 +197,19 @@ export function ParkingApp() {
             ? store.updateIdea(store.selectedId, input)
             : { ok: false, message: "This parking item could not be found." }
         }
-        onRepark={(kind, analysis, classification) =>
+        onRepark={(kind, analysis, classification, expectedUpdatedAt) =>
           store.selectedId
-            ? store.reparkItem(store.selectedId, { kind, analysis, classification })
-            : { ok: false, message: "This parking item could not be found." }
+            ? store.reparkItem(store.selectedId, {
+                kind,
+                analysis,
+                classification,
+                expectedUpdatedAt,
+              })
+            : {
+                ok: false,
+                reason: "not_found",
+                message: "This parking item could not be found.",
+              }
         }
       />
     </div>
