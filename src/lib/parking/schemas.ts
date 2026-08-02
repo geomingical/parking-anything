@@ -93,6 +93,19 @@ const LinkParkingItemShape = {
   effortTier: EffortTierSchema,
   suggestedTestTask: z.string().trim().min(1).max(500),
   usefulnessHypothesis: z.string().trim().min(1).max(400),
+  /*
+   * The model's own opinion of what this item is, and why. A property OF THE
+   * ITEM, so it shares the item's lifecycle instead of chasing it from
+   * transient UI state. Both optional: stored v2 data predating them still
+   * parses, so no migration is needed.
+   *
+   * These are only ever set by an explicit assignment from a response's
+   * `classification` block. AnalyzeUrlResultSchema above is strict and holds
+   * exactly its five stored fields, so the `...analysis` spread used when
+   * building or re-parking an item cannot introduce them by accident.
+   */
+  suggestedKind: z.enum(LINK_KIND_IDS).optional(),
+  kindRationale: optionalTrimmedText(200),
 };
 
 export const AiToolParkingItemSchema = z

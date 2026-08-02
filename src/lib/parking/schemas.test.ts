@@ -359,10 +359,61 @@ describe("read parking items", () => {
     ).toThrow();
   });
 
-  it("rejects classification fields on a stored item", () => {
+  // The model's opinion of an item's kind is now a property OF THE ITEM, set
+  // deliberately by the client from the response's `classification` block.
+  it("stores a deliberately-set kind suggestion on a link item", () => {
+    const parsed = ParkingItemSchema.parse({
+      ...readItem,
+      suggestedKind: "ai_tool",
+      kindRationale: "Reads as software you would operate.",
+    });
+
+    expect(parsed).toMatchObject({
+      suggestedKind: "ai_tool",
+      kindRationale: "Reads as software you would operate.",
+    });
+  });
+
+  it("still parses a stored link item with no kind suggestion at all", () => {
+    const parsed = ParkingItemSchema.parse(readItem);
+    expect(parsed).not.toHaveProperty("suggestedKind");
+    expect(parsed).not.toHaveProperty("kindRationale");
+  });
+
+  it("rejects an unknown kind suggestion", () => {
     expect(() =>
-      ParkingItemSchema.parse({ ...readItem, suggestedKind: "ai_tool" }),
+      ParkingItemSchema.parse({ ...readItem, suggestedKind: "podcast" }),
     ).toThrow();
+  });
+
+  // The load-bearing guarantee: `analysis` is spread wholesale into a new item
+  // (link-capture-form) and into a re-parked one (use-parking-store), so the
+  // analysis payload itself must be incapable of carrying a classification.
+  // Only an explicit assignment from `classification` can set these fields.
+  it("refuses to let the analysis payload carry a classification", () => {
+    expect(
+      schemas.AnalyzeUrlResultSchema.safeParse({
+        title: readItem.title,
+        summary: readItem.summary,
+        effortTier: readItem.effortTier,
+        suggestedTestTask: readItem.suggestedTestTask,
+        usefulnessHypothesis: readItem.usefulnessHypothesis,
+        suggestedKind: "ai_tool",
+        kindRationale: "Smuggled in through the analysis payload.",
+      }).success,
+    ).toBe(false);
+  });
+
+  it("keeps the analysis payload to exactly its five stored fields", () => {
+    expect(
+      Object.keys(schemas.AnalyzeUrlResultSchema.shape).sort(),
+    ).toEqual([
+      "effortTier",
+      "suggestedTestTask",
+      "summary",
+      "title",
+      "usefulnessHypothesis",
+    ]);
   });
 
   it("keeps stored v2 payloads valid without migration", () => {

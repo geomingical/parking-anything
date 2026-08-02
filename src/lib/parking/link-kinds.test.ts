@@ -3,11 +3,14 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
+import type { ParkingItem } from "./schemas";
+
 import {
   LINK_KINDS,
   LINK_KIND_IDS,
   displayFor,
   isLinkKind,
+  reparkSuggestionFor,
 } from "./link-kinds";
 
 describe("link kinds registry", () => {
@@ -73,5 +76,62 @@ describe("link kinds registry", () => {
     for (const accentVar of accentVars) {
       expect(css).toMatch(new RegExp(`(^|\\s)${accentVar}\\s*:`));
     }
+  });
+});
+
+describe("reparkSuggestionFor", () => {
+  const tool: ParkingItem = {
+    id: "tool-1",
+    kind: "ai_tool",
+    status: "parked",
+    url: "https://example.com/tool",
+    title: "Example Tool",
+    summary: "A concise description of an AI tool.",
+    effortTier: "quick_spin",
+    suggestedTestTask: "Try one representative input.",
+    usefulnessHypothesis: "Useful if it shortens a repeated task.",
+    createdAt: "2026-07-20T00:00:00.000Z",
+    updatedAt: "2026-07-20T00:00:00.000Z",
+    lastActivityAt: "2026-07-20T00:00:00.000Z",
+  };
+
+  it("offers the suggestion when the model disagrees with the stored kind", () => {
+    expect(
+      reparkSuggestionFor({
+        ...tool,
+        suggestedKind: "read" as const,
+        kindRationale: "Long-form prose.",
+      }),
+    ).toEqual({
+      kind: "read",
+      rationale: "Long-form prose.",
+      url: "https://example.com/tool",
+    });
+  });
+
+  it("offers nothing when the model agrees with the stored kind", () => {
+    expect(
+      reparkSuggestionFor({ ...tool, suggestedKind: "ai_tool" as const, kindRationale: "Software." }),
+    ).toBeNull();
+  });
+
+  it("offers nothing when no classification was ever stored", () => {
+    expect(reparkSuggestionFor(tool)).toBeNull();
+  });
+
+  // An Idea has no URL, so nothing can ever be re-analysed for it.
+  it("offers nothing for an Idea", () => {
+    expect(
+      reparkSuggestionFor({
+        id: "idea-1",
+        kind: "idea",
+        status: "parked",
+        title: "Compare onboarding flows",
+        ideaText: "Prototype both flows.",
+        createdAt: "2026-07-20T00:00:00.000Z",
+        updatedAt: "2026-07-20T00:00:00.000Z",
+        lastActivityAt: "2026-07-20T00:00:00.000Z",
+      }),
+    ).toBeNull();
   });
 });

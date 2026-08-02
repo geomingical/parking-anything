@@ -1,4 +1,9 @@
-import type { EffortTier, ParkingItem } from "./schemas";
+import type {
+  AiToolParkingItem,
+  EffortTier,
+  ParkingItem,
+  ReadParkingItem,
+} from "./schemas";
 
 /**
  * URL-based parkable kinds. `idea` is deliberately absent: it has no URL, so
@@ -91,4 +96,35 @@ export function isLinkKind(value: string): value is LinkKindId {
 
 export function displayFor(kind: ParkingItem["kind"]): KindDisplay {
   return isLinkKind(kind) ? LINK_KINDS[kind] : IDEA_DISPLAY;
+}
+
+/**
+ * `isLinkKind` narrows the *string* it is given, but a predicate on
+ * `item.kind` does not propagate back to narrow `item` itself. This applies
+ * the same registry check directly to the item.
+ */
+export function isLinkItem(
+  item: ParkingItem,
+): item is AiToolParkingItem | ReadParkingItem {
+  return isLinkKind(item.kind);
+}
+
+/** Everything needed to offer (and perform) a re-park for one item. */
+export type ReparkSuggestion = {
+  kind: LinkKindId;
+  rationale?: string;
+  url: string;
+};
+
+/**
+ * The single place that decides whether an item's stored classification is
+ * worth acting on. Returns null when the model agrees, when nothing was ever
+ * classified, or for an Idea — which has no URL, so nothing can be
+ * re-analysed for it.
+ */
+export function reparkSuggestionFor(item: ParkingItem): ReparkSuggestion | null {
+  if (!isLinkItem(item)) return null;
+  const { suggestedKind, kindRationale, url, kind } = item;
+  if (!suggestedKind || suggestedKind === kind) return null;
+  return { kind: suggestedKind, rationale: kindRationale, url };
 }

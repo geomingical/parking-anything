@@ -2,11 +2,24 @@
 
 import * as Dialog from "@radix-ui/react-dialog";
 import { ExternalLink, X } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import type { ActionResult } from "@/hooks/use-parking-store";
-import { LINK_KINDS, displayFor, isLinkKind } from "@/lib/parking/link-kinds";
-import type { AiToolParkingItem, EffortTier, ParkingItem, ReadParkingItem } from "@/lib/parking/schemas";
+import { messageForFailedResponse, readJsonBody } from "@/lib/parking/analyze-url-client";
+import {
+  LINK_KINDS,
+  displayFor,
+  isLinkItem,
+  reparkSuggestionFor,
+  type LinkKindId,
+} from "@/lib/parking/link-kinds";
+import {
+  AnalyzeUrlResponseSchema,
+  type AnalyzeClassification,
+  type AnalyzeUrlResult,
+  type EffortTier,
+  type ParkingItem,
+} from "@/lib/parking/schemas";
 import type { ParkingAction } from "@/lib/parking/transitions";
 
 const STATUS_LABELS: Record<ParkingItem["status"], string> = {
@@ -15,14 +28,6 @@ const STATUS_LABELS: Record<ParkingItem["status"], string> = {
   garaged: "Garaged",
   scrapped: "Scrapped",
 };
-
-// `isLinkKind` (from the registry) narrows the *string* it is given, but a
-// predicate on `item.kind` doesn't propagate back to narrow `item` itself.
-// This wrapper applies the same registry check directly to the item so
-// TypeScript narrows both branches below.
-function isLinkItem(item: ParkingItem): item is AiToolParkingItem | ReadParkingItem {
-  return isLinkKind(item.kind);
-}
 
 type IdeaUpdate = {
   title: string;
@@ -38,6 +43,11 @@ type ItemInspectorProps = {
   onApplyAction(action: ParkingAction): ActionResult;
   onUpdateEvidence(notes: string, resultUrl: string): ActionResult;
   onUpdateIdea(input: IdeaUpdate): ActionResult;
+  onRepark(
+    kind: LinkKindId,
+    analysis: AnalyzeUrlResult,
+    classification: AnalyzeClassification,
+  ): ActionResult;
   autoFocusPlanning?: boolean;
 };
 
@@ -58,7 +68,7 @@ export function ItemInspector({ item, ...props }: ItemInspectorProps) {
 
 type ContentProps = Omit<ItemInspectorProps, "item"> & { item: ParkingItem };
 
-function ItemInspectorContent({ item, open, onOpenChange, onApplyAction, onUpdateEvidence, onUpdateIdea, autoFocusPlanning = false }: ContentProps) {
+function ItemInspectorContent({ item, open, onOpenChange, onApplyAction, onUpdateEvidence, onUpdateIdea, onRepark, autoFocusPlanning = false }: ContentProps) {
   const [title, setTitle] = useState(item.title);
   const [ideaText, setIdeaText] = useState(item.kind === "idea" ? item.ideaText : "");
   const [effortTier, setEffortTier] = useState<EffortTier | "">(item.effortTier ?? "");
@@ -68,10 +78,87 @@ function ItemInspectorContent({ item, open, onOpenChange, onApplyAction, onUpdat
   const [decisionReason, setDecisionReason] = useState("");
   const [showTowConfirmation, setShowTowConfirmation] = useState(false);
   const [validationMessage, setValidationMessage] = useState<string | null>(null);
+  const [reparking, setReparking] = useState(false);
+  const [reparkWarning, setReparkWarning] = useState<string | null>(null);
   const effortRef = useRef<HTMLSelectElement>(null);
   const taskRef = useRef<HTMLTextAreaElement>(null);
+  const reparkController = useRef<AbortController | null>(null);
+  const reparkLock = useRef(false);
 
   const terminal = item.status === "garaged" || item.status === "scrapped";
+  // Read straight off the item, so the offer and the card's marker can never
+  // disagree, and a terminal item is suppressed by the same rule as every
+  // other action below.
+  const suggestion = terminal ? null : reparkSuggestionFor(item);
+
+  useEffect(
+    () => () => {
+      // Abort AND null the controller: aborting alone cannot stop a response
+      // that already won the race past the network call, so a resumed async
+      // function must see its controller no longer matches and bail before
+      // writing to the store or to dead state.
+      reparkController.current?.abort();
+      reparkController.current = null;
+    },
+    [],
+  );
+
+  /*
+   * Owns the re-park request end to end. The inspector is a modal, so at most
+   * one of these can exist at a time across the whole app — the only
+   * concurrency left is one user double-clicking, handled by the synchronous
+   * lock below.
+   */
+  async function repark(kind: LinkKindId, url: string) {
+    if (reparkLock.current) return;
+
+    const controller = new AbortController();
+    reparkController.current = controller;
+    reparkLock.current = true;
+    setReparking(true);
+    setValidationMessage(null);
+    setReparkWarning(null);
+
+    try {
+      const response = await fetch("/api/analyze-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url, kind }),
+        signal: controller.signal,
+      });
+      const body = await readJsonBody(response);
+      if (!response.ok) {
+        throw new Error(
+          messageForFailedResponse(response, body, "The re-park could not be completed."),
+        );
+      }
+      const parsed = AnalyzeUrlResponseSchema.safeParse(body);
+      if (!parsed.success) throw new Error("The re-park response could not be verified.");
+
+      if (reparkController.current !== controller) return;
+
+      const saved = onRepark(kind, parsed.data.analysis, parsed.data.classification);
+      if (!saved.ok) {
+        setValidationMessage(saved.message);
+        return;
+      }
+      // Held here rather than in the section below, which the store's own
+      // update removes as soon as the model agrees with the new kind.
+      setReparkWarning(parsed.data.warning ?? null);
+    } catch (caught) {
+      if (controller.signal.aborted) return;
+      if (reparkController.current !== controller) return;
+      setValidationMessage(
+        caught instanceof Error ? caught.message : "The re-park could not be completed.",
+      );
+    } finally {
+      if (reparkController.current === controller) {
+        reparkController.current = null;
+        reparkLock.current = false;
+        setReparking(false);
+      }
+    }
+  }
   const ideaReady = item.kind !== "idea" || Boolean(item.effortTier && item.suggestedTestTask?.trim());
   const evidenceEditable =
     item.status === "test_driving" ||
@@ -182,7 +269,19 @@ function ItemInspectorContent({ item, open, onOpenChange, onApplyAction, onUpdat
             <section className="space-y-3 border-b border-black/15 py-5"><h2 className="text-xs font-black uppercase text-[var(--muted-ink)]">Recorded evidence</h2>{item.notes ? <p className="whitespace-pre-wrap leading-7">{item.notes}</p> : null}{item.resultUrl ? <a href={item.resultUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 font-bold underline">Open result <ExternalLink aria-hidden="true" size={16} /></a> : null}</section>
           ) : null}
 
+          {suggestion ? (
+            <section className="border-t border-black/15 py-5" aria-label="Kind check">
+              <h2 className="text-xs font-black uppercase text-[var(--muted-ink)]">Kind check</h2>
+              <p className="mt-2 font-bold">This looks more like a {LINK_KINDS[suggestion.kind].noun}.</p>
+              {suggestion.rationale ? <p className="mt-1 leading-7 text-[var(--muted-ink)]">{suggestion.rationale}</p> : null}
+              <button type="button" disabled={reparking} onClick={() => void repark(suggestion.kind, suggestion.url)} className="pressable mt-3 h-11 bg-[var(--garage)] px-4 font-black text-white disabled:cursor-wait disabled:opacity-70">
+                {reparking ? "Re-parking…" : `Re-park as ${LINK_KINDS[suggestion.kind].label}`}
+              </button>
+            </section>
+          ) : null}
+
           {item.finalDecisionReason ? <section className="border-b border-black/15 py-5"><h2 className="text-xs font-black uppercase text-[var(--scrap)]">Final decision reason</h2><p className="mt-2 leading-7">{item.finalDecisionReason}</p></section> : null}
+          {reparkWarning ? <p role="status" className="mt-5 border-l-4 border-[var(--safety)] bg-white px-4 py-3 text-sm font-bold">{reparkWarning}</p> : null}
           {validationMessage ? <p role="alert" className="mt-5 border-l-4 border-[var(--scrap)] bg-red-50 px-4 py-3 text-sm font-bold">{validationMessage}</p> : null}
 
           {showTowConfirmation ? (

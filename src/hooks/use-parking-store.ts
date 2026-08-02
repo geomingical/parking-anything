@@ -8,6 +8,7 @@ import type { LinkKindId } from "@/lib/parking/link-kinds";
 import { isLinkKind } from "@/lib/parking/link-kinds";
 import {
   ParkingStoreV2Schema,
+  type AnalyzeClassification,
   type AnalyzeUrlResult,
   type EffortTier,
   type ParkingItem,
@@ -44,10 +45,7 @@ export type ParkingStoreController = {
       suggestedTestTask?: string;
     },
   ): ActionResult;
-  reparkItem(
-    id: string,
-    input: { kind: LinkKindId; analysis: AnalyzeUrlResult },
-  ): ReparkResult;
+  reparkItem(id: string, input: ReparkInput): ReparkResult;
   resetDemo(): void;
 };
 
@@ -56,12 +54,21 @@ export type ActionResult =
   | { ok: false; message: string };
 
 /*
+ * `analysis` is what gets stored as the item's content; `classification` is
+ * the model's separate opinion of what kind the item is. They are kept apart
+ * all the way down so the item's stored classification can only ever be set
+ * by an explicit assignment, never by the `...analysis` spread.
+ */
+export type ReparkInput = {
+  kind: LinkKindId;
+  analysis: AnalyzeUrlResult;
+  classification: AnalyzeClassification;
+};
+
+/*
  * Only reparkItem returns this — every other mutator keeps ActionResult
- * unchanged. A caller (MisparkAdvisory) needs to know WHY a re-park was
- * refused, not just that it was, so it can decide whether a retry could ever
- * succeed without inspecting the store's items itself (see Finding 2: a
- * captured items snapshot goes stale the instant the target item changes
- * status while a request is in flight).
+ * unchanged. A refusal says WHY it was refused, computed from the live item
+ * at write time rather than from anything the caller captured earlier.
  */
 export type ReparkFailureReason = "not_found" | "terminal" | "not_a_link" | "blocked";
 
@@ -343,15 +350,10 @@ export function useParkingStore(): ParkingStoreController {
    * Rebuilds the item in the store rather than accepting a caller-built one:
    * a caller-built item could not guarantee that id, createdAt and status
    * survived a re-park. This deliberately does not go through mutateItem:
-   * every refusal here needs a `reason` tag alongside its message so the
-   * caller (MisparkAdvisory, via ParkingApp) can decide keep-vs-drop from the
-   * live item at the moment of the write, not from a snapshot it captured
-   * earlier and might have gone stale (Finding 2).
+   * every refusal here needs a `reason` tag alongside its message, decided
+   * from the live item at the moment of the write.
    */
-  function reparkItem(
-    id: string,
-    input: { kind: LinkKindId; analysis: AnalyzeUrlResult },
-  ): ReparkResult {
+  function reparkItem(id: string, input: ReparkInput): ReparkResult {
     const currentItems = buildBrowserSnapshot().items;
     const index = currentItems.findIndex((candidate) => candidate.id === id);
     if (index === -1) {
@@ -388,6 +390,12 @@ export function useParkingStore(): ParkingStoreController {
       ...item,
       ...input.analysis,
       kind: input.kind,
+      // Written deliberately from the classification block, AFTER the
+      // analysis spread, so the model's fresh opinion always wins. When it
+      // now agrees with input.kind, reparkSuggestionFor stops offering a
+      // re-park and the card's marker disappears on its own.
+      suggestedKind: input.classification.suggestedKind,
+      kindRationale: input.classification.rationale,
       updatedAt: now,
       lastActivityAt: now,
     } as ParkingItem;

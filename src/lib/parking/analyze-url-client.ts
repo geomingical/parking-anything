@@ -20,7 +20,7 @@ function extractServerError(body: unknown): string | null {
 }
 
 /**
- * analyzeAndPark (link-capture-form.tsx) and repark (mispark-advisory.tsx)
+ * analyzeAndPark (link-capture-form.tsx) and repark (item-inspector.tsx)
  * hit the same /api/analyze-url endpoint and must present the same guidance
  * for the same failure — retry-after wording for a 429 quota rejection, "try
  * again shortly" for a 503 outage. Both callers route through this one

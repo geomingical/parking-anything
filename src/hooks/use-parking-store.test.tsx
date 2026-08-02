@@ -2,6 +2,7 @@ import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { makeSeedItems } from "@/lib/parking/fixtures";
+import { reparkSuggestionFor } from "@/lib/parking/link-kinds";
 import type { ParkingItem } from "@/lib/parking/schemas";
 import { STORAGE_KEY, saveParkingStore } from "@/lib/parking/storage";
 import { useParkingStore } from "./use-parking-store";
@@ -34,6 +35,12 @@ const readAnalysis = {
   effortTier: "focused_session" as const,
   suggestedTestTask: "Pick one detail to apply.",
   usefulnessHypothesis: "May sharpen the next visual pass.",
+};
+
+/** The re-analysis agrees with the kind it was re-parked under. */
+const agreeingClassification = {
+  suggestedKind: "read" as const,
+  rationale: "Long-form prose.",
 };
 
 function storedItems(): ParkingItem[] {
@@ -372,6 +379,7 @@ describe("useParkingStore", () => {
         outcome = result.current.reparkItem("seed-stale", {
           kind: "read",
           analysis: readAnalysis,
+          classification: agreeingClassification,
         });
       });
 
@@ -395,6 +403,7 @@ describe("useParkingStore", () => {
         result.current.reparkItem("seed-driving", {
           kind: "read",
           analysis: readAnalysis,
+          classification: agreeingClassification,
         });
       });
 
@@ -414,6 +423,7 @@ describe("useParkingStore", () => {
         outcome = result.current.reparkItem(garaged.id, {
           kind: "read",
           analysis: readAnalysis,
+          classification: agreeingClassification,
         });
       });
 
@@ -434,6 +444,7 @@ describe("useParkingStore", () => {
         outcome = result.current.reparkItem(newIdea.id, {
           kind: "read",
           analysis: readAnalysis,
+          classification: agreeingClassification,
         });
       });
 
@@ -450,10 +461,78 @@ describe("useParkingStore", () => {
         outcome = result.current.reparkItem("no-such-item", {
           kind: "read",
           analysis: readAnalysis,
+          classification: agreeingClassification,
         });
       });
 
       expect(outcome).toMatchObject({ ok: false, reason: "not_found" });
+    });
+
+    // The suggestion lives ON the item, so a re-park must refresh it or the
+    // marker would keep pointing at a kind the model no longer disputes.
+    it("stores the fresh classification, clearing the suggestion when the model now agrees", () => {
+      const { result } = renderHook(() => useParkingStore());
+
+      act(() => {
+        result.current.reparkItem("seed-stale", {
+          kind: "read",
+          analysis: readAnalysis,
+          classification: agreeingClassification,
+        });
+      });
+
+      const after = result.current.items.find(({ id }) => id === "seed-stale")!;
+      expect(after).toMatchObject({
+        kind: "read",
+        suggestedKind: "read",
+        kindRationale: "Long-form prose.",
+      });
+      expect(reparkSuggestionFor(after)).toBeNull();
+    });
+
+    it("keeps offering a suggestion when the re-analysis still disagrees", () => {
+      const { result } = renderHook(() => useParkingStore());
+
+      act(() => {
+        result.current.reparkItem("seed-stale", {
+          kind: "read",
+          analysis: readAnalysis,
+          classification: {
+            suggestedKind: "ai_tool",
+            rationale: "Reads as software you would operate.",
+          },
+        });
+      });
+
+      const after = result.current.items.find(({ id }) => id === "seed-stale")!;
+      expect(reparkSuggestionFor(after)).toMatchObject({
+        kind: "ai_tool",
+        rationale: "Reads as software you would operate.",
+      });
+    });
+
+    // The classification must be set deliberately from the response's own
+    // `classification` block. Even if an analysis payload somehow carried
+    // these fields, the explicit assignment must win over the spread.
+    it("never lets the analysis payload decide the stored classification", () => {
+      const { result } = renderHook(() => useParkingStore());
+
+      act(() => {
+        result.current.reparkItem("seed-stale", {
+          kind: "read",
+          analysis: {
+            ...readAnalysis,
+            suggestedKind: "ai_tool",
+            kindRationale: "Smuggled in through the analysis payload.",
+          } as unknown as typeof readAnalysis,
+          classification: agreeingClassification,
+        });
+      });
+
+      expect(result.current.items.find(({ id }) => id === "seed-stale")).toMatchObject({
+        suggestedKind: "read",
+        kindRationale: "Long-form prose.",
+      });
     });
   });
 });

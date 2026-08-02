@@ -2,6 +2,8 @@ import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { reparkSuggestionFor } from "@/lib/parking/link-kinds";
+import type { ParkingItem } from "@/lib/parking/schemas";
 import { LinkCaptureForm } from "./link-capture-form";
 
 const analysis = {
@@ -25,13 +27,12 @@ function respond(suggestedKind: string, warning?: string) {
   );
 }
 
-// Residual fix (P1): LinkCaptureForm no longer owns any mis-park advisory
-// state or re-park logic itself (that moved to ParkingApp + MisparkAdvisory,
-// see parking-app.tsx and mispark-advisory.tsx) — otherwise switching capture
-// mode remounts this keyed form and silently destroys the only affordance
-// that can change an item's kind. This form's job is now just to REPORT a
-// mismatch upward via onMispark after a successful park.
-describe("LinkCaptureForm onMispark reporting", () => {
+// The model's opinion of an item's kind is a property OF THE ITEM. This form
+// stamps it onto the item it constructs and has no advisory state, no
+// re-park logic and nothing to report upward — the item carries it from here
+// on, so switching capture mode (which remounts this keyed form) cannot
+// destroy it.
+describe("LinkCaptureForm classification stamping", () => {
   beforeEach(() => {
     vi.stubGlobal("crypto", { ...globalThis.crypto, randomUUID: () => "parked-id" });
   });
@@ -40,70 +41,53 @@ describe("LinkCaptureForm onMispark reporting", () => {
     vi.restoreAllMocks();
   });
 
-  it("calls onMispark with the classification when the model suggests a different kind", async () => {
+  it("stamps a disagreeing classification onto the parked item", async () => {
     const user = userEvent.setup();
     vi.stubGlobal("fetch", respond("read"));
-    const onMispark = vi.fn();
-    render(
-      <LinkCaptureForm
-        kind="ai_tool"
-        onPark={() => ({ ok: true })}
-        onMispark={onMispark}
-      />,
-    );
+    const onPark = vi.fn((_item: ParkingItem) => ({ ok: true as const }));
+    render(<LinkCaptureForm kind="ai_tool" onPark={onPark} />);
 
     await user.type(screen.getByLabelText("AI tool URL"), "https://example.com/a");
     await user.click(screen.getByRole("button", { name: "Analyze & Park" }));
 
-    await waitFor(() =>
-      expect(onMispark).toHaveBeenCalledWith({
-        itemId: "parked-id",
-        url: "https://example.com/a",
-        title: "On interface craft",
-        suggestedKind: "read",
-        rationale: "Long-form prose.",
-      }),
-    );
+    await waitFor(() => expect(onPark).toHaveBeenCalledTimes(1));
+    const item = onPark.mock.calls[0][0];
+    expect(item).toMatchObject({
+      id: "parked-id",
+      kind: "ai_tool",
+      url: "https://example.com/a",
+      suggestedKind: "read",
+      kindRationale: "Long-form prose.",
+    });
+    expect(reparkSuggestionFor(item)).toMatchObject({ kind: "read" });
   });
 
-  it("does not call onMispark when the model agrees", async () => {
+  it("stamps an agreeing classification too, which offers no re-park", async () => {
     const user = userEvent.setup();
     vi.stubGlobal("fetch", respond("ai_tool"));
-    const onMispark = vi.fn();
-    render(
-      <LinkCaptureForm
-        kind="ai_tool"
-        onPark={() => ({ ok: true })}
-        onMispark={onMispark}
-      />,
-    );
+    const onPark = vi.fn((_item: ParkingItem) => ({ ok: true as const }));
+    render(<LinkCaptureForm kind="ai_tool" onPark={onPark} />);
 
     await user.type(screen.getByLabelText("AI tool URL"), "https://example.com/a");
     await user.click(screen.getByRole("button", { name: "Analyze & Park" }));
 
-    await screen.findByRole("button", { name: "Analyze & Park" });
-    expect(onMispark).not.toHaveBeenCalled();
+    await waitFor(() => expect(onPark).toHaveBeenCalledTimes(1));
+    const item = onPark.mock.calls[0][0];
+    expect(item).toMatchObject({ suggestedKind: "ai_tool" });
+    expect(reparkSuggestionFor(item)).toBeNull();
   });
 
-  it("shows a fetch warning while still calling onMispark for the advisory (separate concerns)", async () => {
+  it("shows a fetch warning while still stamping the classification (separate concerns)", async () => {
     const user = userEvent.setup();
     vi.stubGlobal("fetch", respond("read", "Page text could not be fetched, so this analysis uses the URL only."));
-    const onMispark = vi.fn();
-    render(
-      <LinkCaptureForm
-        kind="ai_tool"
-        onPark={() => ({ ok: true })}
-        onMispark={onMispark}
-      />,
-    );
+    const onPark = vi.fn((_item: ParkingItem) => ({ ok: true as const }));
+    render(<LinkCaptureForm kind="ai_tool" onPark={onPark} />);
 
     await user.type(screen.getByLabelText("AI tool URL"), "https://example.com/a");
     await user.click(screen.getByRole("button", { name: "Analyze & Park" }));
 
     expect(await screen.findByText(/uses the URL only/)).toBeVisible();
-    expect(onMispark).toHaveBeenCalledWith(
-      expect.objectContaining({ suggestedKind: "read" }),
-    );
+    expect(onPark.mock.calls[0][0]).toMatchObject({ suggestedKind: "read" });
   });
 });
 

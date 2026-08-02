@@ -80,6 +80,59 @@ describe("ParkingLot", () => {
       screen.getByRole("button", { name: "On interface craft, Parked" }).getAttribute("style"),
     ).toContain("--kind-accent: var(--kind-read)");
   });
+
+  // The model's opinion now travels ON the item, so the card can show it —
+  // no floating advisory chasing the item from somewhere else in the tree.
+  describe("kind suggestion marker", () => {
+    const tool = {
+      id: "tool-1",
+      kind: "ai_tool" as const,
+      status: "parked" as const,
+      url: "https://example.com/article",
+      title: "On interface craft",
+      summary: "Argues small details compound.",
+      effortTier: "focused_session" as const,
+      suggestedTestTask: "Pick one detail.",
+      usefulnessHypothesis: "May sharpen the next pass.",
+      createdAt: "2026-07-30T00:00:00.000Z",
+      updatedAt: "2026-07-30T00:00:00.000Z",
+      lastActivityAt: "2026-07-30T00:00:00.000Z",
+    };
+
+    function renderCard(item: ParkingItem) {
+      render(
+        <ParkingLot items={[item]} onSelect={vi.fn()} now={new Date("2026-07-30T00:00:00.000Z")} />,
+      );
+    }
+
+    it("marks a card whose stored suggestion differs from its kind", () => {
+      renderCard({ ...tool, suggestedKind: "read" as const, kindRationale: "Long-form prose." });
+
+      expect(screen.getByText("Looks like a read")).toBeVisible();
+    });
+
+    it("does not mark a card whose stored suggestion agrees", () => {
+      renderCard({ ...tool, suggestedKind: "ai_tool" as const, kindRationale: "Software." });
+
+      expect(screen.queryByText(/Looks like a/)).not.toBeInTheDocument();
+    });
+
+    it("does not mark a card that was never classified", () => {
+      renderCard(tool);
+
+      expect(screen.queryByText(/Looks like a/)).not.toBeInTheDocument();
+    });
+
+    // Many tests and every e2e journey depend on this exact accessible name;
+    // the marker is visible content inside the button, never part of it.
+    it("leaves the card's accessible name untouched", () => {
+      renderCard({ ...tool, suggestedKind: "read" as const, kindRationale: "Long-form prose." });
+
+      expect(
+        screen.getByRole("button", { name: "On interface craft, Parked" }),
+      ).toBeVisible();
+    });
+  });
 });
 
 describe("StatusTabs", () => {

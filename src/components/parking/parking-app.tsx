@@ -2,157 +2,24 @@
 
 import { useMemo, useRef, useState } from "react";
 
-import { useParkingStore, type ReparkFailureReason } from "@/hooks/use-parking-store";
-import type { ParkingItem, ParkingItemStatus } from "@/lib/parking/schemas";
+import { useParkingStore } from "@/hooks/use-parking-store";
+import type { ParkingItemStatus } from "@/lib/parking/schemas";
 import type { ParkingAction } from "@/lib/parking/transitions";
 import { CaptureSwitcher, type CaptureMode } from "./capture-switcher";
 import { IdeaCaptureForm } from "./idea-capture-form";
 import { ItemInspector } from "./item-inspector";
 import { LinkCaptureForm } from "./link-capture-form";
 import { ManagerPatrol } from "./manager-patrol";
-import { advisoryLabel, MisparkAdvisory, type PendingAdvisory } from "./mispark-advisory";
 import { MissionHeader } from "./mission-header";
 import { ParkingLot } from "./parking-lot";
 import { StatusTabs } from "./status-tabs";
-
-/*
- * An advisory (or its warning) outlives the item it targets whenever that
- * item goes missing or reaches a terminal status — regardless of WHICH route
- * produced that: this tab's own applySelectedAction, a reset, or a second
- * browser tab's write adopted through use-parking-store's `storage`
- * listener. Keying this off `items` itself (rather than the action that
- * changed them) is what makes the cross-tab case handled for free instead of
- * needing its own special case.
- *
- * Returns the SAME map instance when nothing needed pruning, so a caller can
- * skip the setState entirely and avoid a render loop.
- */
-function pruneStaleEntries<T>(map: Map<string, T>, items: ParkingItem[]): Map<string, T> {
-  let changed = false;
-  const next = new Map(map);
-  for (const itemId of map.keys()) {
-    const item = items.find((candidate) => candidate.id === itemId);
-    if (!item || item.status === "garaged" || item.status === "scrapped") {
-      next.delete(itemId);
-      changed = true;
-    }
-  }
-  return changed ? next : map;
-}
 
 export function ParkingApp() {
   const store = useParkingStore();
   const [activeStatus, setActiveStatus] = useState<ParkingItemStatus>("parked");
   const [captureMode, setCaptureMode] = useState<CaptureMode>("ai_tool");
   const [planningFocusId, setPlanningFocusId] = useState<string | null>(null);
-  // Owned here (not by LinkCaptureForm) so it survives a capture-mode switch
-  // and a park of something else — it is the only affordance anywhere in the
-  // app that can change an item's kind, so ordinary navigation must not
-  // silently discard it. See mispark-advisory.tsx.
-  //
-  // Keyed by itemId (not a single slot): a competing park that also
-  // mis-parks must not evict an advisory whose own re-park is in flight — a
-  // single slot meant `setAdvisory` silently replaced it, unmounting its
-  // MisparkAdvisory (via `key={advisory.itemId}` below) and aborting its
-  // request out from under the user (Finding 1).
-  const [advisories, setAdvisories] = useState<Map<string, PendingAdvisory>>(
-    () => new Map(),
-  );
-  const [advisoryNotice, setAdvisoryNotice] = useState<string | null>(null);
-  // A URL-only re-park warning, lifted out of MisparkAdvisory: when the new
-  // classification agrees, the advisory is removed (and that component
-  // unmounts) in the same tick it would have queued this locally — anything
-  // stored inside that dying component would never paint (Finding 3).
-  //
-  // Keyed by itemId, exactly like `advisories` above and for the same
-  // reason: a single shared slot was last-writer-wins across ALL advisories,
-  // so item B's own (warning-free) completion could erase item A's still-
-  // relevant warning — possibly before it ever painted, since React can
-  // batch the two completions into one commit. `label` is captured at the
-  // moment THAT item's re-park completed so the warning stays attributable
-  // even after its advisory is gone from the map above (Finding 1).
-  const [reparkWarnings, setReparkWarnings] = useState<
-    Map<string, { label: string; message: string }>
-  >(() => new Map());
   const itemTrigger = useRef<HTMLButtonElement | null>(null);
-  // Tracks the `store.items` reference this render's reconciliation (below)
-  // has already run against, so it can run again only when items actually
-  // change — the "adjusting state when a prop changes" pattern, deliberately
-  // done during render rather than in a useEffect (calling setState
-  // unconditionally inside an effect body trips the set-state-in-effect
-  // lint rule, and doing it in render lets React fold the extra pass into
-  // the same commit instead of a separate cascading one).
-  const [reconciledItems, setReconciledItems] = useState(store.items);
-
-  // Reconciles both maps against the live items whenever items change,
-  // regardless of what produced that change — this tab's own action, a
-  // reset, or a second tab's write adopted via use-parking-store's `storage`
-  // listener. This subsumes the narrower terminal-status check that used to
-  // live inline in applySelectedAction: that only ever fired for a
-  // transition THIS tab made, so an item garaged or towed from another tab
-  // left its advisory (and warning) stranded here, offering a "Re-park …"
-  // button reparkItem will refuse forever. `pruneStaleEntries` returns the
-  // same Map instance when nothing needed pruning, so these setters are
-  // no-ops whenever there is nothing to change — no render loop.
-  //
-  // No separate abort path is needed: MisparkAdvisory is keyed by itemId, so
-  // removing an entry here unmounts the card, and its own unmount effect
-  // already aborts any in-flight request.
-  if (store.items !== reconciledItems) {
-    setReconciledItems(store.items);
-    setAdvisories((prev) => pruneStaleEntries(prev, store.items));
-    setReparkWarnings((prev) => pruneStaleEntries(prev, store.items));
-  }
-
-  function upsertAdvisory(next: PendingAdvisory) {
-    setAdvisories((prev) => {
-      const updated = new Map(prev);
-      updated.set(next.itemId, next);
-      return updated;
-    });
-  }
-
-  function removeAdvisory(itemId: string) {
-    setAdvisories((prev) => {
-      if (!prev.has(itemId)) return prev;
-      const updated = new Map(prev);
-      updated.delete(itemId);
-      return updated;
-    });
-  }
-
-  function clearReparkWarning(itemId: string) {
-    setReparkWarnings((prev) => {
-      if (!prev.has(itemId)) return prev;
-      const updated = new Map(prev);
-      updated.delete(itemId);
-      return updated;
-    });
-  }
-
-  // Only the completing item's own entry is ever touched — a sibling
-  // advisory's warning (or absence of one) never reaches this function.
-  function reportReparkOutcome(advisory: PendingAdvisory, warning: string | null) {
-    if (warning) {
-      setReparkWarnings((prev) => {
-        const updated = new Map(prev);
-        updated.set(advisory.itemId, { label: advisoryLabel(advisory), message: warning });
-        return updated;
-      });
-    } else {
-      clearReparkWarning(advisory.itemId);
-    }
-  }
-
-  // Drops both an item's advisory and any warning still attributed to it.
-  // Used for the explicit dismiss control and for a permanently-failed
-  // re-park (Finding 3) — NOT for a terminal-status eviction, which is now
-  // handled generally by the items-reconciliation effect above rather than
-  // by any caller reaching for this directly.
-  function dismissAdvisory(itemId: string) {
-    removeAdvisory(itemId);
-    clearReparkWarning(itemId);
-  }
 
   const counts = useMemo(
     () =>
@@ -213,10 +80,6 @@ export function ParkingApp() {
       };
       const nextStatus = destination[action.type] ?? activeStatus;
       setActiveStatus(nextStatus);
-      // No local terminal-status eviction here: the items-reconciliation
-      // effect above already drops this item's advisory (and warning) the
-      // instant store.items reflects the new status, for this transition
-      // exactly as it does for one that arrives from another tab.
     }
     return result;
   }
@@ -227,17 +90,6 @@ export function ParkingApp() {
         onReset={() => {
           store.resetDemo();
           setActiveStatus("parked");
-          // Reset replaces every item wholesale, so any pending advisory (and
-          // any in-flight re-park behind it) targets an item id that no
-          // longer exists in the fresh demo data. Clearing the map unmounts
-          // each MisparkAdvisory, which aborts its own request via its
-          // unmount effect — the stale-target problem is avoided by never
-          // letting a response for a pre-reset item resolve into a decision
-          // at all (Finding 2), rather than trying to classify it after the
-          // fact.
-          setAdvisories(new Map());
-          setAdvisoryNotice(null);
-          setReparkWarnings(new Map());
         }}
       />
       <section className="border-b border-black/10 bg-[var(--paper)] px-5 py-5 sm:px-8" aria-label="Park something">
@@ -251,70 +103,8 @@ export function ParkingApp() {
               kind={captureMode}
               onPark={store.addItem}
               onParked={() => setActiveStatus("parked")}
-              onMispark={(next) => {
-                upsertAdvisory(next);
-                setAdvisoryNotice(null);
-              }}
             />
           )}
-          {/* Deliberately rendered OUTSIDE the keyed LinkCaptureForm above so
-              switching capture mode (which remounts that form) cannot
-              destroy this. One MisparkAdvisory per pending item, each still
-              keyed by its own itemId so ITS OWN abort/lock/ownership
-              behaviour is unaffected by any other advisory's lifecycle —
-              only that item's own successful (or permanently-failed) re-park,
-              a dismiss, or its item reaching a terminal status removes it
-              from the map (Finding 1, Finding 3). */}
-          {Array.from(advisories.values()).map((advisory) => (
-            <MisparkAdvisory
-              key={advisory.itemId}
-              advisory={advisory}
-              onRepark={(id, kind, analysis) => store.reparkItem(id, { kind, analysis })}
-              onReparked={(next, warning) => {
-                if (next) {
-                  upsertAdvisory(next);
-                } else {
-                  removeAdvisory(advisory.itemId);
-                }
-                // Keyed by this item's own id — a sibling advisory's warning
-                // (or lack of one) is never touched by this call (Finding 1).
-                reportReparkOutcome(advisory, warning);
-              }}
-              onReparkFailed={(
-                pending,
-                reason: ReparkFailureReason | undefined,
-                message,
-              ) => {
-                // The store computed `reason` from the LIVE item at write
-                // time — not from anything captured here — so this decision
-                // cannot go stale even if this item changed status (e.g. was
-                // towed) after the re-park request was sent (Finding 2).
-                const permanent = reason === "not_found" || reason === "terminal";
-                if (!permanent) return;
-                // A permanent failure can never succeed on retry, unlike a
-                // transient 429/network blip or a "blocked" write (e.g. an
-                // unconfirmed reset) — drop the advisory but say why instead
-                // of letting it vanish silently.
-                dismissAdvisory(pending.itemId);
-                setAdvisoryNotice(message);
-              }}
-              onDismiss={dismissAdvisory}
-            />
-          ))}
-          {Array.from(reparkWarnings.entries()).map(([itemId, warning]) => (
-            <p
-              key={itemId}
-              role="status"
-              className="reveal mt-3 border-l-4 border-[var(--safety)] bg-white px-4 py-3 text-sm font-bold"
-            >
-              {warning.label}: {warning.message}
-            </p>
-          ))}
-          {advisoryNotice ? (
-            <p role="status" className="reveal mt-3 border-l-4 border-[var(--scrap)] bg-white px-4 py-3 text-sm font-bold">
-              {advisoryNotice}
-            </p>
-          ) : null}
         </div>
       </section>
       <main className="mx-auto max-w-7xl px-5 py-6 sm:px-8 sm:py-8">
@@ -405,6 +195,11 @@ export function ParkingApp() {
         onUpdateIdea={(input) =>
           store.selectedId
             ? store.updateIdea(store.selectedId, input)
+            : { ok: false, message: "This parking item could not be found." }
+        }
+        onRepark={(kind, analysis, classification) =>
+          store.selectedId
+            ? store.reparkItem(store.selectedId, { kind, analysis, classification })
             : { ok: false, message: "This parking item could not be found." }
         }
       />

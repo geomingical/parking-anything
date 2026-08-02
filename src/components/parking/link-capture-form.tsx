@@ -7,22 +7,14 @@ import type { ActionResult } from "@/hooks/use-parking-store";
 import { messageForFailedResponse, readJsonBody } from "@/lib/parking/analyze-url-client";
 import { LINK_KINDS, type LinkKindId } from "@/lib/parking/link-kinds";
 import { AnalyzeUrlResponseSchema, ParkingItemSchema, type ParkingItem } from "@/lib/parking/schemas";
-import type { PendingAdvisory } from "./mispark-advisory";
 
 type LinkCaptureFormProps = {
   kind: LinkKindId;
   onPark(item: ParkingItem): ActionResult;
   onParked?(): void;
-  /**
-   * Reported upward after a successful park whose classification disagrees
-   * with the kind it was parked under. ParkingApp owns the advisory itself
-   * (see mispark-advisory.tsx) so it survives a capture-mode switch — this
-   * form no longer holds any advisory state of its own.
-   */
-  onMispark?(advisory: PendingAdvisory): void;
 };
 
-export function LinkCaptureForm({ kind, onPark, onParked, onMispark }: LinkCaptureFormProps) {
+export function LinkCaptureForm({ kind, onPark, onParked }: LinkCaptureFormProps) {
   const registry = LINK_KINDS[kind];
   const [url, setUrl] = useState("");
   const [analyzingUrl, setAnalyzingUrl] = useState<string | null>(null);
@@ -102,19 +94,17 @@ export function LinkCaptureForm({ kind, onPark, onParked, onMispark }: LinkCaptu
         createdAt: now,
         updatedAt: now,
         lastActivityAt: now,
+        // Written deliberately from the response's own classification block,
+        // never carried in by the analysis spread above (which is strictly
+        // limited to the five stored analysis fields). The item owns the
+        // model's opinion from here on, so nothing this form does — including
+        // being remounted by a capture-mode switch — can lose it.
+        suggestedKind: result.data.classification.suggestedKind,
+        kindRationale: result.data.classification.rationale,
       });
       const saved = onPark(item);
       if (!saved.ok) throw new Error(saved.message);
       setAnalysisWarning(result.data.warning ?? null);
-      if (result.data.classification.suggestedKind !== kind) {
-        onMispark?.({
-          itemId: item.id,
-          url: normalizedUrl,
-          title: item.title,
-          suggestedKind: result.data.classification.suggestedKind,
-          rationale: result.data.classification.rationale,
-        });
-      }
       setUrl("");
       onParked?.();
     } catch (error) {

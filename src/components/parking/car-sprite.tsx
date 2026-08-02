@@ -1,7 +1,7 @@
 import Image from "next/image";
 import type { CSSProperties } from "react";
 
-import { displayFor } from "@/lib/parking/link-kinds";
+import { displayFor, reparkSuggestionFor } from "@/lib/parking/link-kinds";
 import type { EffortTier, ParkingItem } from "@/lib/parking/schemas";
 
 const CAR_IMAGES: Record<EffortTier, string> = {
@@ -41,6 +41,10 @@ export function CarSprite({
 }: CarSpriteProps) {
   const statusLabel = STATUS_LABELS[item.status];
   const display = displayFor(item.kind);
+  // Read off the item itself, so it can never be out of step with what the
+  // inspector offers. The card's aria-label is set explicitly below, so this
+  // marker is visible content only and leaves the accessible name alone.
+  const suggestion = reparkSuggestionFor(item);
   const enterDelay =
     Math.min(enterIndex, STAGGER_MAX_STEPS) * STAGGER_STEP_MS;
 
@@ -82,6 +86,11 @@ export function CarSprite({
         {display.label}
         {item.effortTier ? ` · ${display.effortLabels[item.effortTier]}` : ""}
       </span>
+      {suggestion ? (
+        <span className="mt-1 whitespace-nowrap border border-white/50 px-1.5 py-0.5 text-[0.6rem] font-black uppercase tracking-[0.04em] text-white/80">
+          Looks like a {displayFor(suggestion.kind).noun}
+        </span>
+      ) : null}
       {needsReview ? (
         <span className="mt-1 whitespace-nowrap bg-[var(--safety)] px-1.5 py-0.5 text-[0.6rem] font-black uppercase tracking-[0.04em] text-black">
           Needs review · {daysSinceActivity} days
